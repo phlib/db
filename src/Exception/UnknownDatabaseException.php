@@ -2,6 +2,6 @@
 
 namespace Phlib\Db\Exception;
 
-class UnknownDatabaseException extends RuntimeException
+class UnknownDatabaseException extends RuntimeException implements Exception
 {
 }
