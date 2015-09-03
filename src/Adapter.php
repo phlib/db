@@ -156,6 +156,7 @@ class Adapter
      *
      * @param string $dbname
      * @return Adapter
+     * @throws UnknownDatabaseException
      */
     public function setDatabase($dbname)
     {
