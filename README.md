@@ -83,16 +83,20 @@ $db->reconnect(); // throws InvalidArgumentException missing host param.
 The following section documents the less obvious API's. Most methods are doc blocked and are self explanatory.
 
 `Adapter::__clone`
+
 This is useful when you're dealing with the results of one query while inserting as both operations can not be done
 on the same connection.
+
 ``` php
 $db2 = (clone)$db1;
 ```
 
 `Adapter` Buffering
+
 This is useful when requesting large amounts of data from the DB server. By default, PDO will pull all the results
 back and hold the results in memory even for `fetch()` calls. With large result sets this causes out of memory problems.
 To stop PDO pulling the results back turn off buffering.
+
 ``` php
 $db->setBuffered($enabled = false);
 ```
@@ -121,3 +125,10 @@ try {
 |  |  |  |  +-- \Phlib\Db\Exception\UnknownDatabaseException
 |  |  |  |  +-- \Phlib\Db\Exception\InvalidQueryException
 </pre>
+
+### Invalid Query
+The `InvalidQueryException` has special methods for retrieving the query and associated bind parameters. The message 
+recorded for exception includes these details but the methods allow a clean way of extracting them.
+
+* `getQuery`
+* `getBindData`
