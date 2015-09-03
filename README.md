@@ -2,12 +2,34 @@
 
 MySQL PDO DB Adapter. PDO with some extra good stuff specifically for MySQL.
 
+What this DB wrapper offers over others.
+* Database switching method
+* Unified unknown database exception
+* Capturing invalid SQL statements exception
+* Automatic reconnect useful for long running processes (server has gone away)
+* Connection retries on failed to connect
+* Connection cloning
+* Useful additional methods for:
+  * timezone
+  * buffering
+  * quoting (tables, columns, values)
+  * select
+  * insert
+  * update
+  * delete
+
 ## Install
 
 Via Composer
 
 ``` bash
 $ composer require phlib/db
+```
+or
+``` JSON
+"require": {
+    "phlib/db": "*"
+}
 ```
 
 ## Basic Usage
@@ -57,6 +79,23 @@ $db->reconnect(); // throws InvalidArgumentException missing host param.
 
 
 ## API
+
+The following section documents the less obvious API's. Most methods are doc blocked and are self explanatory.
+
+`Adapter::__clone`
+This is useful when you're dealing with the results of one query while inserting as both operations can not be done
+on the same connection.
+``` php
+$db2 = (clone)$db1;
+```
+
+`Adapter` Buffering
+This is useful when requesting large amounts of data from the DB server. By default, PDO will pull all the results
+back and hold the results in memory even for `fetch()` calls. With large result sets this causes out of memory problems.
+To stop PDO pulling the results back turn off buffering.
+``` php
+$db->setBuffered($enabled = false);
+```
 
 ## Exceptions
 
