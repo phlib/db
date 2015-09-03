@@ -2,6 +2,6 @@
 
 namespace Phlib\Db\Exception;
 
-class RuntimeException extends \RuntimeException implements Exception
+class RuntimeException extends \PDOException implements Exception
 {
 }
