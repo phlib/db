@@ -2,6 +2,7 @@
 
 namespace Phlib\Db;
 
+use Phlib\Db\Exception\InvalidQueryException;
 use Phlib\Db\Exception\UnknownDatabaseException;
 use Phlib\Db\Exception\RuntimeException;
 use Phlib\Db\Exception\InvalidArgumentException;
