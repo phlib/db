@@ -324,14 +324,9 @@ class Adapter
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->execute($bind);
         } catch (\PDOException $exception) {
-            $message = $exception->getMessage();
-            if (stripos($message, 'You have an error in your SQL syntax') !== false) {
-                throw new \PDOException(
-                    $message . ' SQL: ' . $sql . ' Bind: ' . var_export($bind, true),
-                    $exception->getCode(),
-                    $exception
-                );
-            } elseif (stripos($message, 'MySQL server has gone away') !== false) {
+            if (InvalidQueryException::matches($exception)) {
+                throw new InvalidQueryException($sql, $bind, $exception);
+            } elseif (stripos($exception->getMessage(), 'MySQL server has gone away') !== false) {
                 $this->reconnect();
 
                 $stmt = $this->getConnection()->prepare($sql);
