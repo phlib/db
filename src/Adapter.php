@@ -332,7 +332,7 @@ class Adapter
                 $stmt = $this->getConnection()->prepare($sql);
                 $stmt->execute($bind);
             } else {
-                throw $exception;
+                throw new RuntimeException($exception->getMessage(), $exception->getCode(), $exception);
             }
         }
 
