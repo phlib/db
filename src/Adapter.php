@@ -166,8 +166,7 @@ class Adapter
             try {
                 $this->query('USE ' . $this->quoteIdentifier($dbname));
             } catch (\PDOException $e) {
-                if (
-                    $e->getCode() !== self::ER_BAD_DB_ERROR &&
+                if ($e->getCode() !== self::ER_BAD_DB_ERROR &&
                     preg_match('/SQLSTATE\[42000\].*\w1049\w/', $e->getMessage()) !== false
                 ) {
                     throw new UnknownDatabaseException("Unknown database '{$dbname}'", self::ER_BAD_DB_ERROR, $e);
@@ -411,7 +410,7 @@ class Adapter
      * @param boolean $auto
      * @return string
      */
-    public function quoteColumnAs($ident, $alias, $auto=false)
+    public function quoteColumnAs($ident, $alias, $auto = false)
     {
         return $this->quoteIdentifierAs($ident, $alias, $auto);
     }
@@ -512,7 +511,7 @@ class Adapter
      * @param boolean $auto
      * @return string
      */
-    public function quoteIdentifier($ident, $auto=false)
+    public function quoteIdentifier($ident, $auto = false)
     {
         return $this->quoteIdentifierAs($ident, null, $auto);
     }
@@ -654,7 +653,7 @@ class Adapter
     {
         if (is_object($ident) && method_exists($ident, 'assemble')) {
             $quoted = '(' . $ident->assemble() . ')';
-        } else if (is_object($ident)) {
+        } elseif (is_object($ident)) {
             $quoted = (string)$ident;
         } else {
             if (is_string($ident)) {
@@ -692,7 +691,7 @@ class Adapter
      * @param boolean $auto
      * @return string
      */
-    protected function performQuoteIdentifier($value, $auto=false)
+    protected function performQuoteIdentifier($value, $auto = false)
     {
         if ($auto === false || $this->autoQuoteIdentifiers === true) {
             $q = '`';

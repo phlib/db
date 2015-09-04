@@ -2,7 +2,6 @@
 
 namespace Phlib\Db\Exception;
 
-
 class InvalidQueryException extends RuntimeException implements Exception
 {
     /**
