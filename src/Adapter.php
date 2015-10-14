@@ -227,17 +227,23 @@ class Adapter
     }
 
     /**
-     * Sets whether the connection is buffered or unbuffered. By default the
-     * connection is buffered.
+     * Enable connection buffering on queries.
      *
-     * @param boolean $enabled
      * @return Adapter
      */
-    public function setBuffered($enabled = true)
+    public function enableBuffering()
     {
-        $this->getConnection()
-            ->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, $enabled);
-        return $this;
+        return $this->setBuffering(true);
+    }
+
+    /**
+     * Disable connection buffering on queries.
+     *
+     * @return Adapter
+     */
+    public function disableBuffering()
+    {
+        return $this->setBuffering(false);
     }
 
     /**
@@ -250,6 +256,20 @@ class Adapter
     {
         return (bool)$this->getConnection()
             ->getAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY);
+    }
+
+    /**
+     * Sets whether the connection is buffered or unbuffered. By default the
+     * connection is buffered.
+     *
+     * @param boolean $enabled
+     * @return Adapter
+     */
+    protected function setBuffering($enabled)
+    {
+        $this->getConnection()
+            ->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, $enabled);
+        return $this;
     }
 
     /**
