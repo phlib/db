@@ -98,7 +98,9 @@ back and hold the results in memory even for `fetch()` calls. With large result 
 To stop PDO pulling the results back turn off buffering.
 
 ``` php
-$db->setBuffered($enabled = false);
+if ($db->isBuffered()) {
+    $db->disableBuffering();
+}
 ```
 
 ## Exceptions
