@@ -7,11 +7,13 @@
     "authors": [
         {
             "name": "James Dempster",
-            "email": "james.dempster@emailcenteruk.com"
+            "email": "james.dempster@emailcenteruk.com",
+            "role": "developer"
         },
         {
             "name": "Luke Richards",
-            "email": "luke.richards@emailcenteruk.com"
+            "email": "luke.richards@emailcenteruk.com",
+            "role": "developer"
         }
     ],
     "require": {
