@@ -31,11 +31,6 @@ class Adapter
     protected $autoQuoteIdentifiers = true;
 
     /**
-     * @var array
-     */
-    protected $helpers = array();
-
-    /**
      * Constructor
      *
      * === Config Params ===
@@ -56,52 +51,12 @@ class Adapter
     }
 
     /**
-     * Set helper
-     *
-     * @param string $name
-     * @param Helper\HelperInterface $helper
-     * @throws RuntimeException
-     */
-    public function __set($name, Helper\HelperInterface $helper)
-    {
-        if (!$helper instanceof Helper\HelperInterface) {
-            $message = sprintf('Cannot use object type %s as a helper for DB Adapter', get_class($helper));
-            throw new RuntimeException($message);
-        }
-
-        $helper->setAdapter($this);
-        $this->helpers[$name] = $helper;
-    }
-
-    /**
-     * Get helper
-     *
-     * @param string $name
-     * @throws RuntimeException
-     * @return Helper\HelperAbstract
-     */
-    public function __get($name)
-    {
-        if (array_key_exists($name, $this->helpers)) {
-            return $this->helpers[$name];
-        }
-
-        $message = sprintf('Could not find helper named %s', $name);
-        throw new RuntimeException($message);
-    }
-
-    /**
      * Magic method to clone the object.
      */
     public function __clone()
     {
         // close our existing connection, we'll create a new one when we need it
         $this->closeConnection();
-
-        // clone all the helpers we have back onto ourself
-        foreach ($this->helpers as $name => $helper) {
-            $this->$name = clone $helper;
-        }
     }
 
     /**
