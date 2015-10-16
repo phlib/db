@@ -314,11 +314,15 @@ class Adapter
      * @param string $value
      * @param integer $type
      * @return string
+     * @throws InvalidArgumentException
      */
     public function quote($value, $type = null)
     {
         switch (true) {
             case is_object($value):
+                if (!method_exists($value, '__toString')) {
+                    throw new InvalidArgumentException('Object can not be converted to string value.');
+                }
                 $value = (string)$value;
                 break;
             case is_bool($value):
@@ -611,7 +615,7 @@ class Adapter
     /**
      * Quote an identifier and an optional alias.
      *
-     * @param string|array $ident
+     * @param string|array|object $ident
      * @param string $alias
      * @param boolean $auto
      * @param string $as
@@ -622,6 +626,9 @@ class Adapter
         if (is_object($ident) && method_exists($ident, 'assemble')) {
             $quoted = '(' . $ident->assemble() . ')';
         } elseif (is_object($ident)) {
+            if (!method_exists($ident, '__toString')) {
+                throw new InvalidArgumentException('Object can not be converted to string identifier.');
+            }
             $quoted = (string)$ident;
         } else {
             if (is_string($ident)) {
