@@ -19,6 +19,7 @@
     "require": {
         "php": "~5.4",
 
+        "symfony/console": "^2.7",
         "phlib/config_functions": "1.*"
     },
     "require-dev": {
@@ -33,5 +34,6 @@
        "psr-4": {
            "Phlib\\Db\\Tests\\": "tests/"
        }
-    }
+    },
+    "bin": ["bin/db-slaves"]
 }

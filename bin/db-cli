@@ -1,0 +1,22 @@
+#!/usr/bin/env php
+<?php
+
+// autoload
+$autoloadFiles = [__DIR__ . '/../vendor/autoload.php', __DIR__ . '/../../../autoload.php'];
+foreach ($autoloadFiles as $autoloadFile) {
+    if (file_exists($autoloadFile)) {
+        require_once $autoloadFile;
+        break;
+    }
+}
+
+// use
+use Phlib\Db\Console\ReplicationStatsCommand;
+//use Phlib\Db\Console\ReplicationMonitorCommand;
+use Symfony\Component\Console\Application;
+
+// lets go!
+$application = new Application();
+$application->add(new ReplicationStatsCommand());
+//$application->add(new ReplicationMonitorCommand());
+$application->run();
