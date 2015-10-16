@@ -54,19 +54,6 @@ $table = $db->quoteIdentifier('mytable');
 $stmt = $db->query("SELECT * FROM $table WHERE id = ?", [$rowId]);
 ```
 
-### Odd Cases
-
-Setting the connection from outside the class will cause odd behaviour.
-
-``` php
-$pdo = new \PDO('mysql:host=localhost');
-$db = new \Phlib\Db\Adapter();
-$db->setConnection($pdo);
-$config = $db->getConfig(); // config is an empty array
-
-$db->reconnect(); // throws InvalidArgumentException missing host param.
-```
-
 ## Configuration
 
 |Name|Type|Required|Default|Description|
@@ -138,3 +125,16 @@ recorded for exception includes these details but the methods allow a clean way 
 
 * `getQuery`
 * `getBindData`
+
+## Known Issues
+
+Setting the connection from outside the class will cause odd behaviour.
+
+``` php
+$pdo = new \PDO('mysql:host=localhost');
+$db = new \Phlib\Db\Adapter();
+$db->setConnection($pdo);
+$config = $db->getConfig(); // config is an empty array
+
+$db->reconnect(); // throws InvalidArgumentException missing host param.
+```
