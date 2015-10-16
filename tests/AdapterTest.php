@@ -419,9 +419,9 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
     public function insertDataProvider()
     {
         return array(
-            array("INSERT INTO table (col1) VALUES (?)",
+            array("INSERT INTO `table` (col1) VALUES (?)",
                 'table', array('col1' => 'v1')),
-            array("INSERT INTO table (col1, col2) VALUES (?, ?)",
+            array("INSERT INTO `table` (col1, col2) VALUES (?, ?)",
                 'table', array('col1' => 'v1', 'col2' => 'v2'))
         );
     }
@@ -461,13 +461,13 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
     {
         $qc = $this->qc;
         return array(
-            array("UPDATE table SET col1 = ?",
+            array("UPDATE `table` SET col1 = ?",
                 'table', array('col1' => 'v1'), null, null),
-            array("UPDATE table SET col1 = ?, col2 = ?",
+            array("UPDATE `table` SET col1 = ?, col2 = ?",
                 'table', array('col1' => 'v1', 'col2' => 'v2'), null, null),
-            array("UPDATE table SET col1 = ?, col2 = ? WHERE col3 = {$qc}v3{$qc}",
+            array("UPDATE `table` SET col1 = ?, col2 = ? WHERE col3 = {$qc}v3{$qc}",
                 'table', array('col1' => 'v1', 'col2' => 'v2'), "col3 = {$qc}v3{$qc}", null),
-            array("UPDATE table SET col1 = ? WHERE col3 = {$qc}v3{$qc} AND col4 = ?",
+            array("UPDATE `table` SET col1 = ? WHERE col3 = {$qc}v3{$qc} AND col4 = ?",
                 'table', array('col1' => 'v1'), "col3 = {$qc}v3{$qc} AND col4 = ?", array('v4'))
         );
     }
@@ -506,11 +506,11 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
     {
         $qc = $this->qc;
         return array(
-            array("DELETE FROM table",
+            array("DELETE FROM `table`",
                 'table', null, null),
-            array("DELETE FROM table WHERE col1 = {$qc}v1{$qc}",
+            array("DELETE FROM `table` WHERE col1 = {$qc}v1{$qc}",
                 'table', "col1 = {$qc}v1{$qc}", null),
-            array("DELETE FROM table WHERE col1 = ?",
+            array("DELETE FROM `table` WHERE col1 = ?",
                 'table', "col1 = ?", array("$qc}v1{$qc}"))
         );
     }
@@ -541,17 +541,16 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testSetBufferedConnectionToUnbuffered()
     {
-        $value = false;
         $this->pdo->expects($this->once())
             ->method('setAttribute')
             ->with(
                 $this->equalTo(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY),
-                $this->equalTo($value)
+                $this->equalTo(false)
             );
 
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
-        $adapter->setBuffered($value);
+        $adapter->disableBuffering();
     }
 
     public function testIsBufferedConnection()
