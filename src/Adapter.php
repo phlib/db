@@ -327,20 +327,13 @@ class Adapter
     /**
      * Query the database.
      *
-     * @param string|Select $sql
+     * @param string $sql
      * @param array $bind
      * @throws \PDOException
      * @return \PDOStatement
      */
     public function query($sql, array $bind = array())
     {
-        if ($sql instanceof Select) {
-            if (empty($bind)) {
-                $bind = $sql->getBind();
-            }
-
-            $sql = $sql->assemble();
-        }
         try {
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->execute($bind);
