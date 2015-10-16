@@ -403,15 +403,15 @@ class Adapter
     /**
      * Select data from table.
      *
-     * @param string $from
+     * @param string $table
      * @param string $where
      * @param array $bind
      * @return \PDOStatement
      */
-    public function select($from, $where = '', array $bind = array())
+    public function select($table, $where = '', array $bind = array())
     {
-        $table = $this->quoteIdentifier($from);
-        $sql = "SELECT * FROM $table SET "
+        $table = $this->quoteIdentifier($table);
+        $sql   = "SELECT * FROM $table "
             . (($where) ? " WHERE $where" : '');
 
         return $this->query($sql, $bind);
@@ -426,6 +426,7 @@ class Adapter
      */
     public function insert($table, array $data)
     {
+        $table  = $this->quoteIdentifier($table);
         $fields = implode(', ', array_keys($data));
         $placeHolders = implode(', ', array_fill(0, count($data), '?'));
         $sql = "INSERT INTO $table ($fields) VALUES ($placeHolders)";
@@ -446,6 +447,7 @@ class Adapter
      */
     public function update($table, array $data, $where = '', array $bind = array())
     {
+        $table  = $this->quoteIdentifier($table);
         $fields = array();
         foreach (array_keys($data) as $field) {
             $fields[] = "$field = ?";
@@ -468,7 +470,8 @@ class Adapter
      */
     public function delete($table, $where = '', array $bind = array())
     {
-        $sql = "DELETE FROM $table"
+        $table = $this->quoteIdentifier($table);
+        $sql   = "DELETE FROM $table"
             . (($where) ? " WHERE $where" : '');
 
         $stmt = $this->query($sql, $bind);
