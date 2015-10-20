@@ -1,7 +1,7 @@
 # phlib/db
 
-[![Latest Version](https://img.shields.io/github/release/phlib/db.svg)](https://github.com/phlib/db/releases)
 [![Build Status](https://img.shields.io/travis/phlib/db/master.svg)](https://travis-ci.org/phlib/db)
+[![Latest Stable Version](https://img.shields.io/packagist/v/phlib/db.svg)](https://packagist.org/packages/phlib/db)
 [![Total Downloads](https://img.shields.io/packagist/dt/phlib/db.svg)](https://packagist.org/packages/phlib/db)
 
 MySQL PDO DB Adapter. PDO with some extra good stuff specifically for MySQL.
