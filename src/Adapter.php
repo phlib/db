@@ -146,6 +146,21 @@ class Adapter
     }
 
     /**
+     * Get a configuration value.
+     *
+     * @param string $key
+     * @param mixed $default
+     * @return mixed
+     */
+    public function getConfigValue($key, $default = null)
+    {
+        if (array_key_exists($key, $this->config)) {
+            return $this->config[$key];
+        }
+        return $default;
+    }
+
+    /**
      * Set the character set on the connection.
      *
      * @param string $charset
@@ -153,7 +168,7 @@ class Adapter
      */
     public function setCharset($charset)
     {
-        if (array_get($this->config, 'charset') !== $charset) {
+        if ($this->getConfigValue('charset') !== $charset) {
             $this->config['charset'] = $charset;
             if ($this->connection) {
                 $this->query('SET NAMES ?', array($charset));
@@ -171,7 +186,7 @@ class Adapter
      */
     public function setTimezone($timezone)
     {
-        if (array_get($this->config, 'timezone') !== $timezone) {
+        if ($this->getConfigValue('timezone') !== $timezone) {
             $this->config['timezone'] = $timezone;
             if ($this->connection) {
                 $this->query('SET time_zone = ?', array($timezone));
@@ -539,7 +554,7 @@ class Adapter
         }
 
         $timeout = filter_var(
-            array_get($config, 'timeout'),
+            $this->getConfigValue('timeout'),
             FILTER_VALIDATE_INT,
             array(
                 'options' => array(
@@ -551,7 +566,7 @@ class Adapter
         );
 
         $retryCount = filter_var(
-            array_get($config, 'retryCount'),
+            $this->getConfigValue('retryCount'),
             FILTER_VALIDATE_INT,
             array(
                 'options' => array(
@@ -569,10 +584,10 @@ class Adapter
             \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC
         );
 
-        $username = array_get($config, 'username', '');
-        $password = array_get($config, 'password', '');
-        $charset  = array_get($config, 'charset', 'utf8mb4');
-        $timezone = array_get($config, 'timezone', '+0:00');
+        $username = isset($config['username']) ? $config['username'] : '';
+        $password = isset($config['password']) ? $config['password'] : '';
+        $charset  = isset($config['charset'])  ? $config['charset']  : 'utf8mb4';
+        $timezone = isset($config['timezone']) ? $config['timezone'] : '+0:00';
 
         $attempt = 0;
         while (++$attempt <= $maxAttempts) {
