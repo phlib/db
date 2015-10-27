@@ -12,11 +12,11 @@ foreach ($autoloadFiles as $autoloadFile) {
 
 // use
 use Phlib\Db\Console\ReplicationStatsCommand;
-//use Phlib\Db\Console\ReplicationMonitorCommand;
+use Phlib\Db\Console\ReplicationMonitorCommand;
 use Symfony\Component\Console\Application;
 
 // lets go!
 $application = new Application();
 $application->add(new ReplicationStatsCommand());
-//$application->add(new ReplicationMonitorCommand());
+$application->add(new ReplicationMonitorCommand());
 $application->run();
