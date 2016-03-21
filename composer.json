@@ -20,6 +20,8 @@
         "php": ">=5.4",
 
         "symfony/console": "^2.7",
+        "phlib/console-configuration": "^1.0",
+        "phlib/console-process": "^0.4.0",
         "phlib/config_functions": "1.*"
     },
     "require-dev": {
@@ -35,5 +37,5 @@
            "Phlib\\Db\\Tests\\": "tests/"
        }
     },
-    "bin": ["bin/db-slaves"]
+    "bin": ["bin/db"]
 }

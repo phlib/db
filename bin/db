@@ -11,12 +11,20 @@ foreach ($autoloadFiles as $autoloadFile) {
 }
 
 // use
+use Symfony\Component\Console\Application;
+use Phlib\ConsoleConfiguration\Helper\ConfigurationHelper;
 use Phlib\Db\Console\ReplicationStatsCommand;
 use Phlib\Db\Console\ReplicationMonitorCommand;
-use Symfony\Component\Console\Application;
 
 // lets go!
 $application = new Application();
 $application->add(new ReplicationStatsCommand());
 $application->add(new ReplicationMonitorCommand());
+
+ConfigurationHelper::initHelper(
+    $application,
+    ['host' => '127.0.0.1', 'username' => 'root', 'password' => '', 'dbname' => 'test'],
+    ['filename' => 'db-config.php']
+);
+
 $application->run();
