@@ -503,7 +503,15 @@ class Adapter
      */
     public function beginTransaction()
     {
-        return $this->getConnection()->beginTransaction();
+        try {
+            return $this->getConnection()->beginTransaction();
+        } catch (\PDOException $exception) {
+            if (stripos($exception->getMessage(), 'MySQL server has gone away') !== false) {
+                $this->reconnect();
+                return $this->getConnection()->beginTransaction();
+            }
+            throw $exception;
+        }
     }
 
     /**
