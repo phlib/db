@@ -193,7 +193,7 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($pdoStatement, $dbAdapter->prepare($sql));
     }
 
-    public function testExec()
+    public function testExecute()
     {
         $sql = 'dummy sql';
 
@@ -209,10 +209,10 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
             ->with($sql)
             ->will($this->returnValue($pdoStatement));
         $dbAdapter->setConnection($this->pdo);
-        $dbAdapter->exec($sql);
+        $dbAdapter->execute($sql);
     }
 
-    public function testExecBind()
+    public function testExecuteBind()
     {
         $sql = 'dummy sql';
         $bind = [1, 2, 3];
@@ -229,7 +229,7 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
             ->with($sql, $bind)
             ->will($this->returnValue($pdoStatement));
         $dbAdapter->setConnection($this->pdo);
-        $dbAdapter->exec($sql, $bind);
+        $dbAdapter->execute($sql, $bind);
     }
 
     public function testQueryNoBind()
