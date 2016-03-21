@@ -9,6 +9,17 @@ use Phlib\Db\Exception\InvalidArgumentException;
 
 /**
  * Database Adapter
+ *
+ * @method string quote() quote(string $value, integer $type = null)
+ * @method string quoteInto() quoteInto(string $text, mixed $value, int $type = null)
+ * @method string quoteColumnAs() quoteColumnAs(string $ident, string $alias, bool $auto = false)
+ * @method string quoteTableAs() quoteTableAs(string $ident, string $alias = null, bool $auto = false)
+ * @method string quoteIdentifier() quoteIdentifier(string $ident, bool $auto = false)
+ *
+ * @method \PDOStatement select() select(string $table, string $where = '', array $bind = array())
+ * @method \PDOStatement insert() insert(string $table, array $data)
+ * @method \PDOStatement update() update(string $table, array $data, string $where = '', array $bind = array())
+ * @method \PDOStatement delete() delete(string $table, string $where = '', array $bind = array())
  */
 class Adapter
 {
@@ -26,9 +37,14 @@ class Adapter
     protected $connection = null;
 
     /**
-     * @var boolean
+     * @var Adapter\QuoteHandler
      */
-    protected $autoQuoteIdentifiers = true;
+    protected $quoter;
+
+    /**
+     * @var Adapter\Crud
+     */
+    protected $crud;
 
     /**
      * Constructor
@@ -48,6 +64,62 @@ class Adapter
             'charset'  => 'utf8mb4',
             'timezone' => '+0:00'
         );
+        $this->quoter = new Adapter\QuoteHandler(function($value, $type) {
+            return $this->getConnection()->quote($value, $type);
+        });
+        $this->crud = new Adapter\Crud($this);
+    }
+
+    /**
+     * @return Adapter\QuoteHandler
+     */
+    public function getQuoteHandler()
+    {
+        return $this->quoter;
+    }
+
+    /**
+     * @param Adapter\QuoteHandler $quoteHandler
+     * @return $this
+     */
+    public function setQuoteHandler(Adapter\QuoteHandler $quoteHandler)
+    {
+        $this->quoter = $quoteHandler;
+        return $this;
+    }
+
+    /**
+     * @return Adapter\QuoteHandler
+     */
+    public function getCrudHelper()
+    {
+        return $this->crud;
+    }
+
+    /**
+     * @param Adapter\Crud $crud
+     * @return $this
+     */
+    public function setCrudHelper(Adapter\Crud $crud)
+    {
+        $this->crud = $crud;
+        return $this;
+    }
+
+    /**
+     * @param string $name
+     * @param array $arguments
+     * @return mixed
+     */
+    public function __call($name, $arguments)
+    {
+        if (method_exists($this->quoter, $name)) {
+            return call_user_func_array([$this->quoter, $name], $arguments);
+        }
+        if (method_exists($this->crud, $name)) {
+            return call_user_func_array([$this->crud, $name], $arguments);
+        }
+        throw new \BadMethodCallException("Specified method '$name' is not known.");
     }
 
     /**
@@ -119,7 +191,7 @@ class Adapter
         $this->config['dbname'] = $dbname;
         if ($this->connection) {
             try {
-                $this->query('USE ' . $this->quoteIdentifier($dbname));
+                $this->query('USE ' . $this->quoter->quoteIdentifier($dbname));
             } catch (\PDOException $e) {
                 if ($e->getCode() !== self::ER_BAD_DB_ERROR &&
                     preg_match('/SQLSTATE\[42000\].*\w1049\w/', $e->getMessage()) !== false
@@ -288,7 +360,7 @@ class Adapter
      * @param array $bind
      * @return int
      */
-    public function exec($statement, array $bind = array())
+    public function execute($statement, array $bind = array())
     {
         $stmt = $this->query($statement, $bind);
         return $stmt->rowCount();
@@ -321,189 +393,6 @@ class Adapter
         }
 
         return $stmt;
-    }
-
-    /**
-     * Quote a database value.
-     *
-     * @param string $value
-     * @param integer $type
-     * @return string
-     * @throws InvalidArgumentException
-     */
-    public function quote($value, $type = null)
-    {
-        switch (true) {
-            case is_object($value):
-                if (!method_exists($value, '__toString')) {
-                    throw new InvalidArgumentException('Object can not be converted to string value.');
-                }
-                $value = (string)$value;
-                break;
-            case is_bool($value):
-                $value = (int)$value;
-                break;
-            case (is_scalar($value) && (string)($value + 0) === (string)$value):
-                $value = $value + 0;
-                break;
-            case is_null($value):
-                $value = 'NULL';
-                break;
-            case is_array($value):
-                array_walk($value, array($this, 'quoteByRef'));
-                $value = implode(', ', $value);
-                break;
-            default:
-                $value = $this->getConnection()->quote($value, $type);
-        }
-
-        return $value;
-    }
-
-    /**
-     * Quote by ref
-     *
-     * Replaces the value with a quoted version of the value
-     *
-     * @param mixed $value
-     * @return void
-     */
-    public function quoteByRef(&$value)
-    {
-        if (is_array($value)) {
-            $value = 'Array';
-        }
-        $value = $this->quote($value);
-    }
-
-    /**
-     * Quote into the value for the database.
-     *
-     * @param string $text
-     * @param mixed $value
-     * @param string $type
-     * @return string
-     */
-    public function quoteInto($text, $value, $type = null)
-    {
-        return str_replace('?', $this->quote($value, $type), $text);
-    }
-
-    /**
-     * Quote a column identifier and alias.
-     *
-     * @param string|array $ident
-     * @param string $alias
-     * @param boolean $auto
-     * @return string
-     */
-    public function quoteColumnAs($ident, $alias, $auto = false)
-    {
-        return $this->quoteIdentifierAs($ident, $alias, $auto);
-    }
-
-    /**
-     * Quote a table identifier and alias.
-     *
-     * @param string|array $ident
-     * @param string $alias
-     * @param boolean $auto
-     * @return string
-     */
-    public function quoteTableAs($ident, $alias = null, $auto = false)
-    {
-        return $this->quoteIdentifierAs($ident, $alias, $auto);
-    }
-
-    /**
-     * Select data from table.
-     *
-     * @param string $table
-     * @param string $where
-     * @param array $bind
-     * @return \PDOStatement
-     */
-    public function select($table, $where = '', array $bind = array())
-    {
-        $table = $this->quoteIdentifier($table);
-        $sql   = "SELECT * FROM $table "
-            . (($where) ? " WHERE $where" : '');
-
-        return $this->query($sql, $bind);
-    }
-
-    /**
-     * Insert data to table.
-     *
-     * @param string $table
-     * @param array $data
-     * @return int Number of affected rows
-     */
-    public function insert($table, array $data)
-    {
-        $table  = $this->quoteIdentifier($table);
-        $fields = implode(', ', array_keys($data));
-        $placeHolders = implode(', ', array_fill(0, count($data), '?'));
-        $sql = "INSERT INTO $table ($fields) VALUES ($placeHolders)";
-
-        $stmt = $this->query($sql, array_values($data));
-
-        return $stmt->rowCount();
-    }
-
-    /**
-     * Update data in table.
-     *
-     * @param string $table
-     * @param array $data
-     * @param string $where
-     * @param array $bind
-     * @return int|boolean Number of affected rows
-     */
-    public function update($table, array $data, $where = '', array $bind = array())
-    {
-        $table  = $this->quoteIdentifier($table);
-        $fields = array();
-        foreach (array_keys($data) as $field) {
-            $fields[] = "$field = ?";
-        }
-        $sql = "UPDATE $table SET " . implode(', ', $fields)
-            . (($where) ? " WHERE $where" : '');
-
-        $stmt = $this->query($sql, array_merge(array_values($data), $bind));
-
-        return $stmt->rowCount();
-    }
-
-    /**
-     * Delete from table.
-     *
-     * @param string $table
-     * @param string $where
-     * @param array $bind
-     * @return int Number of affected rows
-     */
-    public function delete($table, $where = '', array $bind = array())
-    {
-        $table = $this->quoteIdentifier($table);
-        $sql   = "DELETE FROM $table"
-            . (($where) ? " WHERE $where" : '');
-
-        $stmt = $this->query($sql, $bind);
-
-        return $stmt->rowCount();
-    }
-
-    /**
-     * Quotes an identifier
-     *
-     * @param string|array $ident
-     * @param boolean $auto
-     * @return string
-     */
-    public function quoteIdentifier($ident, $auto = false)
-    {
-        return $this->quoteIdentifierAs($ident, null, $auto);
     }
 
     /**
@@ -544,50 +433,29 @@ class Adapter
         }
 
         $dsn = "mysql:host={$config['host']}";
-
         if (isset($config['port'])) {
             $dsn .= ";port={$config['port']}";
         }
-
         if (isset($config['dbname'])) {
             $dsn .= ";dbname={$config['dbname']}";
         }
 
-        $timeout = filter_var(
-            $this->getConfigValue('timeout'),
-            FILTER_VALIDATE_INT,
-            array(
-                'options' => array(
-                    'default'   => 2,
-                    'min_range' => 0,
-                    'max_range' => 120
-                )
-            )
-        );
+        $timeoutOptions = ['options' => ['min_range' => 0, 'max_range' => 120, 'default' => 2]];
+        $timeout = filter_var($this->getConfigValue('timeout'), FILTER_VALIDATE_INT, $timeoutOptions);
 
-        $retryCount = filter_var(
-            $this->getConfigValue('retryCount'),
-            FILTER_VALIDATE_INT,
-            array(
-                'options' => array(
-                    'default'   => 0,
-                    'min_range' => 0,
-                    'max_range' => 10
-                )
-            )
-        );
+        $retryOptions = ['options' => ['min_range' => 0, 'max_range' => 10, 'default' => 0]];
+        $retryCount = filter_var($this->getConfigValue('retryCount'), FILTER_VALIDATE_INT, $retryOptions);
         $maxAttempts = $retryCount + 1;
-
-        $options = array(
-            \PDO::ATTR_TIMEOUT            => $timeout,
-            \PDO::ATTR_ERRMODE            => \PDO::ERRMODE_EXCEPTION,
-            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC
-        );
 
         $username = isset($config['username']) ? $config['username'] : '';
         $password = isset($config['password']) ? $config['password'] : '';
         $charset  = isset($config['charset'])  ? $config['charset']  : 'utf8mb4';
         $timezone = isset($config['timezone']) ? $config['timezone'] : '+0:00';
+        $options  = [
+            \PDO::ATTR_TIMEOUT            => $timeout,
+            \PDO::ATTR_ERRMODE            => \PDO::ERRMODE_EXCEPTION,
+            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC
+        ];
 
         $attempt = 0;
         while (++$attempt <= $maxAttempts) {
@@ -628,70 +496,6 @@ class Adapter
                 }
             }
         }
-    }
-
-    /**
-     * Quote an identifier and an optional alias.
-     *
-     * @param string|array|object $ident
-     * @param string $alias
-     * @param boolean $auto
-     * @param string $as
-     * @return string
-     */
-    protected function quoteIdentifierAs($ident, $alias = null, $auto = false, $as = ' AS ')
-    {
-        if (is_object($ident) && method_exists($ident, 'assemble')) {
-            $quoted = '(' . $ident->assemble() . ')';
-        } elseif (is_object($ident)) {
-            if (!method_exists($ident, '__toString')) {
-                throw new InvalidArgumentException('Object can not be converted to string identifier.');
-            }
-            $quoted = (string)$ident;
-        } else {
-            if (is_string($ident)) {
-                $ident = explode('.', $ident);
-            }
-            if (is_array($ident)) {
-                $segments = array();
-                foreach ($ident as $segment) {
-                    if (is_object($segment)) {
-                        $segments[] = (string)$segment;
-                    } else {
-                        $segments[] = $this->performQuoteIdentifier($segment, $auto);
-                    }
-                }
-                if ($alias !== null && end($ident) == $alias) {
-                    $alias = null;
-                }
-                $quoted = implode('.', $segments);
-            } else {
-                $quoted = $this->performQuoteIdentifier($ident, $auto);
-            }
-        }
-
-        if ($alias !== null) {
-            $quoted .= $as . $this->performQuoteIdentifier($alias, $auto);
-        }
-
-        return $quoted;
-    }
-
-    /**
-     * Quote an identifier.
-     *
-     * @param string $value
-     * @param boolean $auto
-     * @return string
-     */
-    protected function performQuoteIdentifier($value, $auto = false)
-    {
-        if ($auto === false || $this->autoQuoteIdentifiers === true) {
-            $q = '`';
-            return ($q . str_replace("$q", "$q$q", $value) . $q);
-        }
-
-        return $value;
     }
 
     /**
