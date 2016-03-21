@@ -20,7 +20,6 @@ class ReplicationStatsCommand extends Command
     {
         $config      = $this->getHelper('configuration')->fetch();
         $replication = Replication::createFromConfig($config);
-
         $replication->stats();
     }
 }
