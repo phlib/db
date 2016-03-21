@@ -111,4 +111,26 @@ class QuoteHandlerTest extends \PHPUnit_Framework_TestCase
             array("`table1` AS `alias`", 'table1', 'alias', true),
         );
     }
+
+    /**
+     * @dataProvider quoteIdentifierData
+     */
+    public function testQuoteIdentifier($expected, $ident, $auto)
+    {
+        $result = (!is_null($auto)) ?
+            $this->handler->quoteIdentifier($ident, $auto) :
+            $this->handler->quoteIdentifier($ident);
+        $this->assertEquals($expected, $result);
+    }
+
+    public function quoteIdentifierData()
+    {
+        return array(
+            array("`col1`", 'col1', null),
+            array("`col1`", 'col1', true),
+            array("NOW()", new ToStringClass('NOW()'), true),
+            array("`col1`.NOW()", array('col1', new ToStringClass('NOW()')), true),
+            array("`table1`.`*`", 'table1.*', true)
+        );
+    }
 }
