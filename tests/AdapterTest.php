@@ -29,6 +29,51 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
         parent::tearDown();
     }
 
+    public function testQuoteHandlerIsSetupCorrectly()
+    {
+        $string = 'foo';
+        $this->pdo->expects($this->once())
+            ->method('quote')
+            ->with($string);
+
+        $adapter = new Adapter();
+        $adapter->setConnection($this->pdo);
+
+        $adapter->getQuoteHandler()->quote($string);
+    }
+
+    public function testGetDefaultQuoteHandler()
+    {
+        $adapter = new Adapter();
+        $adapter->setConnection($this->pdo);
+        $this->assertInstanceOf(Adapter\QuoteHandler::class, $adapter->getQuoteHandler());
+    }
+
+    public function testSetGetQuoteHandler()
+    {
+        $handler = $this->getMockBuilder(Adapter\QuoteHandler::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $adapter = new Adapter();
+        $adapter->setConnection($this->pdo);
+        $adapter->setQuoteHandler($handler);
+        $this->assertSame($handler, $adapter->getQuoteHandler());
+    }
+
+    public function testQuoteHandlerForwardingMethods()
+    {
+        $handler = $this->getMockBuilder(Adapter\QuoteHandler::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $handler->expects($this->once())
+            ->method('quote');
+
+        $adapter = new Adapter();
+        $adapter->setConnection($this->pdo);
+        $adapter->setQuoteHandler($handler);
+        $adapter->quote('foo');
+    }
+
     /**
      * @covers Phlib\Db\Adapter::setConnection
      */
