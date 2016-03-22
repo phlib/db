@@ -203,6 +203,64 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($config, $adapter->getConfig());
     }
 
+    public function testGetConfigValue()
+    {
+        $host = 'foo.bar.com';
+        $adapter = new Adapter(['host' => $host]);
+        $this->assertEquals($host, $adapter->getConfigValue('host', '127.0.0.1'));
+    }
+
+    public function testGetConfigValueWhenDefaulting()
+    {
+        $default = '3306';
+        $adapter = new Adapter(['host' => 'foo.bar.com']);
+        $this->assertEquals($default, $adapter->getConfigValue('port', $default));
+    }
+
+    /**
+     * @param string $option
+     * @param mixed $value
+     * @dataProvider settingAdapterOptionsDataProvider
+     */
+    public function testSettingAdapterOptionsWithoutConnection($option, $value)
+    {
+        $method  = 'set' . ucfirst($option);
+        $adapter = new Adapter();
+        $adapter->$method($value);
+        $this->assertEquals($value, $adapter->getConfigValue($option, null));
+    }
+
+    /**
+     * @param string $option
+     * @param mixed $value
+     * @dataProvider settingAdapterOptionsDataProvider
+     */
+    public function testSettingAdapterOptionsWithConnection($option, $value)
+    {
+        $statement = $this->getMock(\PDOStatement::class);
+        $statement->expects($this->once())
+            ->method('execute')
+            ->with($this->contains($value));
+        $this->pdo->expects($this->any())
+            ->method('prepare')
+            ->will($this->returnValue($statement));
+
+        $method  = 'set' . ucfirst($option);
+        $adapter = new Adapter();
+        $adapter->setConnection($this->pdo);
+        $adapter->$method($value);
+    }
+
+    public function settingAdapterOptionsDataProvider()
+    {
+        return [
+            ['charset', 'iso-8859-1'],
+            ['charset', 'utf8'],
+            ['timezone', '+05:00'],
+            ['timezone', '+03:00']
+        ];
+    }
+
     /**
      * @covers Phlib\Db\Adapter::ping
      */
