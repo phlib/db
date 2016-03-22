@@ -37,6 +37,11 @@ class Adapter
     protected $connection = null;
 
     /**
+     * @var callable
+     */
+    protected $connectionFactory;
+
+    /**
      * @var Adapter\QuoteHandler
      */
     protected $quoter;
@@ -68,6 +73,9 @@ class Adapter
             return $this->getConnection()->quote($value, $type);
         });
         $this->crud = new Adapter\Crud($this);
+        $this->connectionFactory = function(array $config) {
+            return $this->createConnection($config);
+        };
     }
 
     /**
@@ -120,6 +128,17 @@ class Adapter
             return call_user_func_array([$this->crud, $name], $arguments);
         }
         throw new \BadMethodCallException("Specified method '$name' is not known.");
+    }
+
+    /**
+     * Sets the item which creates a new DB connection.
+     * @param callable $factory
+     * @return $this
+     */
+    public function setConnectionFactory(callable $factory)
+    {
+        $this->connectionFactory = $factory;
+        return $this;
     }
 
     /**
@@ -403,7 +422,7 @@ class Adapter
     protected function connect()
     {
         if (is_null($this->connection)) {
-            $this->connection = $this->createConnection($this->config);
+            $this->connection = call_user_func($this->connectionFactory, $this->getConfig());
         }
 
         return $this;
@@ -416,7 +435,7 @@ class Adapter
      */
     public function cloneConnection()
     {
-        return $this->createConnection($this->getConfig());
+        return call_user_func($this->connectionFactory, $this->getConfig());
     }
 
     /**
