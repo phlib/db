@@ -74,6 +74,20 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
         $adapter->quote('foo');
     }
 
+    public function testCrudHelperForwardingMethods()
+    {
+        $helper = $this->getMockBuilder(Adapter\Crud::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $helper->expects($this->once())
+            ->method('select');
+
+        $adapter = new Adapter();
+        $adapter->setConnection($this->pdo);
+        $adapter->setCrudHelper($helper);
+        $adapter->select('foo');
+    }
+
     /**
      * @covers Phlib\Db\Adapter::setConnection
      */
