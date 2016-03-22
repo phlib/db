@@ -3,6 +3,7 @@
 namespace Phlib\Db\Tests;
 
 use Phlib\Db\Adapter;
+use Phlib\Db\Exception\UnknownDatabaseException;
 
 class AdapterTest extends \PHPUnit_Framework_TestCase
 {
@@ -129,6 +130,26 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
 
         $this->assertArrayHasKey('dbname', $config);
         $this->assertSame($dbname, $config['dbname']);
+    }
+
+    /**
+     * @expectedException \Phlib\Db\Exception\UnknownDatabaseException
+     */
+    public function testSetDatabaseWhenItsUnknown()
+    {
+        $database  = 'foobar';
+        $exception = new \PDOException("SQLSTATE[42000] [1049] Unknown database '$database'.", 42000);
+        $statement = $this->getMock(\PDOStatement::class);
+        $statement->expects($this->any())
+            ->method('execute')
+            ->will($this->throwException($exception));
+        $this->pdo->expects($this->any())
+            ->method('prepare')
+            ->will($this->returnValue($statement));
+
+        $adapter = new Adapter();
+        $adapter->setConnection($this->pdo);
+        $adapter->setDatabase($database);
     }
 
     public function testGetConfigDefaults()
