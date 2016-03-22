@@ -3,6 +3,7 @@
 namespace Phlib\Db\Tests;
 
 use Phlib\Db\Adapter;
+use Phlib\Db\Exception\InvalidQueryException;
 use Phlib\Db\Exception\UnknownDatabaseException;
 
 class AdapterTest extends \PHPUnit_Framework_TestCase
@@ -402,7 +403,52 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
 
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
-        $this->assertEquals($pdoStatement,$adapter->query($sql, $bind));
+        $this->assertEquals($pdoStatement, $adapter->query($sql, $bind));
+    }
+
+    /**
+     * @expectedException \Phlib\Db\Exception\InvalidQueryException
+     */
+    public function testQueryWithInvalidSql()
+    {
+        $exception    = new \PDOException('You have an error in your SQL syntax');
+        $statement = $this->getMock(\PDOStatement::class);
+        $statement->expects($this->any())
+            ->method('execute')
+            ->will($this->throwException($exception));
+        $this->pdo->expects($this->any())
+            ->method('prepare')
+            ->will($this->returnValue($statement));
+
+        $adapter = new Adapter();
+        $adapter->setConnection($this->pdo);
+        $adapter->query('SELEECT * FORM foo');
+    }
+
+    public function testQueryReconnectsWhenMysqlHasGoneAway()
+    {
+        $exception    = new \PDOException('MySQL server has gone away');
+        $statement = $this->getMock(\PDOStatement::class);
+        $statement->expects($this->any())
+            ->method('execute')
+            ->will($this->throwException($exception));
+        $this->pdo->expects($this->any())
+            ->method('prepare')
+            ->will($this->returnValue($statement));
+
+        $adapter = new Adapter();
+        $adapter->setConnection($this->pdo);
+        $adapter->setConnectionFactory(function () {
+            $statement = $this->getMock(\PDOStatement::class);
+            $statement->expects($this->once())
+                ->method('execute');
+            $pdo = $this->getMock('\Phlib\Db\Tests\PdoMock');
+            $pdo->expects($this->any())
+                ->method('prepare')
+                ->will($this->returnValue($statement));
+            return $pdo;
+        });
+        $adapter->query('SELECT * FROM foo');
     }
 
     public function testSetBufferedConnectionToUnbuffered()
