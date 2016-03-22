@@ -32,6 +32,44 @@ class CrudTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param string $expectedSql
+     * @param string $table
+     * @param string $where
+     * @param array $data
+     * @dataProvider selectDataProvider
+     */
+    public function testSelect($expectedSql, $table, $where, array $data)
+    {
+        $pdoStatement = $this->getMock('\PDOStatement');
+
+        $this->adapter->expects($this->once())
+            ->method('query')
+            ->with($expectedSql, $data)
+            ->will($this->returnValue($pdoStatement));
+
+        $this->crud->select($table, $where, $data);
+    }
+
+    public function selectDataProvider()
+    {
+        return [
+            ["SELECT * FROM `my_table`", 'my_table', '', []],
+            ["SELECT * FROM `my_table` WHERE id = 1", 'my_table', 'id = 1', []],
+            ["SELECT * FROM `my_table` WHERE id = ?", 'my_table', 'id = ?', [1]]
+        ];
+    }
+
+    public function testSelectReturnsStatement()
+    {
+        $pdoStatement = $this->getMock('\PDOStatement');
+        $this->adapter->expects($this->any())
+            ->method('query')
+            ->will($this->returnValue($pdoStatement));
+
+        $this->assertSame($pdoStatement, $this->crud->select('my_table'));
+    }
+
+    /**
      * @dataProvider insertDataProvider
      */
     public function testInsert($expectedSql, $table, $data)
