@@ -192,7 +192,7 @@ class Adapter
         if ($this->connection) {
             try {
                 $this->query('USE ' . $this->quoter->quoteIdentifier($dbname));
-            } catch (\PDOException $e) {
+            } catch (RuntimeException $e) {
                 if ($e->getCode() !== self::ER_BAD_DB_ERROR &&
                     preg_match('/SQLSTATE\[42000\].*\w1049\w/', $e->getMessage()) !== false
                 ) {
