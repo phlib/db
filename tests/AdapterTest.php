@@ -94,10 +94,10 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
      */
     public function testSetConnection()
     {
-        $dbAdapter = new Adapter();
-        $dbAdapter->setConnection($this->pdo);
+        $adapter = new Adapter();
+        $adapter->setConnection($this->pdo);
 
-        $this->assertEquals($this->pdo, $dbAdapter->getConnection());
+        $this->assertEquals($this->pdo, $adapter->getConnection());
     }
 
     /**
@@ -107,13 +107,13 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
     {
         $dbname = 'MyDbName';
 
-        $dbAdapter = $this->getMock('\Phlib\Db\Adapter', array('query'));
-        $dbAdapter->expects($this->once())
+        $adapter = $this->getMock('\Phlib\Db\Adapter', array('query'));
+        $adapter->expects($this->once())
             ->method('query')
             ->with($this->equalTo("USE `$dbname`"));
 
-        $dbAdapter->setConnection($this->pdo);
-        $dbAdapter->setDatabase($dbname);
+        $adapter->setConnection($this->pdo);
+        $adapter->setDatabase($dbname);
     }
 
     /**
@@ -122,11 +122,11 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
     public function testSetDatabaseSetsConfig()
     {
         $dbname = 'MyDbName';
-        $dbAdapter = $this->getMock('\Phlib\Db\Adapter', array('query'));
-        $dbAdapter->setConnection($this->pdo);
-        $dbAdapter->setDatabase($dbname);
+        $adapter = $this->getMock('\Phlib\Db\Adapter', array('query'));
+        $adapter->setConnection($this->pdo);
+        $adapter->setDatabase($dbname);
 
-        $config = $dbAdapter->getConfig();
+        $config = $adapter->getConfig();
 
         $this->assertArrayHasKey('dbname', $config);
         $this->assertSame($dbname, $config['dbname']);
@@ -159,8 +159,8 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
             'timezone' => '+0:00'
         );
 
-        $dbAdapter = new Adapter();
-        $this->assertEquals($defaults, $dbAdapter->getConfig());
+        $adapter = new Adapter();
+        $this->assertEquals($defaults, $adapter->getConfig());
     }
 
     public function testGetConfigMixed()
@@ -180,9 +180,9 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
             'password' => 'password',
             'port'     => '3306'
         );
-        $dbAdapter = new Adapter($config);
+        $adapter = new Adapter($config);
 
-        $this->assertEquals($expected, $dbAdapter->getConfig());
+        $this->assertEquals($expected, $adapter->getConfig());
     }
 
     /**
@@ -198,9 +198,9 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
             'charset'  => 'iso-8859-1',
             'timezone' => '+1:00'
         );
-        $dbAdapter = new Adapter($config);
+        $adapter = new Adapter($config);
 
-        $this->assertEquals($config, $dbAdapter->getConfig());
+        $this->assertEquals($config, $adapter->getConfig());
     }
 
     /**
@@ -217,9 +217,9 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
             ->method('prepare')
             ->will($this->returnValue($pdoStatement));
 
-        $dbAdapter = new Adapter();
-        $dbAdapter->setConnection($this->pdo);
-        $this->assertTrue($dbAdapter->ping());
+        $adapter = new Adapter();
+        $adapter->setConnection($this->pdo);
+        $this->assertTrue($adapter->ping());
     }
 
     /**
@@ -231,9 +231,9 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
             ->method('prepare')
             ->will($this->throwException(new \Exception));
 
-        $dbAdapter = new Adapter();
-        $dbAdapter->setConnection($this->pdo);
-        $this->assertFalse($dbAdapter->ping());
+        $adapter = new Adapter();
+        $adapter->setConnection($this->pdo);
+        $this->assertFalse($adapter->ping());
     }
 
     public function testLastInsertIdNoTableName()
@@ -242,9 +242,9 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
             ->method('lastInsertId')
             ->with($this->equalTo(null));
 
-        $dbAdapter = new Adapter();
-        $dbAdapter->setConnection($this->pdo);
-        $dbAdapter->lastInsertId();
+        $adapter = new Adapter();
+        $adapter->setConnection($this->pdo);
+        $adapter->lastInsertId();
     }
 
     public function testLastInsertIdWithTableName()
@@ -254,9 +254,9 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
             ->method('lastInsertId')
             ->with($this->equalTo($tableName));
 
-        $dbAdapter = new Adapter();
-        $dbAdapter->setConnection($this->pdo);
-        $dbAdapter->lastInsertId($tableName);
+        $adapter = new Adapter();
+        $adapter->setConnection($this->pdo);
+        $adapter->lastInsertId($tableName);
     }
 
     public function testPrepare()
@@ -268,9 +268,9 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
             ->with($this->equalTo($sql))
             ->will($this->returnValue($pdoStatement));
 
-        $dbAdapter = new Adapter();
-        $dbAdapter->setConnection($this->pdo);
-        $this->assertEquals($pdoStatement, $dbAdapter->prepare($sql));
+        $adapter = new Adapter();
+        $adapter->setConnection($this->pdo);
+        $this->assertEquals($pdoStatement, $adapter->prepare($sql));
     }
 
     public function testExecute()
@@ -283,13 +283,13 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
             ->method('rowCount');
 
         // Exec should call query with the SQL
-        $dbAdapter = $this->getMock('\Phlib\Db\Adapter', array('query'));
-        $dbAdapter->expects($this->once())
+        $adapter = $this->getMock('\Phlib\Db\Adapter', array('query'));
+        $adapter->expects($this->once())
             ->method('query')
             ->with($sql)
             ->will($this->returnValue($pdoStatement));
-        $dbAdapter->setConnection($this->pdo);
-        $dbAdapter->execute($sql);
+        $adapter->setConnection($this->pdo);
+        $adapter->execute($sql);
     }
 
     public function testExecuteBind()
@@ -303,13 +303,13 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
             ->method('rowCount');
 
         // Exec should call query with the SQL
-        $dbAdapter = $this->getMock('\Phlib\Db\Adapter', array('query'));
-        $dbAdapter->expects($this->once())
+        $adapter = $this->getMock('\Phlib\Db\Adapter', array('query'));
+        $adapter->expects($this->once())
             ->method('query')
             ->with($sql, $bind)
             ->will($this->returnValue($pdoStatement));
-        $dbAdapter->setConnection($this->pdo);
-        $dbAdapter->execute($sql, $bind);
+        $adapter->setConnection($this->pdo);
+        $adapter->execute($sql, $bind);
     }
 
     public function testQueryNoBind()
@@ -324,9 +324,9 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
             ->with($this->equalTo($sql))
             ->will($this->returnValue($pdoStatement));
 
-        $dbAdapter = new Adapter();
-        $dbAdapter->setConnection($this->pdo);
-        $this->assertEquals($pdoStatement,$dbAdapter->query($sql));
+        $adapter = new Adapter();
+        $adapter->setConnection($this->pdo);
+        $this->assertEquals($pdoStatement,$adapter->query($sql));
     }
 
     public function testQueryWithBind()
@@ -342,9 +342,9 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
             ->with($this->equalTo($sql))
             ->will($this->returnValue($pdoStatement));
 
-        $dbAdapter = new Adapter();
-        $dbAdapter->setConnection($this->pdo);
-        $this->assertEquals($pdoStatement,$dbAdapter->query($sql, $bind));
+        $adapter = new Adapter();
+        $adapter->setConnection($this->pdo);
+        $this->assertEquals($pdoStatement,$adapter->query($sql, $bind));
     }
 
     public function testSetBufferedConnectionToUnbuffered()
