@@ -35,7 +35,7 @@ class Crud
     public function select($table, $where = '', array $bind = array())
     {
         $table = $this->adapter->quoteIdentifier($table);
-        $sql   = "SELECT * FROM $table "
+        $sql   = "SELECT * FROM $table"
             . (($where) ? " WHERE $where" : '');
 
         return $this->adapter->query($sql, $bind);
