@@ -48,7 +48,6 @@ class QuoteHandlerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Phlib\Db\Adapter::quoteInto
      * @dataProvider quoteIntoDataProvider
      */
     public function testQuoteInto($expected, $text, $value)

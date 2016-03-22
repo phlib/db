@@ -32,7 +32,6 @@ class CrudTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Phlib\Db\Adapter::insert
      * @dataProvider insertDataProvider
      */
     public function testInsert($expectedSql, $table, $data)
@@ -61,7 +60,6 @@ class CrudTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Phlib\Db\Adapter::update
      * @dataProvider updateDataProvider
      */
     public function testUpdate($expectedSql, $table, $data, $where, $bind)
@@ -108,7 +106,6 @@ class CrudTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Phlib\Db\Adapter::delete
      * @dataProvider deleteDataProvider
      */
     public function testDelete($expectedSql, $table, $where, $bind)
