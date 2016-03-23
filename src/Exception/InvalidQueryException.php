@@ -26,9 +26,9 @@ class InvalidQueryException extends RuntimeException implements Exception
     /**
      * @param string $query
      * @param array $bind
-     * @param \Exception|null $previous
+     * @param \PDOException|null $previous
      */
-    public function __construct($query, array $bind = array(), \Exception $previous = null)
+    public function __construct($query, array $bind = array(), \PDOException $previous = null)
     {
         $this->query = $query;
         $this->bind  = $bind;
