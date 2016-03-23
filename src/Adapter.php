@@ -406,7 +406,7 @@ class Adapter
             $stmt->execute($bind);
             return $stmt;
         } catch (\PDOException $exception) {
-            if (InvalidQueryException::matches($exception)) {
+            if (InvalidQueryException::isInvalidSyntax($exception)) {
                 throw new InvalidQueryException($sql, $bind, $exception);
             } elseif (RuntimeException::hasServerGoneAway($exception) && !$hasCaughtException) {
                 $this->reconnect();

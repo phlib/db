@@ -18,7 +18,7 @@ class InvalidQueryException extends RuntimeException implements Exception
      * @param \PDOException $exception
      * @return bool
      */
-    public static function matches(\PDOException $exception)
+    public static function isInvalidSyntax(\PDOException $exception)
     {
         return stripos($exception->getMessage(), 'You have an error in your SQL syntax') !== false;
     }
