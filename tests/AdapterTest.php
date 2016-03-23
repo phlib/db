@@ -508,4 +508,87 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
         $adapter->setConnection($this->pdo);
         $this->assertTrue($adapter->isBuffered());
     }
+
+    public function testCloning()
+    {
+        $adapter = new Adapter();
+        $adapter->setConnection($this->pdo);
+        $adapter->setConnectionFactory(function () {
+            return $this->getMock('\Phlib\Db\Tests\PdoMock');
+        });
+
+        $newAdapter = clone $adapter;
+        $this->assertNotSame($adapter, $newAdapter);
+    }
+
+    public function testBeginTransaction()
+    {
+        $this->pdo->expects($this->once())
+            ->method('beginTransaction');
+
+        $adapter = new Adapter();
+        $adapter->setConnection($this->pdo);
+        $adapter->beginTransaction();
+    }
+
+    public function testBeginTransactionWhenServerHasGoneAway()
+    {
+        $exception = new \PDOException('MySQL server has gone away');
+        $this->pdo->expects($this->any())
+            ->method('beginTransaction')
+            ->will($this->throwException($exception));
+
+        $adapter = new Adapter();
+        $adapter->setConnection($this->pdo);
+        $adapter->setConnectionFactory(function () {
+            $pdo = $this->getMock('\Phlib\Db\Tests\PdoMock');
+            $pdo->expects($this->once())
+                ->method('beginTransaction');
+            return $pdo;
+        });
+        $adapter->beginTransaction();
+    }
+
+    /**
+     * @expectedException \Phlib\Db\Exception\RuntimeException
+     */
+    public function testBeginTransactionWhenServerHasGoneAwayAndThenFails()
+    {
+        $exception = new \PDOException('MySQL server has gone away');
+        $this->pdo->expects($this->any())
+            ->method('beginTransaction')
+            ->will($this->throwException($exception));
+
+        $adapter = new Adapter();
+        $adapter->setConnection($this->pdo);
+        $adapter->setConnectionFactory(function () {
+            $exception = new \PDOException('something else bad happened');
+            $pdo = $this->getMock('\Phlib\Db\Tests\PdoMock');
+            $pdo->expects($this->any())
+                ->method('beginTransaction')
+                ->will($this->throwException($exception));
+            return $pdo;
+        });
+        $adapter->beginTransaction();
+    }
+
+    public function testCommit()
+    {
+        $this->pdo->expects($this->once())
+            ->method('commit');
+
+        $adapter = new Adapter();
+        $adapter->setConnection($this->pdo);
+        $adapter->commit();
+    }
+
+    public function testRollback()
+    {
+        $this->pdo->expects($this->once())
+            ->method('rollback');
+
+        $adapter = new Adapter();
+        $adapter->setConnection($this->pdo);
+        $adapter->rollBack();
+    }
 }
