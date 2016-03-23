@@ -25,7 +25,7 @@ use Phlib\Db\Exception\InvalidArgumentException;
 class Adapter
 {
     /**
-     * @var array
+     * @var Adapter\Config
      */
     protected $config;
 
@@ -63,10 +63,7 @@ class Adapter
      */
     public function __construct(array $config = array())
     {
-        $this->config = $config + array(
-            'charset'  => 'utf8mb4',
-            'timezone' => '+0:00'
-        );
+        $this->config = new Adapter\Config($config);
         $this->quoter = new Adapter\QuoteHandler(function($value, $type) {
             return $this->getConnection()->quote($value, $type);
         });
@@ -203,7 +200,7 @@ class Adapter
      */
     public function setDatabase($dbname)
     {
-        $this->config['dbname'] = $dbname;
+        $this->config->setDatabase($dbname);
         if ($this->connection) {
             try {
                 $this->query('USE ' . $this->quoter->quoteIdentifier($dbname));
@@ -228,22 +225,7 @@ class Adapter
      */
     public function getConfig()
     {
-        return $this->config;
-    }
-
-    /**
-     * Get a configuration value.
-     *
-     * @param string $key
-     * @param mixed $default
-     * @return mixed
-     */
-    public function getConfigValue($key, $default = null)
-    {
-        if (array_key_exists($key, $this->config)) {
-            return $this->config[$key];
-        }
-        return $default;
+        return $this->config->toArray();
     }
 
     /**
@@ -254,8 +236,8 @@ class Adapter
      */
     public function setCharset($charset)
     {
-        if ($this->getConfigValue('charset') !== $charset) {
-            $this->config['charset'] = $charset;
+        if ($this->config->getCharset() !== $charset) {
+            $this->config->setCharset($charset);
             if ($this->connection) {
                 $this->query('SET NAMES ?', array($charset));
             }
@@ -272,8 +254,8 @@ class Adapter
      */
     public function setTimezone($timezone)
     {
-        if ($this->getConfigValue('timezone') !== $timezone) {
-            $this->config['timezone'] = $timezone;
+        if ($this->config->getTimezone() !== $timezone) {
+            $this->config->setTimezone($timezone);
             if ($this->connection) {
                 $this->query('SET time_zone = ?', array($timezone));
             }
