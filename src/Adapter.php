@@ -395,23 +395,31 @@ class Adapter
      */
     public function query($sql, array $bind = array())
     {
+        return $this->doQuery($sql, $bind);
+    }
+
+    /**
+     * @param string $sql
+     * @param array $bind
+     * @param bool $hasCaughtException
+     * @return \PDOStatement
+     */
+    protected function doQuery($sql, array $bind, $hasCaughtException = false)
+    {
         try {
             $stmt = $this->getConnection()->prepare($sql);
             $stmt->execute($bind);
+            return $stmt;
         } catch (\PDOException $exception) {
             if (InvalidQueryException::matches($exception)) {
                 throw new InvalidQueryException($sql, $bind, $exception);
             } elseif (stripos($exception->getMessage(), 'MySQL server has gone away') !== false) {
                 $this->reconnect();
-
-                $stmt = $this->getConnection()->prepare($sql);
-                $stmt->execute($bind);
+                return $this->doQuery($sql, $bind, true);
             } else {
                 throw new RuntimeException($exception->getMessage(), $exception->getCode(), $exception);
             }
         }
-
-        return $stmt;
     }
 
     /**
