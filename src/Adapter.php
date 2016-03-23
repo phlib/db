@@ -413,7 +413,7 @@ class Adapter
         } catch (\PDOException $exception) {
             if (InvalidQueryException::matches($exception)) {
                 throw new InvalidQueryException($sql, $bind, $exception);
-            } elseif (stripos($exception->getMessage(), 'MySQL server has gone away') !== false) {
+            } elseif (RuntimeException::hasServerGoneAway($exception) && !$hasCaughtException) {
                 $this->reconnect();
                 return $this->doQuery($sql, $bind, true);
             } else {
