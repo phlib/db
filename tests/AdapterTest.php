@@ -4,6 +4,7 @@ namespace Phlib\Db\Tests;
 
 use Phlib\Db\Adapter;
 use Phlib\Db\Exception\InvalidQueryException;
+use Phlib\Db\Exception\RuntimeException;
 use Phlib\Db\Exception\UnknownDatabaseException;
 
 class AdapterTest extends \PHPUnit_Framework_TestCase
@@ -427,7 +428,7 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testQueryReconnectsWhenMysqlHasGoneAway()
     {
-        $exception    = new \PDOException('MySQL server has gone away');
+        $exception = new \PDOException('MySQL server has gone away');
         $statement = $this->getMock(\PDOStatement::class);
         $statement->expects($this->any())
             ->method('execute')
@@ -442,6 +443,37 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
             $statement = $this->getMock(\PDOStatement::class);
             $statement->expects($this->once())
                 ->method('execute');
+            $pdo = $this->getMock('\Phlib\Db\Tests\PdoMock');
+            $pdo->expects($this->any())
+                ->method('prepare')
+                ->will($this->returnValue($statement));
+            return $pdo;
+        });
+        $adapter->query('SELECT * FROM foo');
+    }
+
+    /**
+     * @expectedException \Phlib\Db\Exception\RuntimeException
+     */
+    public function testQueryFailsAfterSuccessfulReconnect()
+    {
+        $exception = new \PDOException('MySQL server has gone away');
+        $statement = $this->getMock(\PDOStatement::class);
+        $statement->expects($this->any())
+            ->method('execute')
+            ->will($this->throwException($exception));
+        $this->pdo->expects($this->any())
+            ->method('prepare')
+            ->will($this->returnValue($statement));
+
+        $adapter = new Adapter();
+        $adapter->setConnection($this->pdo);
+        $adapter->setConnectionFactory(function () {
+            $exception = new \PDOException('failed for some random reason', 1234);
+            $statement = $this->getMock(\PDOStatement::class);
+            $statement->expects($this->any())
+                ->method('execute')
+                ->will($this->throwException($exception));
             $pdo = $this->getMock('\Phlib\Db\Tests\PdoMock');
             $pdo->expects($this->any())
                 ->method('prepare')
