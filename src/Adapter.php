@@ -2,6 +2,7 @@
 
 namespace Phlib\Db;
 
+use Phlib\Db\Adapter\ConnectionFactory;
 use Phlib\Db\Exception\InvalidQueryException;
 use Phlib\Db\Exception\UnknownDatabaseException;
 use Phlib\Db\Exception\RuntimeException;
@@ -73,9 +74,7 @@ class Adapter
             return $this->getConnection()->quote($value, $type);
         });
         $this->crud = new Adapter\Crud($this);
-        $this->connectionFactory = function(array $config) {
-            return $this->createConnection($config);
-        };
+        $this->connectionFactory = new ConnectionFactory();
     }
 
     /**
@@ -429,7 +428,7 @@ class Adapter
     protected function connect()
     {
         if (is_null($this->connection)) {
-            $this->connection = call_user_func($this->connectionFactory, $this->getConfig());
+            $this->connection = call_user_func($this->connectionFactory, $this->config);
         }
 
         return $this;
@@ -442,86 +441,7 @@ class Adapter
      */
     public function cloneConnection()
     {
-        return call_user_func($this->connectionFactory, $this->getConfig());
-    }
-
-    /**
-     * Create connection
-     *
-     * @param array $config
-     * @return \PDO
-     * @throws InvalidArgumentException
-     */
-    protected function createConnection($config)
-    {
-        if (!isset($config['host'])) {
-            throw new InvalidArgumentException('Missing host config param');
-        }
-
-        $dsn = "mysql:host={$config['host']}";
-        if (isset($config['port'])) {
-            $dsn .= ";port={$config['port']}";
-        }
-        if (isset($config['dbname'])) {
-            $dsn .= ";dbname={$config['dbname']}";
-        }
-
-        $timeoutOptions = ['options' => ['min_range' => 0, 'max_range' => 120, 'default' => 2]];
-        $timeout = filter_var($this->getConfigValue('timeout'), FILTER_VALIDATE_INT, $timeoutOptions);
-
-        $retryOptions = ['options' => ['min_range' => 0, 'max_range' => 10, 'default' => 0]];
-        $retryCount = filter_var($this->getConfigValue('retryCount'), FILTER_VALIDATE_INT, $retryOptions);
-        $maxAttempts = $retryCount + 1;
-
-        $username = isset($config['username']) ? $config['username'] : '';
-        $password = isset($config['password']) ? $config['password'] : '';
-        $charset  = isset($config['charset'])  ? $config['charset']  : 'utf8mb4';
-        $timezone = isset($config['timezone']) ? $config['timezone'] : '+0:00';
-        $options  = [
-            \PDO::ATTR_TIMEOUT            => $timeout,
-            \PDO::ATTR_ERRMODE            => \PDO::ERRMODE_EXCEPTION,
-            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC
-        ];
-
-        $attempt = 0;
-        while (++$attempt <= $maxAttempts) {
-            try {
-                $connection = new \PDO($dsn, $username, $password, $options);
-                $statement  = $connection->prepare('SET NAMES ?, time_zone = ?');
-                $statement->execute(array($charset, $timezone));
-
-                return $connection;
-
-            } catch (\PDOException $e) {
-                if ($e->getCode() == self::ER_BAD_DB_ERROR) {
-                    // unknown database, no need to continue with retries this is conclusive
-                    throw new UnknownDatabaseException(
-                        sprintf("Unknown database '%s'", $config['dbname']),
-                        $e->getCode(),
-                        $e
-                    );
-                }
-
-                if ($maxAttempts > $attempt) {
-                    // more tries left, so we'll log this error
-                    error_log(
-                        sprintf(
-                            'Failed connection to "%s" on attempt %d with error "%s"',
-                            $dsn,
-                            $attempt,
-                            $e->getMessage()
-                        )
-                    );
-
-                    // sleep with some exponential backoff
-                    $msec = pow(2, $attempt) * 50;
-                    usleep($msec * 1000);
-                } else {
-                    // ran out of attempts, throw the last error
-                    throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
-                }
-            }
-        }
+        return call_user_func($this->connectionFactory, $this->config);
     }
 
     /**
