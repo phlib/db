@@ -205,33 +205,6 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($config, $adapter->getConfig());
     }
 
-    public function testGetConfigValue()
-    {
-        $host = 'foo.bar.com';
-        $adapter = new Adapter(['host' => $host]);
-        $this->assertEquals($host, $adapter->getConfigValue('host', '127.0.0.1'));
-    }
-
-    public function testGetConfigValueWhenDefaulting()
-    {
-        $default = '3306';
-        $adapter = new Adapter(['host' => 'foo.bar.com']);
-        $this->assertEquals($default, $adapter->getConfigValue('port', $default));
-    }
-
-    /**
-     * @param string $option
-     * @param mixed $value
-     * @dataProvider settingAdapterOptionsDataProvider
-     */
-    public function testSettingAdapterOptionsWithoutConnection($option, $value)
-    {
-        $method  = 'set' . ucfirst($option);
-        $adapter = new Adapter();
-        $adapter->$method($value);
-        $this->assertEquals($value, $adapter->getConfigValue($option, null));
-    }
-
     /**
      * @param string $option
      * @param mixed $value
