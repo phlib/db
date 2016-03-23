@@ -532,6 +532,10 @@ class Adapter
         return $this->doBeginTransaction();
     }
 
+    /**
+     * @param bool $hasCaughtException
+     * @return bool
+     */
     protected function doBeginTransaction($hasCaughtException = false)
     {
         try {
