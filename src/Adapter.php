@@ -24,9 +24,6 @@ use Phlib\Db\Exception\InvalidArgumentException;
  */
 class Adapter
 {
-    // Message: Unknown database '%s'
-    const ER_BAD_DB_ERROR = 1049; // http://dev.mysql.com/doc/refman/5.5/en/error-messages-server.html
-
     /**
      * @var array
      */
@@ -210,14 +207,13 @@ class Adapter
         if ($this->connection) {
             try {
                 $this->query('USE ' . $this->quoter->quoteIdentifier($dbname));
-            } catch (RuntimeException $e) {
-                if ($e->getCode() !== self::ER_BAD_DB_ERROR &&
-                    preg_match('/SQLSTATE\[42000\].*\w1049\w/', $e->getMessage()) !== false
-                ) {
-                    throw new UnknownDatabaseException("Unknown database '{$dbname}'", self::ER_BAD_DB_ERROR, $e);
+            } catch (RuntimeException $exception) {
+                $prevException = $exception->getPrevious();
+                if (UnknownDatabaseException::isUnknownDatabase($prevException)) {
+                    throw UnknownDatabaseException::create($dbname, $prevException);
                 }
 
-                throw $e;
+                throw $exception;
             }
         }
 
