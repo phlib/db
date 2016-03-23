@@ -533,7 +533,7 @@ class Adapter
         try {
             return $this->getConnection()->beginTransaction();
         } catch (\PDOException $exception) {
-            if (stripos($exception->getMessage(), 'MySQL server has gone away') !== false) {
+            if (RuntimeException::hasServerGoneAway($exception) && !$hasCaughtException) {
                 $this->reconnect();
                 return $this->getConnection()->beginTransaction();
             }
