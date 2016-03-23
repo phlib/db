@@ -416,9 +416,8 @@ class Adapter
             } elseif (RuntimeException::hasServerGoneAway($exception) && !$hasCaughtException) {
                 $this->reconnect();
                 return $this->doQuery($sql, $bind, true);
-            } else {
-                throw new RuntimeException($exception->getMessage(), $exception->getCode(), $exception);
             }
+            throw RuntimeException::create($exception);
         }
     }
 
@@ -537,7 +536,7 @@ class Adapter
                 $this->reconnect();
                 return $this->getConnection()->beginTransaction();
             }
-            throw $exception;
+            throw RuntimeException::create($exception);
         }
     }
 
