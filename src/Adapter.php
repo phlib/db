@@ -529,12 +529,17 @@ class Adapter
      */
     public function beginTransaction()
     {
+        return $this->doBeginTransaction();
+    }
+
+    protected function doBeginTransaction($hasCaughtException = false)
+    {
         try {
             return $this->getConnection()->beginTransaction();
         } catch (\PDOException $exception) {
             if (RuntimeException::hasServerGoneAway($exception) && !$hasCaughtException) {
                 $this->reconnect();
-                return $this->getConnection()->beginTransaction();
+                return $this->doBeginTransaction(true);
             }
             throw RuntimeException::create($exception);
         }
