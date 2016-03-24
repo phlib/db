@@ -5,10 +5,10 @@ namespace Phlib\Db\Exception;
 class RuntimeException extends \PDOException implements Exception
 {
     /**
-     * @param \Exception $exception
+     * @param \PDOException $exception
      * @return static
      */
-    public static function create(\Exception $exception)
+    public static function create(\PDOException $exception)
     {
         return new static($exception->getMessage(), $exception->getCode(), $exception);
     }
