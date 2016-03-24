@@ -140,7 +140,7 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
     public function testSetDatabaseWhenItsUnknown()
     {
         $database  = 'foobar';
-        $exception = new \PDOException("SQLSTATE[42000] [1049] Unknown database '$database'.", 42000);
+        $exception = new \PDOException("SQLSTATE[42000]: Syntax error or access violation: 1049 Unknown database '$database'.", 42000);
         $statement = $this->getMock(\PDOStatement::class);
         $statement->expects($this->any())
             ->method('execute')

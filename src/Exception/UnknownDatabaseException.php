@@ -42,7 +42,7 @@ class UnknownDatabaseException extends RuntimeException implements Exception
         return $exception->getCode() == self::ER_BAD_DB_ERROR_1 ||
         (
             $exception->getCode() == self::ER_BAD_DB_ERROR_2 &&
-            preg_match('/SQLSTATE\[42000\].*\w1049\w/', $exception->getMessage()) !== false
+            preg_match('/SQLSTATE\[42000\].*\s1049\s/', $exception->getMessage()) != false
         );
     }
 

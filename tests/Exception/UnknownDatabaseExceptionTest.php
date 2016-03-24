@@ -34,13 +34,17 @@ class UnknownDatabaseExceptionTest extends \PHPUnit_Framework_TestCase
 
     public function testCorrectlyEvaluatesPdoExceptionOnUseDatabase()
     {
-        $pdoException = new \PDOException("SQLSTATE[42000]: Syntax error or access violation: 1049 Unknown database '<dbname>'", '42000');
+        $code = '42000';
+        $message = "SQLSTATE[42000]: Syntax error or access violation: 1049 Unknown database '<dbname>'";
+        $pdoException = new \PDOException($message, $code);
         $this->assertTrue(UnknownDatabaseException::isUnknownDatabase($pdoException));
     }
 
     public function testCorrectlyEvaluatesPdoExceptionForNonDatabaseError()
     {
-        $pdoException = new \PDOException("SQLSTATE[HY000] [2002] Connection refused", 2002);
+        $code = '42000';
+        $message = "SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'FRM foo' at line 1";
+        $pdoException = new \PDOException($message, $code);
         $this->assertFalse(UnknownDatabaseException::isUnknownDatabase($pdoException));
     }
 }
