@@ -2,6 +2,8 @@
 
 namespace Phlib\Db\Adapter;
 
+use Phlib\Db\Exception\InvalidArgumentException;
+
 class Config
 {
     /**
