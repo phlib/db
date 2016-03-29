@@ -59,6 +59,37 @@ class ConnectionFactoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param mixed $setting
+     * @dataProvider charsetIsSetOnConnectionDataProvider
+     */
+    public function testCharsetIsSetOnConnection($method, $value)
+    {
+        $this->factory->expects($this->any())
+            ->method('create')
+            ->will($this->returnValue($this->pdo));
+
+        $pdoStatement = $this->getMock(\PDOStatement::class);
+        $pdoStatement->expects($this->any())
+            ->method('execute')
+            ->with($this->contains($value));
+        $this->pdo->expects($this->any())
+            ->method('prepare')
+            ->will($this->returnValue($pdoStatement));
+
+        $this->config->expects($this->any())->method('getMaximumAttempts')->will($this->returnValue(1));
+        $this->config->expects($this->any())->method($method)->will($this->returnValue($value));
+        $this->assertSame($this->pdo, $this->factory->__invoke($this->config));
+    }
+
+    public function charsetIsSetOnConnectionDataProvider()
+    {
+        return [
+            ['getCharset', 'latin1'],
+            ['getTimezone', '+0200']
+        ];
+    }
+
+    /**
      * @expectedException \Phlib\Db\Exception\UnknownDatabaseException
      */
     public function testSettingUnknownDatabase()
