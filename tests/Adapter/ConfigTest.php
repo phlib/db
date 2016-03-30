@@ -82,7 +82,25 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         ];
     }
 
-    public function testGetMaximumAttempts()
+    /**
+     * @param int $expected
+     * @param int $value
+     * @dataProvider getMaximumAttemptsDataProvider
+     */
+    public function testGetMaximumAttempts($value, $expected)
     {
+        $this->assertEquals($expected, (new Config(['retryCount' => $value]))->getMaximumAttempts());
+    }
+
+    public function getMaximumAttemptsDataProvider()
+    {
+        return [
+            [-1, 1],
+            [0, 1],
+            [1, 2],
+            [2, 3],
+            [10, 11],
+            [11, 1],
+        ];
     }
 }
