@@ -207,7 +207,7 @@ class Adapter
             } catch (RuntimeException $exception) {
                 $prevException = $exception->getPrevious();
                 if (UnknownDatabaseException::isUnknownDatabase($prevException)) {
-                    throw UnknownDatabaseException::create($dbname, $prevException);
+                    throw UnknownDatabaseException::createFromUnknownDatabase($dbname, $prevException);
                 }
 
                 throw $exception;

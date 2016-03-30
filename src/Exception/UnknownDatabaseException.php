@@ -28,7 +28,7 @@ class UnknownDatabaseException extends RuntimeException implements Exception
      * @param \PDOException $exception
      * @return static
      */
-    public static function create($database, \PDOException $exception)
+    public static function createFromUnknownDatabase($database, \PDOException $exception)
     {
         return new static($database, "Unknown database '{$database}'.", self::ER_BAD_DB_ERROR_1, $exception);
     }

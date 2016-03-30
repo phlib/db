@@ -26,7 +26,7 @@ class ConnectionFactory
                 return $connection;
             } catch (\PDOException $exception) {
                 if (UnknownDatabaseException::isUnknownDatabase($exception)) {
-                    throw UnknownDatabaseException::create($config->getDatabase(), $exception);
+                    throw UnknownDatabaseException::createFromUnknownDatabase($config->getDatabase(), $exception);
                 }
 
                 if ($maxAttempts > $attempt) {

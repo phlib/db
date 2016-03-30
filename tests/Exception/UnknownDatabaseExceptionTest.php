@@ -8,7 +8,7 @@ class UnknownDatabaseExceptionTest extends \PHPUnit_Framework_TestCase
 {
     public function testCreateReturnsException()
     {
-        $exception = UnknownDatabaseException::create('foo', new \PDOException());
+        $exception = UnknownDatabaseException::createFromUnknownDatabase('foo', new \PDOException());
         $this->assertInstanceOf(UnknownDatabaseException::class, $exception);
     }
 
@@ -22,7 +22,7 @@ class UnknownDatabaseExceptionTest extends \PHPUnit_Framework_TestCase
     public function testGetDatabaseNameWhenCreated()
     {
         $name = 'foo';
-        $exception = UnknownDatabaseException::create($name, new \PDOException());
+        $exception = UnknownDatabaseException::createFromUnknownDatabase($name, new \PDOException());
         $this->assertEquals($name, $exception->getDatabaseName());
     }
 
