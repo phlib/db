@@ -9,7 +9,7 @@ class RuntimeExceptionTest extends \PHPUnit_Framework_TestCase
     public function testCreate()
     {
         $pdoException = new \PDOException();
-        $this->assertInstanceOf(RuntimeException::class, RuntimeException::create($pdoException));
+        $this->assertInstanceOf(RuntimeException::class, RuntimeException::createFromException($pdoException));
     }
 
     public function testSuccessfullyDetectServerHasGoneAway()

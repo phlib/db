@@ -394,7 +394,7 @@ class Adapter
                 $this->reconnect();
                 return $this->doQuery($sql, $bind, true);
             }
-            throw RuntimeException::create($exception);
+            throw RuntimeException::createFromException($exception);
         }
     }
 
@@ -443,7 +443,7 @@ class Adapter
                 $this->reconnect();
                 return $this->doBeginTransaction(true);
             }
-            throw RuntimeException::create($exception);
+            throw RuntimeException::createFromException($exception);
         }
     }
 

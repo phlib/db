@@ -8,7 +8,7 @@ class RuntimeException extends \PDOException implements Exception
      * @param \PDOException $exception
      * @return static
      */
-    public static function create(\PDOException $exception)
+    public static function createFromException(\PDOException $exception)
     {
         return new static($exception->getMessage(), $exception->getCode(), $exception);
     }

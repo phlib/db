@@ -47,7 +47,7 @@ class ConnectionFactory
                     usleep($msec * 1000);
                 } else {
                     // ran out of attempts, throw the last error
-                    throw RuntimeException::create($exception);
+                    throw RuntimeException::createFromException($exception);
                 }
             }
         }
