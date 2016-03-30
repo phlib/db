@@ -16,6 +16,11 @@
             "role": "developer"
         }
     ],
+    "config": {
+        "platform": {
+            "php": "5.5"
+        }
+    },
     "require": {
         "php": ">=5.5",
 
