@@ -8,7 +8,7 @@ use Phlib\Db\BulkInsert;
 class BulkInsertTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var \Phlib\Db\Adapter|PHPUnit_Framework_MockObject_MockObject
+     * @var \Phlib\Db\Adapter|\PHPUnit_Framework_MockObject_MockObject
      */
     protected $adapter;
 
