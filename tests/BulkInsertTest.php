@@ -86,8 +86,63 @@ class BulkInsertTest extends \PHPUnit_Framework_TestCase
         $inserter->add(['field1' => 'foo']);
     }
 
-//    public function testWrite()
-//    {
-//
-//    }
+    public function testWriteCallsAdapterExecute()
+    {
+        $this->adapter->expects($this->once())
+            ->method('execute')
+            ->will($this->returnValue(1));
+
+        $inserter = new BulkInsert($this->adapter, 'table', ['field1', 'field2']);
+        $inserter->add(['field1' => 'foo', 'field2' => 'bar']);
+        $inserter->write();
+    }
+
+    public function testWriteReturnsEarlyWhenNoRows()
+    {
+        $this->adapter->expects($this->never())
+            ->method('execute');
+
+        $inserter = new BulkInsert($this->adapter, 'table', ['field1', 'field2']);
+        $inserter->write();
+    }
+
+    public function testWriteDoesNotWriteTheSameRows()
+    {
+        $this->adapter->expects($this->once())
+            ->method('execute')
+            ->will($this->returnValue(1));
+
+        $inserter = new BulkInsert($this->adapter, 'table', ['field1', 'field2']);
+        $inserter->add(['field1' => 'foo', 'field2' => 'bar']);
+        $inserter->write();
+        $inserter->write();
+    }
+
+    public function testWriteDetectsDeadlockAndHandlesIt()
+    {
+        $this->adapter->expects($this->exactly(2))
+            ->method('execute')
+            ->will($this->onConsecutiveCalls(
+                $this->throwException(new RuntimeException('Deadlock found when trying to get lock')),
+                $this->returnValue(1)
+            ));
+
+        $inserter = new BulkInsert($this->adapter, 'table', ['field1', 'field2']);
+        $inserter->add(['field1' => 'foo', 'field2' => 'bar']);
+        $inserter->write();
+    }
+
+    /**
+     * @expectedException RuntimeException
+     */
+    public function testWriteAllowsNonDeadlockErrorsToBubble()
+    {
+        $this->adapter->expects($this->any())
+            ->method('execute')
+            ->will($this->throwException(new RuntimeException('Some other foo exception')));
+
+        $inserter = new BulkInsert($this->adapter, 'table', ['field1', 'field2']);
+        $inserter->add(['field1' => 'foo', 'field2' => 'bar']);
+        $inserter->write();
+    }
 }
