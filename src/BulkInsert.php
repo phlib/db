@@ -113,8 +113,7 @@ class BulkInsert
                 if (is_int($key)) {
                     $values[] = "$value = VALUES($value)";
                 } else {
-                    $this->adapter->quoteByRef($value);
-                    $values[] = "$key = $value";
+                    $values[] = $this->adapter->quoteInto("$key = ?", $value);
                 }
             }
             $this->updateFields = $values;
