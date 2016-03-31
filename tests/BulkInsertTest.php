@@ -74,6 +74,11 @@ class BulkInsertTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    public function testFetchSqlReturnsFalseWhenNoRows()
+    {
+        $this->assertFalse((new BulkInsert($this->adapter, 'table', ['field']))->fetchSql());
+    }
+
     public function testAddCallsWriteWhenExceedsBatchSize()
     {
         $inserter = $this->getMockBuilder(BulkInsert::class)
