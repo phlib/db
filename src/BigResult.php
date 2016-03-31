@@ -60,7 +60,7 @@ class BigResult
             $inspectedRows = (new QueryPlanner($this->adapter, $select, $bind))
                 ->getNumberOfRowsInspected();
             if ($inspectedRows > $inspectedRowLimit) {
-                throw new InvalidArgumentException('');
+                throw new InvalidArgumentException("Number of rows inspected exceeds '$inspectedRowLimit'");
             }
         }
 
