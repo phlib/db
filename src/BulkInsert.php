@@ -43,7 +43,7 @@ class BulkInsert
     /**
      * @var array
      */
-    protected $rows = array();
+    protected $rows = [];
 
     /**
      * @var integer
@@ -74,7 +74,7 @@ class BulkInsert
      * @param array   $updateFields
      * @param integer $bulkSize
      */
-    public function __construct(Adapter $adapter, $table, array $insertFields, array $updateFields = array(), $bulkSize = 200)
+    public function __construct(Adapter $adapter, $table, array $insertFields, array $updateFields = [], array $options = [])
     {
         $this->adapter  = $adapter;
         $this->table    = $table;
@@ -104,9 +104,9 @@ class BulkInsert
      */
     public function setUpdateFields(array $fields)
     {
-        $this->updateFields = array();
+        $this->updateFields = [];
         if (count($fields) > 0) {
-            $values = array();
+            $values = [];
             foreach($fields as $key => $value) {
                 if (is_int($key)) {
                     $values[] = "$value = VALUES($value)";
@@ -184,15 +184,15 @@ class BulkInsert
         if (count($this->rows) == 0) {
             return false;
         }
-        $values = array();
+        $values = [];
         foreach($this->rows as $row) {
-            array_walk($row, array($this->adapter, 'quoteByRef'));
+            array_walk($row, [$this->adapter, 'quoteByRef']);
             $values[] = '(' . implode(', ', $row) . ')';
         }
         $values = implode(', ', $values);
 
         // Build statement structure
-        $insert = array('INSERT');
+        $insert = ['INSERT'];
         $update = '';
         if (!empty($this->updateFields)) {
             $update = 'ON DUPLICATE KEY UPDATE ' . implode(', ', $this->updateFields);
@@ -226,12 +226,12 @@ class BulkInsert
         if ((boolean)$flush) {
             $this->write();
         }
-        $stats = array(
+        $stats = [
             'total'    => $this->totalRows,
             'inserted' => $this->totalInserted,
             'updated'  => $this->totalUpdated,
             'pending'  => count($this->rows)
-        );
+        ];
         if ((boolean)$clearStats) {
             $this->totalRows = 0;
             $this->totalInserted = 0;
