@@ -151,4 +151,111 @@ class BulkInsertTest extends \PHPUnit_Framework_TestCase
         $inserter->add(['field1' => 'foo', 'field2' => 'bar']);
         $inserter->write();
     }
+
+    public function testFetchStatsOnInitialConstructWithoutFlush()
+    {
+        $expected = [
+            'total' => 0,
+            'inserted' => 0,
+            'updated' => 0,
+            'pending' => 0,
+        ];
+        $inserter = new BulkInsert($this->adapter, 'table', ['field1']);
+        $this->assertEquals($expected, $inserter->fetchStats($flush = false));
+    }
+
+    public function testFetchStatsOnInitialConstructWithFlush()
+    {
+        $expected = [
+            'total' => 0,
+            'inserted' => 0,
+            'updated' => 0,
+            'pending' => 0,
+        ];
+        $inserter = new BulkInsert($this->adapter, 'table', ['field1']);
+        $this->assertEquals($expected, $inserter->fetchStats($flush = true));
+    }
+
+    /**
+     * @param int $expected
+     * @param string $statistic
+     * @param int $noOfInserts
+     * @param int $noOfUpdates
+     * @param bool $withFlush
+     * @dataProvider fetchStatsIncrementsDataProvider
+     */
+    public function testFetchStatsIncrements($expected, $statistic, $noOfInserts, $noOfUpdates, $withFlush)
+    {
+        $affectedRows = ($noOfUpdates * 2) + $noOfInserts;
+        $this->adapter->expects($this->any())
+            ->method('execute')
+            ->will($this->returnValue($affectedRows));
+
+        $inserter = new BulkInsert($this->adapter, 'table', ['field1'], []);
+        $totalRows = $noOfInserts + $noOfUpdates;
+        for ($i = 0; $i < $totalRows; $i++) {
+            $inserter->add(['field1' => 'foo']);
+        }
+
+        $stats = $inserter->fetchStats($withFlush);
+        $this->assertEquals($expected, $stats[$statistic]);
+    }
+
+    public function fetchStatsIncrementsDataProvider()
+    {
+        return [
+            // total
+            [0, 'total', 1, 0, false],
+            [1, 'total', 1, 0, true],
+            [0, 'total', 1, 1, false],
+            [2, 'total', 1, 1, true],
+            [5, 'total', 5, 0, true],
+            [10, 'total', 5, 5, true],
+            // inserted
+            [0, 'inserted', 1, 0, false],
+            [1, 'inserted', 1, 0, true],
+            [0, 'inserted', 1, 1, false],
+            [1, 'inserted', 1, 1, true],
+            [0, 'inserted', 0, 5, true],
+            [5, 'inserted', 5, 0, true],
+            [5, 'inserted', 5, 5, true],
+            // updated
+            [0, 'updated', 1, 0, false],
+            [0, 'updated', 1, 0, true],
+            [0, 'updated', 1, 1, false],
+            [1, 'updated', 1, 1, true],
+            [5, 'updated', 0, 5, true],
+            [0, 'updated', 5, 0, true],
+            [5, 'updated', 5, 5, true],
+            // pending
+            [1, 'pending', 1, 0, false],
+            [0, 'pending', 1, 0, true],
+            [2, 'pending', 1, 1, false],
+            [0, 'pending', 1, 1, true],
+            [5, 'pending', 5, 0, false],
+            [10, 'pending', 5, 5, false],
+            [0, 'pending', 5, 0, true],
+            [0, 'pending', 5, 5, true],
+        ];
+    }
+
+    public function testClearStats()
+    {
+        $this->adapter->expects($this->any())
+            ->method('execute')
+            ->will($this->returnValue(1));
+
+        $inserter = new BulkInsert($this->adapter, 'table', ['field1'], []);
+        $inserter->add(['field1' => 'foo']);
+
+        $expected = [
+            'total' => 0,
+            'inserted' => 0,
+            'updated' => 0,
+            'pending' => 0,
+        ];
+        $this->assertNotEquals($expected, $inserter->fetchStats(true));
+        $inserter->clearStats();
+        $this->assertEquals($expected, $inserter->fetchStats(true));
+    }
 }
