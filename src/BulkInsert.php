@@ -150,7 +150,7 @@ class BulkInsert
     public function write()
     {
         $rowCount = count($this->rows);
-        if ($rowCount > 0) {
+        if ($rowCount == 0) {
             return $this;
         }
 
