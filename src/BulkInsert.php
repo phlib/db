@@ -1,6 +1,6 @@
 <?php
 
-namespace Phlib\Db\Helper;
+namespace Phlib\Db;
 
 use Phlib\Db\Adapter;
 use Phlib\Db\Exception\RuntimeException;
@@ -11,7 +11,7 @@ use Phlib\Db\Exception\RuntimeException;
  * Used to insert large amounts of data into a single table in defined batch
  * sizes.
  *
- * @package Phlib\Db\Helper
+ * @package Phlib\Db
  */
 class BulkInsert
 {
