@@ -190,7 +190,7 @@ class BulkInsert
         }
         $values = [];
         foreach($this->rows as $row) {
-            array_walk($row, [$this->adapter, 'quoteByRef']);
+            array_map([$this->adapter, 'quote'], $row);
             $values[] = '(' . implode(', ', $row) . ')';
         }
         $values = implode(', ', $values);
