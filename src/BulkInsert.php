@@ -151,26 +151,29 @@ class BulkInsert
     {
         $rowCount = count($this->rows);
         if ($rowCount > 0) {
-            $sql = $this->fetchSql();
-
-            do {
-                try {
-                    $affectedRows = $this->adapter->exec($sql);
-                } catch (RuntimeException $e) {
-                    if (stripos($e->getMessage(), 'Deadlock') === false) {
-                        throw $e;
-                    }
-                    $affectedRows = false;
-                }
-            } while($affectedRows === false);
-
-            $this->rows  = array();
-
-            $updatedRows          = $affectedRows - $rowCount;
-            $this->totalRows     += $rowCount;
-            $this->totalInserted += $rowCount - $updatedRows;
-            $this->totalUpdated  += $updatedRows;
+            return $this;
         }
+
+        $sql = $this->fetchSql();
+
+        do {
+            try {
+                $affectedRows = $this->adapter->exec($sql);
+            } catch (RuntimeException $e) {
+                if (stripos($e->getMessage(), 'Deadlock') === false) {
+                    throw $e;
+                }
+                $affectedRows = false;
+            }
+        } while($affectedRows === false);
+
+        $this->rows = [];
+
+        $updatedRows          = $affectedRows - $rowCount;
+        $this->totalRows     += $rowCount;
+        $this->totalInserted += $rowCount - $updatedRows;
+        $this->totalUpdated  += $updatedRows;
+
         return $this;
     }
 
