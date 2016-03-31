@@ -4,6 +4,7 @@ namespace Phlib\Db\Tests;
 
 use Phlib\Db\Adapter;
 use Phlib\Db\BulkInsert;
+use Phlib\Db\Exception\RuntimeException;
 
 class BulkInsertTest extends \PHPUnit_Framework_TestCase
 {
