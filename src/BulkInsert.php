@@ -221,10 +221,9 @@ class BulkInsert
      * )
      *
      * @param  boolean $flush
-     * @param  boolean $clearStats
      * @return array
      */
-    public function fetchStats($flush = true, $clearStats = true)
+    public function fetchStats($flush = true)
     {
         if ((boolean)$flush) {
             $this->write();
@@ -235,12 +234,20 @@ class BulkInsert
             'updated'  => $this->totalUpdated,
             'pending'  => count($this->rows)
         ];
-        if ((boolean)$clearStats) {
-            $this->totalRows = 0;
-            $this->totalInserted = 0;
-            $this->totalUpdated = 0;
-        }
         return $stats;
+    }
+
+    /**
+     * Clear the currently recorded statistics.
+     *
+     * @return $this
+     */
+    public function clearStats()
+    {
+        $this->totalRows     = 0;
+        $this->totalInserted = 0;
+        $this->totalUpdated  = 0;
+        return $this;
     }
 
     /**
