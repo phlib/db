@@ -155,10 +155,9 @@ class BulkInsert
         }
 
         $sql = $this->fetchSql();
-
         do {
             try {
-                $affectedRows = $this->adapter->exec($sql);
+                $affectedRows = $this->adapter->execute($sql);
             } catch (RuntimeException $e) {
                 if (stripos($e->getMessage(), 'Deadlock') === false) {
                     throw $e;
