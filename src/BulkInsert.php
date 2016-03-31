@@ -48,7 +48,7 @@ class BulkInsert
     /**
      * @var integer
      */
-    protected $bulkSize;
+    protected $batchSize;
 
     /**
      * @var integer
@@ -72,13 +72,15 @@ class BulkInsert
      * @param string  $table
      * @param array   $insertFields
      * @param array   $updateFields
-     * @param integer $bulkSize
+     * @param array   $options int batchSize = 200
      */
     public function __construct(Adapter $adapter, $table, array $insertFields, array $updateFields = [], array $options = [])
     {
-        $this->adapter  = $adapter;
-        $this->table    = $table;
-        $this->bulkSize = (integer)$bulkSize;
+        $options = $options + ['batchSize' => 200];
+
+        $this->adapter   = $adapter;
+        $this->table     = $table;
+        $this->batchSize = (integer)$options['batchSize'];
 
         $this->setInsertFields($insertFields);
         $this->setUpdateFields($updateFields);
@@ -133,7 +135,7 @@ class BulkInsert
     {
         if (count($row) == count($this->insertFields)) {
             $this->rows[] = $row;
-            if (count($this->rows) >= $this->bulkSize) {
+            if (count($this->rows) >= $this->batchSize) {
                 $this->write();
             }
         }
