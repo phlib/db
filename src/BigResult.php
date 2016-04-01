@@ -57,8 +57,7 @@ class BigResult
     public function query($select, array $bind = [], $inspectedRowLimit = null)
     {
         if ($inspectedRowLimit !== null) {
-            $inspectedRows = (new QueryPlanner($this->adapter, $select, $bind))
-                ->getNumberOfRowsInspected();
+            $inspectedRows = $this->getInspectedRows($select, $bind);
             if ($inspectedRows > $inspectedRowLimit) {
                 throw new InvalidArgumentException("Number of rows inspected exceeds '$inspectedRowLimit'");
             }
@@ -75,5 +74,16 @@ class BigResult
         $stmt->execute($bind);
 
         return $stmt;
+    }
+
+    /**
+     * @param string $select
+     * @param array $bind
+     * @return int
+     */
+    protected function getInspectedRows($select, array $bind)
+    {
+        return (new QueryPlanner($this->adapter, $select, $bind))
+            ->getNumberOfRowsInspected();
     }
 }
