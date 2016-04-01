@@ -1,7 +1,11 @@
 <?php
 
-namespace Phlib\Db\Helper\Replication;
+namespace Phlib\Db\Replication;
 
+/**
+ * Interface StorageInterface
+ * @package Phlib\Db\Replication
+ */
 interface StorageInterface
 {
     /**

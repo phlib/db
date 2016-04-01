@@ -1,10 +1,14 @@
 <?php
 
-namespace Phlib\Db\Helper;
+namespace Phlib\Db;
 
 use Phlib\Db\Adapter;
 use Phlib\Db\Exception;
 
+/**
+ * Class Replication
+ * @package Phlib\Db
+ */
 class Replication
 {
     /**

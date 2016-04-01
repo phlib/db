@@ -1,7 +1,10 @@
 <?php
 
-namespace \Phlib\Db\Helper\Replication;
+namespace \Phlib\Db\Replication;
 
+/**
+ * Class Memcache
+ */
 class Memcache implements StorageInterface
 {
     /**
