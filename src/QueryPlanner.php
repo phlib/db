@@ -1,12 +1,12 @@
 <?php
 
-namespace Phlib\Db\Helper;
+namespace Phlib\Db;
 
 use Phlib\Db\Adapter;
 
 /**
  * Class QueryPlanner
- * @package Phlib\Db\Helper
+ * @package Phlib\Db
  */
 class QueryPlanner
 {
