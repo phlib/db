@@ -85,14 +85,8 @@ class ReplicationTest extends \PHPUnit_Framework_TestCase
                 ]
             ],
             'storage' => [
-                'class' => '\Phlib\Db\Replication\Memcache',
-                'args'  => [
-                    [
-                        'host'    => '127.0.0.1',
-                        'port'    => '11211',
-                        'timeout' => 1
-                    ]
-                ]
+                'class' => \Phlib\Db\Tests\Replication\StorageMock::class,
+                'args'  => [[]]
             ],
         ];
     }
