@@ -84,17 +84,22 @@ class Replication
      */
     public static function createFromConfig(array $config)
     {
-        $master = new Adapter([]);
+        $master = new Adapter([
+            'host'     => $config['host'],
+            'username' => $config['username'],
+            'password' => $config['password'],
+            'dbname'   => $config['dbname']
+        ]);
         $slaves = [];
         foreach ($config['slaves'] as $slave) {
             $slaves[] = new Adapter($slave);
         }
         $storageClass = $config['storage']['class'];
         if (!class_exists($storageClass)) {
-            throw new InvalidArgumentException;
+            throw new InvalidArgumentException("Specified storage class '$storageClass' could not be found.");
         }
-        if (!method_exists([$storageClass, 'createFromConfig'])) {
-            throw new InvalidArgumentException;
+        if (!method_exists($storageClass, 'createFromConfig')) {
+            throw new InvalidArgumentException("Storage class '$storageClass' is missing required method 'createFromConfig'.");
         }
         $storage = call_user_func_array([$storageClass, 'createFromConfig'], $config['storage']['args']);
         return new static($master, $slaves, $storage);
