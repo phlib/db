@@ -42,6 +42,61 @@ class ReplicationTest extends \PHPUnit_Framework_TestCase
         $this->master  = null;
     }
 
+    public function testCreateFromConfigSuccessfully()
+    {
+        $config = $this->getDefaultConfig();
+        $replication = Replication::createFromConfig($config);
+        $this->assertInstanceOf(Replication::class, $replication);
+    }
+
+    /**
+     * @expectedException \Phlib\Db\Exception\InvalidArgumentException
+     */
+    public function testCreateFromConfigWithInvalidStorageClass()
+    {
+        $config = $this->getDefaultConfig();
+        $config['storage']['class'] = '\My\Unknown\Class';
+        Replication::createFromConfig($config);
+    }
+
+    /**
+     * @expectedException \Phlib\Db\Exception\InvalidArgumentException
+     */
+    public function testCreateFromConfigWithInvalidStorageMethod()
+    {
+        $config = $this->getDefaultConfig();
+        $config['storage']['class'] = '\stdClass';
+        Replication::createFromConfig($config);
+    }
+
+
+    public function getDefaultConfig()
+    {
+        return [
+            'host'     => '10.0.0.1',
+            'username' => 'foo',
+            'password' => 'bar',
+            'dbname'   => 'test',
+            'slaves'   => [
+                [
+                    'host'     => '10.0.0.2',
+                    'username' => 'foo',
+                    'password' => 'bar'
+                ]
+            ],
+            'storage' => [
+                'class' => '\Phlib\Db\Replication\Memcache',
+                'args'  => [
+                    [
+                        'host'    => '127.0.0.1',
+                        'port'    => '11211',
+                        'timeout' => 1
+                    ]
+                ]
+            ],
+        ];
+    }
+
     /**
      * @expectedException \Phlib\Db\Exception\InvalidArgumentException
      */
