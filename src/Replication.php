@@ -177,14 +177,6 @@ class Replication
     }
 
     /**
-     * @return array
-     */
-    public function stats()
-    {
-        return [];
-    }
-
-    /**
      * @param Adapter $slave
      * @return array
      */

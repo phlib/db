@@ -23,14 +23,9 @@ class ReplicationTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-//        $pdoStatement = $this->getMock(\PDOStatement::class);
-
         $this->master = $this->getMockBuilder(Adapter::class)
             ->disableOriginalConstructor()
             ->getMock();
-//        $this->master->expects($this->any())
-//            ->method('prepare')
-//            ->will($this->returnValue($pdoStatement));
         $this->master->expects($this->any())
             ->method('getConfig')
             ->will($this->returnValue(['host' => '127.0.0.1']));
@@ -50,9 +45,16 @@ class ReplicationTest extends \PHPUnit_Framework_TestCase
     /**
      * @expectedException \Phlib\Db\Exception\InvalidArgumentException
      */
-    public function testConstructDoesntAllowEmptySlaves()
+    public function testConstructDoesNotAllowEmptySlaves()
     {
         new Replication($this->master, [], $this->storage);
+    }
+
+    public function testGettingStorageReturnsSameInstance()
+    {
+        $slave = $this->getMock(Adapter::class);
+        $replication = new Replication($this->master, [$slave], $this->storage);
+        $this->assertSame($this->storage, $replication->getStorage());
     }
 
     /**
