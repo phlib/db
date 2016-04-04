@@ -66,6 +66,9 @@ class Replication
         $this->host    = $master->getConfig()['host'];
         $this->storage = $storage;
 
+        if (empty($slaves)) {
+            throw new InvalidArgumentException('Missing required list of slaves.');
+        }
         foreach ($slaves as $slave) {
             if (!$slave instanceof Adapter) {
                 throw new InvalidArgumentException('Specified slave is not an expected adapter.');
