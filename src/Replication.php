@@ -3,7 +3,8 @@
 namespace Phlib\Db;
 
 use Phlib\Db\Adapter;
-use Phlib\Db\Exception;
+use Phlib\Db\Exception\RuntimeException;
+use Phlib\Db\Exception\InvalidArgumentException;
 
 /**
  * Class Replication
