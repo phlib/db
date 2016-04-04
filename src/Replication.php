@@ -68,7 +68,7 @@ class Replication
 
         foreach ($slaves as $slave) {
             if (!$slave instanceof Adapter) {
-                throw new Exception\InvalidArgumentException('Specified slave is not an expected adapter');
+                throw new InvalidArgumentException('Specified slave is not an expected adapter.');
             }
         }
     }
@@ -86,10 +86,10 @@ class Replication
         }
         $storageClass = $config['storage']['class'];
         if (!class_exists($storageClass)) {
-            throw new Exception\InvalidArgumentException;
+            throw new InvalidArgumentException;
         }
         if (!method_exists([$storageClass, 'createFromConfig'])) {
-            throw new Exception\InvalidArgumentException;
+            throw new InvalidArgumentException;
         }
         $storage = call_user_func_array([$storageClass, 'createFromConfig'], $config['storage']['args']);
         return new static($master, $slaves, $storage);
@@ -187,8 +187,12 @@ class Replication
     {
         $status = $slave->query('SHOW SLAVE STATUS')
             ->fetch(\PDO::FETCH_ASSOC);
-        if (!array_key_exists('Seconds_Behind_Master', $status) or is_null($status['Seconds_Behind_Master'])) {
-            throw new Exception\RuntimeException('Seconds_Behind_Master is null');
+        if (
+            !is_array($status) ||
+            !array_key_exists('Seconds_Behind_Master', $status) ||
+            is_null($status['Seconds_Behind_Master'])
+        ) {
+            throw new RuntimeException('Seconds_Behind_Master is not a valid value');
         }
         return $status;
     }
