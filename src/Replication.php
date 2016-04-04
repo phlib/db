@@ -18,7 +18,7 @@ class Replication
     protected $master;
 
     /**
-     * @var \Phlib\Db\Adapter[]
+     * @var Adapter[]
      */
     protected $slaves;
 
