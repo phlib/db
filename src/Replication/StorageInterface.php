@@ -9,6 +9,12 @@ namespace Phlib\Db\Replication;
 interface StorageInterface
 {
     /**
+     * @param array $config
+     * @return static
+     */
+    public static function createFromConfig(array $config);
+
+    /**
      * @return integer
      */
     public function getSecondsBehind($host);
