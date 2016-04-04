@@ -12,6 +12,8 @@ use Phlib\Db\Exception\InvalidArgumentException;
  */
 class Replication
 {
+    const MAX_HISTORY = 30;
+
     /**
      * @var Adapter
      */
@@ -156,7 +158,7 @@ class Replication
         // append data point to the history for this host
         $history   = $this->storage->getHistory($this->host);
         $history[] = $maxBehind;
-        if (count($history) > $this->capturePoints) {
+        if (count($history) > self::MAX_HISTORY) {
             // trim the history
             array_shift($history);
         }
