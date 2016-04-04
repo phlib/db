@@ -101,6 +101,14 @@ class Replication
     }
 
     /**
+     * @return Replication\StorageInterface
+     */
+    public function getStorage()
+    {
+        return $this->storage;
+    }
+
+    /**
      * Get throttle weighting
      *
      * @return int
