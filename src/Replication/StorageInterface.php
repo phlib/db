@@ -11,7 +11,7 @@ interface StorageInterface
     /**
      * @return integer
      */
-    public function getSecondsBehind();
+    public function getSecondsBehind($host);
 
     /**
      * @param string $host
@@ -23,7 +23,7 @@ interface StorageInterface
     /**
      * @return integer[]
      */
-    public function getHistory();
+    public function getHistory($host);
 
     /**
      * @param string $host
