@@ -1,6 +1,6 @@
 <?php
 
-namespace \Phlib\Db\Replication;
+namespace Phlib\Db\Replication;
 
 /**
  * Class Memcache
@@ -13,9 +13,9 @@ class Memcache implements StorageInterface
     protected $memcache;
 
     /**
-     * @param Memcache $memcache
+     * @param \Memcache $memcache
      */
-    public function __construct(Memcache $memcache)
+    public function __construct(\Memcache $memcache)
     {
         $this->memcache = $memcache;
     }
@@ -26,7 +26,7 @@ class Memcache implements StorageInterface
      */
     public static function createFromConfig(array $memcacheConfig)
     {
-        $memcache = new Memcache();
+        $memcache = new \Memcache();
         $memcache->connect($memcacheConfig['host'], $memcacheConfig['port'], $memcacheConfig['timeout']);
         return new static($memcache);
     }
