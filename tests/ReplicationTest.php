@@ -23,7 +23,7 @@ class ReplicationTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->master = $this->getMockBuilder(Adapter::class)
+        $this->master = $this->getMockBuilder(AdapterMock::class)
             ->disableOriginalConstructor()
             ->getMock();
         $this->master->expects($this->any())
