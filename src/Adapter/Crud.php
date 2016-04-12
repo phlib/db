@@ -8,7 +8,7 @@ use Phlib\Db\Adapter;
  * Class Crud
  * @package Phlib\Db\Helper
  */
-class Crud
+class Crud implements CrudInterface
 {
     /**
      * @var Adapter
@@ -67,7 +67,7 @@ class Crud
      * @param array $data
      * @param string $where
      * @param array $bind
-     * @return int|boolean Number of affected rows
+     * @return int Number of affected rows
      */
     public function update($table, array $data, $where = '', array $bind = array())
     {
