@@ -31,6 +31,11 @@ class CrudTest extends \PHPUnit_Framework_TestCase
         parent::tearDown();
     }
 
+    public function testImplementsInterface()
+    {
+        $this->assertInstanceOf(Adapter\CrudInterface::class, $this->crud);
+    }
+
     /**
      * @param string $expectedSql
      * @param string $table
