@@ -2,7 +2,7 @@
 
 namespace Phlib\Db\Tests;
 
-use Phlib\Db\Adapter;
+use Phlib\Db\Adapter\QuotableAdapterInterface;
 use Phlib\Db\BulkInsert;
 use Phlib\Db\Exception\RuntimeException;
 
@@ -15,7 +15,7 @@ class BulkInsertTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->adapter = $this->getMock(Adapter::class);
+        $this->adapter = $this->getMock(QuotableAdapterInterface::class);
         parent::setUp();
     }
 
