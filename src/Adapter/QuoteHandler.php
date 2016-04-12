@@ -4,7 +4,7 @@ namespace Phlib\Db\Adapter;
 
 use Phlib\Db\Exception\InvalidArgumentException;
 
-class QuoteHandler implements QuoteableInterface
+class QuoteHandler implements QuotableInterface
 {
 
     /**

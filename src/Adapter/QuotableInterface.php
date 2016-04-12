@@ -2,7 +2,7 @@
 
 namespace Phlib\Db\Adapter;
 
-interface QuoteableInterface
+interface QuotableInterface
 {
     /**
      * @param mixed $value
