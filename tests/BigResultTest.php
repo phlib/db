@@ -17,7 +17,7 @@ class BigResultTest extends \PHPUnit_Framework_TestCase
     {
         $pdoStatement = $this->getMock(\PDOStatement::class);
 
-        $this->adapter = $this->getMockBuilder(AdapterMock::class)
+        $this->adapter = $this->getMockBuilder(Adapter::class)
             ->disableOriginalConstructor()
             ->getMock();
         $this->adapter->expects($this->any())
