@@ -2,7 +2,7 @@
 
 namespace Phlib\Db;
 
-use Phlib\Db\Adapter;
+use Phlib\Db\Adapter\QuotableAdapterInterface;
 use Phlib\Db\Exception\RuntimeException;
 
 /**
@@ -74,7 +74,7 @@ class BulkInsert
      * @param array   $updateFields
      * @param array   $options int batchSize = 200
      */
-    public function __construct(Adapter $adapter, $table, array $insertFields, array $updateFields = [], array $options = [])
+    public function __construct(QuotableAdapterInterface $adapter, $table, array $insertFields, array $updateFields = [], array $options = [])
     {
         $options = $options + ['batchSize' => 200];
 
