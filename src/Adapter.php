@@ -12,18 +12,8 @@ use Phlib\Db\Exception\RuntimeException;
 use Phlib\Db\Exception\InvalidArgumentException;
 
 /**
- * Database Adapter
- *
- * @method string quote() quote(string $value, integer $type = null)
- * @method string quoteInto() quoteInto(string $text, mixed $value, int $type = null)
- * @method string quoteColumnAs() quoteColumnAs(string $ident, string $alias, bool $auto = false)
- * @method string quoteTableAs() quoteTableAs(string $ident, string $alias = null, bool $auto = false)
- * @method string quoteIdentifier() quoteIdentifier(string $ident, bool $auto = false)
- *
- * @method \PDOStatement select() select(string $table, string $where = '', array $bind = array())
- * @method \PDOStatement insert() insert(string $table, array $data)
- * @method \PDOStatement update() update(string $table, array $data, string $where = '', array $bind = array())
- * @method \PDOStatement delete() delete(string $table, string $where = '', array $bind = array())
+ * Class Adapter
+ * @package Phlib\Db
  */
 class Adapter implements AdapterInterface, QuoteableInterface, CrudInterface
 {
@@ -101,6 +91,59 @@ class Adapter implements AdapterInterface, QuoteableInterface, CrudInterface
     }
 
     /**
+     * @param mixed $value
+     * @param int $type
+     * @return string
+     */
+    public function quote($value, $type = null)
+    {
+        return $this->quoter->quote($value, $type);
+    }
+
+    /**
+     * @param string $text
+     * @param mixed $value
+     * @param int $type
+     * @return string
+     */
+    public function quoteInto($text, $value, $type = null)
+    {
+        return $this->quoter->quoteInto($text, $value, $type);
+    }
+
+    /**
+     * @param string $ident
+     * @param string $alias
+     * @param bool $auto
+     * @return string
+     */
+    public function quoteColumnAs($ident, $alias, $auto = false)
+    {
+        return $this->quoter->quoteColumnAs($ident, $alias, $auto);
+    }
+
+    /**
+     * @param string $ident
+     * @param string  $alias
+     * @param bool $auto
+     * @return string
+     */
+    public function quoteTableAs($ident, $alias = null, $auto = false)
+    {
+        return $this->quoter->quoteTableAs($ident, $alias, $auto);
+    }
+
+    /**
+     * @param $ident
+     * @param bool $auto
+     * @return string
+     */
+    public function quoteIdentifier($ident, $auto = false)
+    {
+        return $this->quoter->quoteIdentifier($ident, $auto);
+    }
+
+    /**
      * @param Adapter\Crud $crud
      * @return $this
      */
@@ -111,19 +154,47 @@ class Adapter implements AdapterInterface, QuoteableInterface, CrudInterface
     }
 
     /**
-     * @param string $name
-     * @param array $arguments
-     * @return mixed
+     * @param string $table
+     * @param string $where
+     * @param array $bind
+     * @return \PDOStatement
      */
-    public function __call($name, $arguments)
+    public function select($table, $where = '', array $bind = array())
     {
-        if (method_exists($this->quoter, $name)) {
-            return call_user_func_array([$this->quoter, $name], $arguments);
-        }
-        if (method_exists($this->crud, $name)) {
-            return call_user_func_array([$this->crud, $name], $arguments);
-        }
-        throw new \BadMethodCallException("Specified method '$name' is not known.");
+        return $this->crud->select($table, $where, $bind);
+    }
+
+    /**
+     * @param string $table
+     * @param array $data
+     * @return int
+     */
+    public function insert($table, array $data)
+    {
+        return $this->crud->insert($table, $data);
+    }
+
+    /**
+     * @param string $table
+     * @param array $data
+     * @param string $where
+     * @param array $bind
+     * @return int
+     */
+    public function update($table, array $data, $where = '', array $bind = array())
+    {
+        return $this->crud->update($table, $data, $where, $bind);
+    }
+
+    /**
+     * @param string $table
+     * @param string $where
+     * @param array $bind
+     * @return int
+     */
+    public function delete($table, $where = '', array $bind = array())
+    {
+        return $this->crud->delete($table, $where, $bind);
     }
 
     /**
