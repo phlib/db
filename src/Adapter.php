@@ -2,6 +2,9 @@
 
 namespace Phlib\Db;
 
+use Phlib\Db\Adapter\AdapterInterface;
+use Phlib\Db\Adapter\QuoteableInterface;
+use Phlib\Db\Adapter\CrudInterface;
 use Phlib\Db\Adapter\ConnectionFactory;
 use Phlib\Db\Exception\InvalidQueryException;
 use Phlib\Db\Exception\UnknownDatabaseException;
@@ -22,7 +25,7 @@ use Phlib\Db\Exception\InvalidArgumentException;
  * @method \PDOStatement update() update(string $table, array $data, string $where = '', array $bind = array())
  * @method \PDOStatement delete() delete(string $table, string $where = '', array $bind = array())
  */
-class Adapter
+class Adapter implements AdapterInterface, QuoteableInterface, CrudInterface
 {
     /**
      * @var Adapter\Config
