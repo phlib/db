@@ -2,7 +2,7 @@
 
 namespace Phlib\Db\Tests\Adapter;
 
-use Phlib\Db\Adapter\QuoteableInterface;
+use Phlib\Db\Adapter\QuotableInterface;
 use Phlib\Db\Adapter\QuoteHandler;
 use Phlib\Db\Tests\ToStringClass;
 
@@ -20,7 +20,7 @@ class QuoteHandlerTest extends \PHPUnit_Framework_TestCase
 
     public function testImplementInterface()
     {
-        $this->assertInstanceOf(QuoteableInterface::class, $this->handler);
+        $this->assertInstanceOf(QuotableInterface::class, $this->handler);
     }
 
     /**
