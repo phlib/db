@@ -2,7 +2,7 @@
 
 namespace Phlib\Db\Tests;
 
-use Phlib\Db\Adapter;
+use Phlib\Db\Adapter\AdapterInterface;
 use Phlib\Db\Replication;
 use Phlib\Db\Replication\StorageInterface;
 use phpmock\phpunit\PHPMock;
@@ -12,7 +12,7 @@ class ReplicationTest extends \PHPUnit_Framework_TestCase
     use PHPMock;
 
     /**
-     * @var \Phlib\Db\Adapter|\PHPUnit_Framework_MockObject_MockObject
+     * @var \Phlib\Db\AdapterInterface|\PHPUnit_Framework_MockObject_MockObject
      */
     protected $master;
 
@@ -23,7 +23,7 @@ class ReplicationTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->master = $this->getMockBuilder(Adapter::class)
+        $this->master = $this->getMockBuilder(AdapterInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
         $this->master->expects($this->any())
@@ -101,7 +101,7 @@ class ReplicationTest extends \PHPUnit_Framework_TestCase
 
     public function testGettingStorageReturnsSameInstance()
     {
-        $slave = $this->getMock(Adapter::class);
+        $slave = $this->getMock(AdapterInterface::class);
         $replication = new Replication($this->master, [$slave], $this->storage);
         $this->assertSame($this->storage, $replication->getStorage());
     }
@@ -118,7 +118,7 @@ class ReplicationTest extends \PHPUnit_Framework_TestCase
     public function testSetWeighting()
     {
         $weighting = 12345;
-        $replication = new Replication($this->master, [$this->getMock(Adapter::class)], $this->storage);
+        $replication = new Replication($this->master, [$this->getMock(AdapterInterface::class)], $this->storage);
         $replication->setWeighting($weighting);
         $this->assertEquals($weighting, $replication->getWeighting());
     }
@@ -126,7 +126,7 @@ class ReplicationTest extends \PHPUnit_Framework_TestCase
     public function testSetMaximumSleep()
     {
         $maxSleep = 123456;
-        $replication = new Replication($this->master, [$this->getMock(Adapter::class)], $this->storage);
+        $replication = new Replication($this->master, [$this->getMock(AdapterInterface::class)], $this->storage);
         $replication->setMaximumSleep($maxSleep);
         $this->assertEquals($maxSleep, $replication->getMaximumSleep());
     }
@@ -138,7 +138,7 @@ class ReplicationTest extends \PHPUnit_Framework_TestCase
     public function testMonitorRecordsToStorage($method)
     {
         $this->storage->expects($this->once())->method($method);
-        $slave = $this->getMock(Adapter::class);
+        $slave = $this->getMock(AdapterInterface::class);
         $this->setupSlave($slave, ['Seconds_Behind_Master' => 20]);
         $replication = new Replication($this->master, [$slave], $this->storage);
         $replication->monitor();
@@ -157,7 +157,7 @@ class ReplicationTest extends \PHPUnit_Framework_TestCase
         $maxEntries = Replication::MAX_HISTORY;
         
         $history = array_pad([], $maxEntries, 20);
-        $slave   = $this->getMock(Adapter::class);
+        $slave   = $this->getMock(AdapterInterface::class);
         $this->setupSlave($slave, ['Seconds_Behind_Master' => 5]);
 
         $this->storage->expects($this->any())
@@ -178,7 +178,7 @@ class ReplicationTest extends \PHPUnit_Framework_TestCase
         $newValue   = 5;
 
         $history = array_pad([], $maxEntries / 2, 20);
-        $slave   = $this->getMock(Adapter::class);
+        $slave   = $this->getMock(AdapterInterface::class);
         $this->setupSlave($slave, ['Seconds_Behind_Master' => $newValue]);
 
         $this->storage->expects($this->any())
@@ -200,7 +200,7 @@ class ReplicationTest extends \PHPUnit_Framework_TestCase
             ->method('fetch')
             ->will($this->returnValue(['Seconds_Behind_Master' => 10]));
 
-        $slave = $this->getMock(Adapter::class);
+        $slave = $this->getMock(AdapterInterface::class);
         $slave->expects($this->once())
             ->method('query')
             ->with($this->equalTo('SHOW SLAVE STATUS'))
@@ -222,7 +222,7 @@ class ReplicationTest extends \PHPUnit_Framework_TestCase
             ->method('fetch')
             ->will($this->returnValue($data));
 
-        $slave = $this->getMock(Adapter::class);
+        $slave = $this->getMock(AdapterInterface::class);
         $slave->expects($this->any())
             ->method('query')
             ->will($this->returnValue($pdoStatement));
@@ -250,7 +250,7 @@ class ReplicationTest extends \PHPUnit_Framework_TestCase
         $usleep->expects($this->once())
             ->with($this->equalTo(0));
 
-        $slave = $this->getMock(Adapter::class);
+        $slave = $this->getMock(AdapterInterface::class);
         (new Replication($this->master, [$slave], $this->storage))->throttle();
     }
 
@@ -264,7 +264,7 @@ class ReplicationTest extends \PHPUnit_Framework_TestCase
         $usleep->expects($this->once())
             ->with($this->greaterThan(0));
 
-        $slave = $this->getMock(Adapter::class);
+        $slave = $this->getMock(AdapterInterface::class);
         (new Replication($this->master, [$slave], $this->storage))->throttle();
     }
     

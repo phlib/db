@@ -2,7 +2,7 @@
 
 namespace Phlib\Db;
 
-use Phlib\Db\Adapter;
+use Phlib\Db\Adapter\AdapterInterface;
 use Phlib\Db\Exception\RuntimeException;
 use Phlib\Db\Exception\InvalidArgumentException;
 
@@ -15,12 +15,12 @@ class Replication
     const MAX_HISTORY = 30;
 
     /**
-     * @var Adapter
+     * @var AdapterInterface
      */
     protected $master;
 
     /**
-     * @var Adapter[]
+     * @var AdapterInterface[]
      */
     protected $slaves;
 
@@ -57,11 +57,11 @@ class Replication
     /**
      * Constructor
      *
-     * @param Adapter $master
-     * @param Adapter[] $slaves
+     * @param AdapterInterface $master
+     * @param AdapterInterface[] $slaves
      * @param Replication\StorageInterface $storage
      */
-    public function __construct(Adapter $master, array $slaves, Replication\StorageInterface $storage)
+    public function __construct(AdapterInterface $master, array $slaves, Replication\StorageInterface $storage)
     {
         $this->master  = $master;
         $this->slaves  = $slaves;
@@ -72,7 +72,7 @@ class Replication
             throw new InvalidArgumentException('Missing required list of slaves.');
         }
         foreach ($slaves as $slave) {
-            if (!$slave instanceof Adapter) {
+            if (!$slave instanceof AdapterInterface) {
                 throw new InvalidArgumentException('Specified slave is not an expected adapter.');
             }
         }
@@ -190,10 +190,10 @@ class Replication
     }
 
     /**
-     * @param Adapter $slave
+     * @param AdapterInterface $slave
      * @return array
      */
-    public function fetchStatus(Adapter $slave)
+    public function fetchStatus(AdapterInterface $slave)
     {
         $status = $slave->query('SHOW SLAVE STATUS')
             ->fetch(\PDO::FETCH_ASSOC);
