@@ -3,6 +3,7 @@
 namespace Phlib\Db;
 
 use Phlib\Db\Adapter\AdapterInterface;
+use Phlib\Db\Adapter\QuotableAdapterInterface;
 use Phlib\Db\Adapter\QuotableInterface;
 use Phlib\Db\Adapter\CrudInterface;
 use Phlib\Db\Adapter\ConnectionFactory;
@@ -14,7 +15,7 @@ use Phlib\Db\Exception\RuntimeException;
  * Class Adapter
  * @package Phlib\Db
  */
-class Adapter implements AdapterInterface, QuotableInterface, CrudInterface
+class Adapter implements QuotableAdapterInterface, CrudInterface
 {
     /**
      * @var Adapter\Config
