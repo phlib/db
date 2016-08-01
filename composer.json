@@ -24,7 +24,7 @@
     "require": {
         "php": "^5.5 || ^7.0",
 
-        "symfony/console": "^2.7",
+        "symfony/console": "^2.7|^3",
         "phlib/console-configuration": "^1.0",
         "phlib/console-process": "^0.5@dev",
         "phlib/config_functions": "1.*"
