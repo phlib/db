@@ -36,4 +36,19 @@ class RuntimeExceptionTest extends \PHPUnit_Framework_TestCase
         $pdoException = new PDOExceptionStub('Unknow or incorrect', 'HY000');
         $this->assertInstanceOf(RuntimeException::class, RuntimeException::createFromException($pdoException));
     }
+
+    public function testCreateWithWeirdPdoExceptionCodeDocumentGetCodeReturnValue()
+    {
+        $pdoException = new PDOExceptionStub('Unknow or incorrect', 'HY000');
+        $newException = RuntimeException::createFromException($pdoException);
+        $this->assertEquals(0, $newException->getCode());
+    }
+
+    public function testCreateWithWeirdPdoExceptionCodeCanStillGetOriginalCode()
+    {
+        $codeString = 'HY000';
+        $pdoException = new PDOExceptionStub('Unknow or incorrect', $codeString);
+        $newException = RuntimeException::createFromException($pdoException);
+        $this->assertEquals($codeString, $newException->getPDOCode());
+    }
 }
