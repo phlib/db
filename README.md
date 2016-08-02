@@ -68,6 +68,10 @@ $stmt = $db->query("SELECT * FROM $table WHERE id = ?", [$rowId]);
 |`timeout`|*Integer*|No|`2`|Sets the connection timeout. Range from 0 to 120.|
 |`retryCount`|*Integer*|No|`0`|Sets how many times to try to reconnect to the DB server after unsuccessful connection attempts. Range from 0 to 10.|
 
+### Timezone
+[MySQL Server Time Zone Support](http://dev.mysql.com/doc/refman/5.7/en/time-zone-support.html)
+
+If the timezone option is not wanted, set the option to `'system'`.
 
 ## API
 
