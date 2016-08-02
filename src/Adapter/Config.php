@@ -20,7 +20,7 @@ class Config
         $this->config = $config + array(
             'charset'  => 'utf8mb4',
             'timezone' => '+0:00'
-        );;
+        );
     }
 
     /**
