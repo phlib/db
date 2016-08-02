@@ -27,4 +27,13 @@ class RuntimeExceptionTest extends \PHPUnit_Framework_TestCase
         $pdoException = new \PDOException($message, $code);
         $this->assertFalse(RuntimeException::hasServerGoneAway($pdoException));
     }
+
+    /**
+     * @link http://php.net/manual/en/class.pdoexception.php see property $code type
+     */
+    public function testCreateWithWeirdPdoExceptionCodeStringType()
+    {
+        $pdoException = new PDOExceptionStub('Unknow or incorrect', 'HY000');
+        $this->assertInstanceOf(RuntimeException::class, RuntimeException::createFromException($pdoException));
+    }
 }
