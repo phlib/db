@@ -26,7 +26,7 @@
 
         "symfony/console": "^2.7|^3",
         "phlib/console-configuration": "^1.0",
-        "phlib/console-process": "^0.6@dev",
+        "phlib/console-process": "^0.6",
         "phlib/config_functions": "1.*"
     },
     "require-dev": {
