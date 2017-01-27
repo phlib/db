@@ -3,7 +3,7 @@
     "type": "library",
     "description": "MySQL PDO DB Adapter. PDO with some extra good stuff specifically for MySQL.",
     "keywords": ["mysql", "db", "adapter"],
-    "license": "MIT",
+    "license": "LGPL-3.0",
     "authors": [
         {
             "name": "James Dempster",
