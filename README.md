@@ -1,6 +1,7 @@
 # phlib/db
 
 [![Build Status](https://img.shields.io/travis/phlib/db/master.svg)](https://travis-ci.org/phlib/db)
+[![Codecov](https://img.shields.io/codecov/c/github/phlib/db.svg)](https://codecov.io/gh/phlib/db)
 [![Latest Stable Version](https://img.shields.io/packagist/v/phlib/db.svg)](https://packagist.org/packages/phlib/db)
 [![Total Downloads](https://img.shields.io/packagist/dt/phlib/db.svg)](https://packagist.org/packages/phlib/db)
 
