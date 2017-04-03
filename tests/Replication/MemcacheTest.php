@@ -24,7 +24,7 @@ class MemcacheTest extends \PHPUnit_Framework_TestCase
             return;
         }
 
-        $this->memcache = $this->getMock(\Memcache::class);
+        $this->memcache = $this->createMock(\Memcache::class);
         $this->storage  = new Memcache($this->memcache);
         parent::setUp();
     }

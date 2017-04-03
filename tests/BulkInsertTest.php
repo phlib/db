@@ -15,7 +15,7 @@ class BulkInsertTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->adapter = $this->getMock(QuotableAdapterInterface::class);
+        $this->adapter = $this->createMock(QuotableAdapterInterface::class);
         parent::setUp();
     }
 

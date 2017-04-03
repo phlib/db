@@ -20,7 +20,9 @@ class CrudTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         parent::setUp();
-        $this->adapter = $this->getMock('\Phlib\Db\Adapter', ['query']);
+        $this->adapter = $this->getMockBuilder(\Phlib\Db\Adapter::class)
+            ->setMethods(['query'])
+            ->getMock();
         $this->crud    = new Crud($this->adapter);
     }
 
@@ -45,7 +47,7 @@ class CrudTest extends \PHPUnit_Framework_TestCase
      */
     public function testSelect($expectedSql, $table, $where, array $data)
     {
-        $pdoStatement = $this->getMock('\PDOStatement');
+        $pdoStatement = $this->createMock(\PDOStatement::class);
 
         $this->adapter->expects($this->once())
             ->method('query')
@@ -66,7 +68,7 @@ class CrudTest extends \PHPUnit_Framework_TestCase
 
     public function testSelectReturnsStatement()
     {
-        $pdoStatement = $this->getMock('\PDOStatement');
+        $pdoStatement = $this->createMock(\PDOStatement::class);
         $this->adapter->expects($this->any())
             ->method('query')
             ->will($this->returnValue($pdoStatement));
@@ -80,7 +82,7 @@ class CrudTest extends \PHPUnit_Framework_TestCase
     public function testInsert($expectedSql, $table, $data)
     {
         // Returned stmt will have rowCount called
-        $pdoStatement = $this->getMock('\PDOStatement');
+        $pdoStatement = $this->createMock(\PDOStatement::class);
         $pdoStatement->expects($this->once())
             ->method('rowCount')
             ->will($this->returnValue(count($data)));
@@ -111,7 +113,7 @@ class CrudTest extends \PHPUnit_Framework_TestCase
         $executeArgs = array_merge(array_values($data),$bind);
 
         // Returned stmt will have rowCount called
-        $pdoStatement = $this->getMock('\PDOStatement');
+        $pdoStatement = $this->createMock(\PDOStatement::class);
         $pdoStatement->expects($this->once())
             ->method('rowCount');
 
@@ -156,7 +158,7 @@ class CrudTest extends \PHPUnit_Framework_TestCase
         $executeArgs = (is_null($bind)) ? [] : $bind;
 
         // Returned stmt will have rowCount called
-        $pdoStatement = $this->getMock('\PDOStatement');
+        $pdoStatement = $this->createMock(\PDOStatement::class);
         $pdoStatement->expects($this->once())
             ->method('rowCount');
 

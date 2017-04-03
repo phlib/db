@@ -4,7 +4,6 @@ namespace Phlib\Db\Tests\Adapter;
 
 use Phlib\Db\Adapter\ConnectionFactory;
 use Phlib\Db\Adapter\Config;
-use Phlib\Db\Tests\PdoMock;
 
 class ConnectionFactoryTest extends \PHPUnit_Framework_TestCase
 {
@@ -22,14 +21,12 @@ class ConnectionFactoryTest extends \PHPUnit_Framework_TestCase
      * @var ConnectionFactory|\PHPUnit_Framework_MockObject_MockObject
      */
     protected $factory;
-    
+
     public function setUp()
     {
-        $this->config  = $this->getMockBuilder(Config::class)->disableOriginalConstructor()->getMock();
-        $this->pdo     = $this->getMock(PdoMock::class);
-        $this->factory = $this->getMockBuilder(ConnectionFactory::class)
-            ->setMethods(['create'])
-            ->getMock();
+        $this->config  = $this->createMock(Config::class);
+        $this->pdo     = $this->createMock(\PDO::class);
+        $this->factory = $this->createPartialMock(ConnectionFactory::class, ['create']);
 
         parent::setUp();
     }
@@ -47,7 +44,7 @@ class ConnectionFactoryTest extends \PHPUnit_Framework_TestCase
             ->method('create')
             ->will($this->returnValue($this->pdo));
 
-        $pdoStatement = $this->getMock(\PDOStatement::class);
+        $pdoStatement = $this->createMock(\PDOStatement::class);
         $this->pdo->expects($this->any())
             ->method('prepare')
             ->will($this->returnValue($pdoStatement));
@@ -68,7 +65,7 @@ class ConnectionFactoryTest extends \PHPUnit_Framework_TestCase
             ->method('create')
             ->will($this->returnValue($this->pdo));
 
-        $pdoStatement = $this->getMock(\PDOStatement::class);
+        $pdoStatement = $this->createMock(\PDOStatement::class);
         $pdoStatement->expects($this->any())
             ->method('execute')
             ->with($this->contains($value));
@@ -138,7 +135,7 @@ class ConnectionFactoryTest extends \PHPUnit_Framework_TestCase
         $this->factory->expects($this->any())
             ->method('create')
             ->will($this->returnValue($this->pdo));
-        $pdoStatement = $this->getMock(\PDOStatement::class);
+        $pdoStatement = $this->createMock(\PDOStatement::class);
         $pdoStatement->expects($this->any())
             ->method('execute')
             ->will($this->onConsecutiveCalls(

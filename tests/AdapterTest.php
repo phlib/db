@@ -10,7 +10,7 @@ use Phlib\Db\Exception\UnknownDatabaseException;
 class AdapterTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject
+     * @var \PDO|\PHPUnit_Framework_MockObject_MockObject
      */
     protected $pdo;
 
@@ -23,7 +23,7 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         parent::setUp();
-        $this->pdo = $this->getMock('\Phlib\Db\Tests\PdoMock');
+        $this->pdo = $this->createMock(\PDO::class);
     }
 
     public function tearDown()
@@ -54,9 +54,7 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testSetGetQuoteHandler()
     {
-        $handler = $this->getMockBuilder(Adapter\QuoteHandler::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $handler = $this->createMock(Adapter\QuoteHandler::class);
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
         $adapter->setQuoteHandler($handler);
@@ -65,9 +63,7 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testQuoteHandlerForwardingMethods()
     {
-        $handler = $this->getMockBuilder(Adapter\QuoteHandler::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $handler = $this->createMock(Adapter\QuoteHandler::class);
         $handler->expects($this->once())
             ->method('quote');
 
@@ -79,9 +75,7 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testCrudHelperForwardingMethods()
     {
-        $helper = $this->getMockBuilder(Adapter\Crud::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $helper = $this->createMock(Adapter\Crud::class);
         $helper->expects($this->once())
             ->method('select');
 
@@ -109,7 +103,10 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
     {
         $dbname = 'MyDbName';
 
-        $adapter = $this->getMock('\Phlib\Db\Adapter', array('query'));
+        /** @var Adapter|\PHPUnit_Framework_MockObject_MockObject $adapter */
+        $adapter = $this->getMockBuilder(\Phlib\Db\Adapter::class)
+            ->setMethods(['query'])
+            ->getMock();
         $adapter->expects($this->once())
             ->method('query')
             ->with($this->equalTo("USE `$dbname`"));
@@ -124,7 +121,10 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
     public function testSetDatabaseSetsConfig()
     {
         $dbname = 'MyDbName';
-        $adapter = $this->getMock('\Phlib\Db\Adapter', array('query'));
+        /** @var Adapter|\PHPUnit_Framework_MockObject_MockObject $adapter */
+        $adapter = $this->getMockBuilder(\Phlib\Db\Adapter::class)
+            ->setMethods(['query'])
+            ->getMock();
         $adapter->setConnection($this->pdo);
         $adapter->setDatabase($dbname);
 
@@ -141,7 +141,7 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
     {
         $database  = 'foobar';
         $exception = new \PDOException("SQLSTATE[42000]: Syntax error or access violation: 1049 Unknown database '$database'.", 42000);
-        $statement = $this->getMock(\PDOStatement::class);
+        $statement = $this->createMock(\PDOStatement::class);
         $statement->expects($this->any())
             ->method('execute')
             ->will($this->throwException($exception));
@@ -212,7 +212,7 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
      */
     public function testSettingAdapterOptionsWithConnection($option, $value)
     {
-        $statement = $this->getMock(\PDOStatement::class);
+        $statement = $this->createMock(\PDOStatement::class);
         $statement->expects($this->once())
             ->method('execute')
             ->with($this->contains($value));
@@ -241,7 +241,7 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
      */
     public function testSuccessfulPing()
     {
-        $pdoStatement = $this->getMock('\PDOStatement');
+        $pdoStatement = $this->createMock(\PDOStatement::class);
         $pdoStatement
             ->expects($this->any())
             ->method('fetchColumn')
@@ -294,7 +294,7 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testPrepare()
     {
-        $pdoStatement = $this->getMock('\PDOStatement');
+        $pdoStatement = $this->createMock(\PDOStatement::class);
         $sql = 'SELECT * FROM table';
         $this->pdo->expects($this->once())
             ->method('prepare')
@@ -311,12 +311,15 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
         $sql = 'dummy sql';
 
         // Returned stmt will have rowCount called
-        $pdoStatement = $this->getMock('\PDOStatement');
+        $pdoStatement = $this->createMock(\PDOStatement::class);
         $pdoStatement->expects($this->once())
             ->method('rowCount');
 
         // Exec should call query with the SQL
-        $adapter = $this->getMock('\Phlib\Db\Adapter', array('query'));
+        /** @var Adapter|\PHPUnit_Framework_MockObject_MockObject $adapter */
+        $adapter = $this->getMockBuilder(\Phlib\Db\Adapter::class)
+            ->setMethods(['query'])
+            ->getMock();
         $adapter->expects($this->once())
             ->method('query')
             ->with($sql)
@@ -331,12 +334,15 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
         $bind = [1, 2, 3];
 
         // Returned stmt will have rowCount called
-        $pdoStatement = $this->getMock('\PDOStatement');
+        $pdoStatement = $this->createMock(\PDOStatement::class);
         $pdoStatement->expects($this->once())
             ->method('rowCount');
 
         // Exec should call query with the SQL
-        $adapter = $this->getMock('\Phlib\Db\Adapter', array('query'));
+        /** @var Adapter|\PHPUnit_Framework_MockObject_MockObject $adapter */
+        $adapter = $this->getMockBuilder(\Phlib\Db\Adapter::class)
+            ->setMethods(['query'])
+            ->getMock();
         $adapter->expects($this->once())
             ->method('query')
             ->with($sql, $bind)
@@ -348,7 +354,7 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
     public function testQueryNoBind()
     {
         $sql = 'SELECT * FROM table';
-        $pdoStatement = $this->getMock('\PDOStatement');
+        $pdoStatement = $this->createMock(\PDOStatement::class);
         $pdoStatement->expects($this->once())
             ->method('execute')
             ->with($this->equalTo(array()));
@@ -366,7 +372,7 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
     {
         $sql = 'SELECT * FROM table WHERE col1 = ?';
         $bind = array('col1' => 'v1');
-        $pdoStatement = $this->getMock('\PDOStatement');
+        $pdoStatement = $this->createMock(\PDOStatement::class);
         $pdoStatement->expects($this->once())
             ->method('execute')
             ->with($this->equalTo($bind));
@@ -386,7 +392,7 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
     public function testQueryWithInvalidSql()
     {
         $exception    = new \PDOException('You have an error in your SQL syntax');
-        $statement = $this->getMock(\PDOStatement::class);
+        $statement = $this->createMock(\PDOStatement::class);
         $statement->expects($this->any())
             ->method('execute')
             ->will($this->throwException($exception));
@@ -402,7 +408,7 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
     public function testQueryReconnectsWhenMysqlHasGoneAway()
     {
         $exception = new \PDOException('MySQL server has gone away');
-        $statement = $this->getMock(\PDOStatement::class);
+        $statement = $this->createMock(\PDOStatement::class);
         $statement->expects($this->any())
             ->method('execute')
             ->will($this->throwException($exception));
@@ -413,10 +419,10 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
         $adapter->setConnectionFactory(function () {
-            $statement = $this->getMock(\PDOStatement::class);
+            $statement = $this->createMock(\PDOStatement::class);
             $statement->expects($this->once())
                 ->method('execute');
-            $pdo = $this->getMock('\Phlib\Db\Tests\PdoMock');
+            $pdo = $this->createMock(\PDO::class);
             $pdo->expects($this->any())
                 ->method('prepare')
                 ->will($this->returnValue($statement));
@@ -431,7 +437,7 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
     public function testQueryFailsAfterSuccessfulReconnect()
     {
         $exception = new \PDOException('MySQL server has gone away');
-        $statement = $this->getMock(\PDOStatement::class);
+        $statement = $this->createMock(\PDOStatement::class);
         $statement->expects($this->any())
             ->method('execute')
             ->will($this->throwException($exception));
@@ -443,11 +449,11 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
         $adapter->setConnection($this->pdo);
         $adapter->setConnectionFactory(function () {
             $exception = new \PDOException('failed for some random reason', 1234);
-            $statement = $this->getMock(\PDOStatement::class);
+            $statement = $this->createMock(\PDOStatement::class);
             $statement->expects($this->any())
                 ->method('execute')
                 ->will($this->throwException($exception));
-            $pdo = $this->getMock('\Phlib\Db\Tests\PdoMock');
+            $pdo = $this->createMock(\PDO::class);
             $pdo->expects($this->any())
                 ->method('prepare')
                 ->will($this->returnValue($statement));
@@ -487,7 +493,7 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
         $adapter->setConnectionFactory(function () {
-            return $this->getMock('\Phlib\Db\Tests\PdoMock');
+            return $this->createMock(\PDO::class);
         });
 
         $newAdapter = clone $adapter;
@@ -514,7 +520,7 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
         $adapter->setConnectionFactory(function () {
-            $pdo = $this->getMock('\Phlib\Db\Tests\PdoMock');
+            $pdo = $this->createMock(\PDO::class);
             $pdo->expects($this->once())
                 ->method('beginTransaction');
             return $pdo;
@@ -536,7 +542,7 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
         $adapter->setConnection($this->pdo);
         $adapter->setConnectionFactory(function () {
             $exception = new \PDOException('something else bad happened');
-            $pdo = $this->getMock('\Phlib\Db\Tests\PdoMock');
+            $pdo = $this->createMock(\PDO::class);
             $pdo->expects($this->any())
                 ->method('beginTransaction')
                 ->will($this->throwException($exception));

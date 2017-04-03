@@ -15,11 +15,9 @@ class BigResultTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $pdoStatement = $this->getMock(\PDOStatement::class);
+        $pdoStatement = $this->createMock(\PDOStatement::class);
 
-        $this->adapter = $this->getMockBuilder(Adapter::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->adapter = $this->getMockBuilder(Adapter::class)->getMock();
         $this->adapter->expects($this->any())
             ->method('prepare')
             ->will($this->returnValue($pdoStatement));
