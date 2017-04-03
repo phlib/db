@@ -48,7 +48,7 @@ class QuoteHandler implements QuotableInterface
             case is_bool($value):
                 $value = (int)$value;
                 break;
-            case (is_scalar($value) && (string)($value + 0) === (string)$value):
+            case (is_numeric($value) && (string)($value + 0) === (string)$value):
                 $value = $value + 0;
                 break;
             case is_null($value):
