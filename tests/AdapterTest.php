@@ -160,10 +160,10 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testGetConfigDefaults()
     {
-        $defaults = array(
+        $defaults = [
             'charset'  => 'utf8mb4',
             'timezone' => '+0:00'
-        );
+        ];
 
         $adapter = new Adapter();
         $this->assertEquals($defaults, $adapter->getConfig());
@@ -171,21 +171,21 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testGetConfigMixed()
     {
-        $expected = array(
+        $expected = [
             'host'     => 'localhost',
             'username' => 'username',
             'password' => 'password',
             'port'     => '3306',
             'charset'  => 'utf8mb4',
             'timezone' => '+0:00'
-        );
+        ];
 
-        $config = array(
+        $config = [
             'host'     => 'localhost',
             'username' => 'username',
             'password' => 'password',
             'port'     => '3306'
-        );
+        ];
         $adapter = new Adapter($config);
 
         $this->assertEquals($expected, $adapter->getConfig());
@@ -196,14 +196,14 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetConfigOverrides()
     {
-        $config = array(
+        $config = [
             'host'     => 'localhost',
             'username' => 'username',
             'password' => 'password',
             'port'     => '3306',
             'charset'  => 'iso-8859-1',
             'timezone' => '+1:00'
-        );
+        ];
         $adapter = new Adapter($config);
 
         $this->assertEquals($config, $adapter->getConfig());
@@ -361,7 +361,7 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
         $pdoStatement = $this->createMock(\PDOStatement::class);
         $pdoStatement->expects($this->once())
             ->method('execute')
-            ->with($this->equalTo(array()));
+            ->with($this->equalTo([]));
         $this->pdo->expects($this->once())
             ->method('prepare')
             ->with($this->equalTo($sql))
@@ -375,7 +375,7 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
     public function testQueryWithBind()
     {
         $sql = 'SELECT * FROM table WHERE col1 = ?';
-        $bind = array('col1' => 'v1');
+        $bind = ['col1' => 'v1'];
         $pdoStatement = $this->createMock(\PDOStatement::class);
         $pdoStatement->expects($this->once())
             ->method('execute')

@@ -48,7 +48,7 @@ class Adapter implements QuotableAdapterInterface, CrudInterface
      *
      * @param array $config
      */
-    public function __construct(array $config = array())
+    public function __construct(array $config = [])
     {
         $this->config = new Adapter\Config($config);
         $this->quoter = new Adapter\QuoteHandler(function ($value, $type) {
@@ -153,7 +153,7 @@ class Adapter implements QuotableAdapterInterface, CrudInterface
      * @param array $bind
      * @return \PDOStatement
      */
-    public function select($table, $where = '', array $bind = array())
+    public function select($table, $where = '', array $bind = [])
     {
         return $this->crud->select($table, $where, $bind);
     }
@@ -175,7 +175,7 @@ class Adapter implements QuotableAdapterInterface, CrudInterface
      * @param array $bind
      * @return int
      */
-    public function update($table, array $data, $where = '', array $bind = array())
+    public function update($table, array $data, $where = '', array $bind = [])
     {
         return $this->crud->update($table, $data, $where, $bind);
     }
@@ -186,7 +186,7 @@ class Adapter implements QuotableAdapterInterface, CrudInterface
      * @param array $bind
      * @return int
      */
-    public function delete($table, $where = '', array $bind = array())
+    public function delete($table, $where = '', array $bind = [])
     {
         return $this->crud->delete($table, $where, $bind);
     }
@@ -308,7 +308,7 @@ class Adapter implements QuotableAdapterInterface, CrudInterface
         if ($this->config->getCharset() !== $charset) {
             $this->config->setCharset($charset);
             if ($this->connection) {
-                $this->query('SET NAMES ?', array($charset));
+                $this->query('SET NAMES ?', [$charset]);
             }
         }
 
@@ -326,7 +326,7 @@ class Adapter implements QuotableAdapterInterface, CrudInterface
         if ($this->config->getTimezone() !== $timezone) {
             $this->config->setTimezone($timezone);
             if ($this->connection) {
-                $this->query('SET time_zone = ?', array($timezone));
+                $this->query('SET time_zone = ?', [$timezone]);
             }
         }
 
@@ -425,7 +425,7 @@ class Adapter implements QuotableAdapterInterface, CrudInterface
      * @param array $bind
      * @return int
      */
-    public function execute($statement, array $bind = array())
+    public function execute($statement, array $bind = [])
     {
         $stmt = $this->query($statement, $bind);
         return $stmt->rowCount();
@@ -439,7 +439,7 @@ class Adapter implements QuotableAdapterInterface, CrudInterface
      * @throws \PDOException
      * @return \PDOStatement
      */
-    public function query($sql, array $bind = array())
+    public function query($sql, array $bind = [])
     {
         return $this->doQuery($sql, $bind);
     }

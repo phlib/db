@@ -69,15 +69,15 @@ class QuoteHandlerTest extends \PHPUnit_Framework_TestCase
 
     public function quoteIntoDataProvider()
     {
-        return array(
-            array("field = `value`", 'field = ?', 'value'),
-            array('field = 123', 'field = ?', 123),
-            array('field IS NULL', 'field IS ?', null),
-            array('field IN (1, 2, 3)', 'field IN (?)', array(1,2,3)),
-            array("field IN (`one`, `two`)", 'field IN (?)', array('one', 'two')),
-            array("field IN (`one`, `Array`)", 'field IN (?)', array('one', array('two'))),
-            array('field = NOW()', 'field = ?', new ToStringClass('NOW()'))
-        );
+        return [
+            ["field = `value`", 'field = ?', 'value'],
+            ['field = 123', 'field = ?', 123],
+            ['field IS NULL', 'field IS ?', null],
+            ['field IN (1, 2, 3)', 'field IN (?)', [1, 2, 3]],
+            ["field IN (`one`, `two`)", 'field IN (?)', ['one', 'two']],
+            ["field IN (`one`, `Array`)", 'field IN (?)', ['one', ['two']]],
+            ['field = NOW()', 'field = ?', new ToStringClass('NOW()')]
+        ];
     }
 
     /**
@@ -97,13 +97,13 @@ class QuoteHandlerTest extends \PHPUnit_Framework_TestCase
 
     public function quoteColumnAsData()
     {
-        return array(
-            array("`col1`", 'col1', null, null),
-            array("`col1` AS `alias`", 'col1', 'alias', null),
-            array("`col1` AS `alias`", 'col1', 'alias', true),
-            array("`table1`.`col1`", array('table1', 'col1'), null, true),
-            array("`table1`.`col1`.`alias`", array('table1', 'col1', 'alias'), 'alias', true)
-        );
+        return [
+            ["`col1`", 'col1', null, null],
+            ["`col1` AS `alias`", 'col1', 'alias', null],
+            ["`col1` AS `alias`", 'col1', 'alias', true],
+            ["`table1`.`col1`", ['table1', 'col1'], null, true],
+            ["`table1`.`col1`.`alias`", ['table1', 'col1', 'alias'], 'alias', true]
+        ];
     }
 
     /**
@@ -124,11 +124,11 @@ class QuoteHandlerTest extends \PHPUnit_Framework_TestCase
 
     public function quoteTableAsData()
     {
-        return array(
-            array("`table1`", 'table1', null, null),
-            array("`table1` AS `alias`", 'table1', 'alias', null),
-            array("`table1` AS `alias`", 'table1', 'alias', true),
-        );
+        return [
+            ["`table1`", 'table1', null, null],
+            ["`table1` AS `alias`", 'table1', 'alias', null],
+            ["`table1` AS `alias`", 'table1', 'alias', true],
+        ];
     }
 
     /**
@@ -147,12 +147,12 @@ class QuoteHandlerTest extends \PHPUnit_Framework_TestCase
 
     public function quoteIdentifierData()
     {
-        return array(
-            array("`col1`", 'col1', null),
-            array("`col1`", 'col1', true),
-            array("NOW()", new ToStringClass('NOW()'), true),
-            array("`col1`.NOW()", array('col1', new ToStringClass('NOW()')), true),
-            array("`table1`.`*`", 'table1.*', true)
-        );
+        return [
+            ["`col1`", 'col1', null],
+            ["`col1`", 'col1', true],
+            ["NOW()", new ToStringClass('NOW()'), true],
+            ["`col1`.NOW()", ['col1', new ToStringClass('NOW()')], true],
+            ["`table1`.`*`", 'table1.*', true]
+        ];
     }
 }

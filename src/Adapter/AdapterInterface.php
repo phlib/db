@@ -140,7 +140,7 @@ interface AdapterInterface
      * @param array $bind
      * @return int
      */
-    public function execute($statement, array $bind = array());
+    public function execute($statement, array $bind = []);
 
     /**
      * Query the database.
@@ -150,7 +150,7 @@ interface AdapterInterface
      * @throws \PDOException
      * @return \PDOStatement
      */
-    public function query($sql, array $bind = array());
+    public function query($sql, array $bind = []);
 
     /**
      * @return bool

@@ -28,7 +28,7 @@ class Crud implements CrudInterface
      * @param array $bind
      * @return \PDOStatement
      */
-    public function select($table, $where = '', array $bind = array())
+    public function select($table, $where = '', array $bind = [])
     {
         $table = $this->adapter->quoteIdentifier($table);
         $sql   = "SELECT * FROM $table"
@@ -65,10 +65,10 @@ class Crud implements CrudInterface
      * @param array $bind
      * @return int Number of affected rows
      */
-    public function update($table, array $data, $where = '', array $bind = array())
+    public function update($table, array $data, $where = '', array $bind = [])
     {
         $table  = $this->adapter->quoteIdentifier($table);
-        $fields = array();
+        $fields = [];
         foreach (array_keys($data) as $field) {
             $fields[] = "$field = ?";
         }
@@ -88,7 +88,7 @@ class Crud implements CrudInterface
      * @param array $bind
      * @return int Number of affected rows
      */
-    public function delete($table, $where = '', array $bind = array())
+    public function delete($table, $where = '', array $bind = [])
     {
         $table = $this->adapter->quoteIdentifier($table);
         $sql   = "DELETE FROM $table"
