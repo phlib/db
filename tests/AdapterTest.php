@@ -54,6 +54,7 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testSetGetQuoteHandler()
     {
+        /** @var Adapter\QuoteHandler|\PHPUnit_Framework_MockObject_MockObject $handler */
         $handler = $this->createMock(Adapter\QuoteHandler::class);
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
@@ -63,6 +64,7 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testQuoteHandlerForwardingMethods()
     {
+        /** @var Adapter\QuoteHandler|\PHPUnit_Framework_MockObject_MockObject $handler */
         $handler = $this->createMock(Adapter\QuoteHandler::class);
         $handler->expects($this->once())
             ->method('quote');
@@ -75,6 +77,7 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testCrudHelperForwardingMethods()
     {
+        /** @var Adapter\Crud|\PHPUnit_Framework_MockObject_MockObject $helper */
         $helper = $this->createMock(Adapter\Crud::class);
         $helper->expects($this->once())
             ->method('select');

@@ -8,6 +8,9 @@ use Phlib\Db\Tests\ToStringClass;
 
 class QuoteHandlerTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var QuotableInterface|\PHPUnit_Framework_MockObject_MockObject
+     */
     protected $handler;
 
     public function setUp()

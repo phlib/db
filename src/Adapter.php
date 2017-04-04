@@ -275,6 +275,7 @@ class Adapter implements QuotableAdapterInterface, CrudInterface
             try {
                 $this->query('USE ' . $this->quoter->quoteIdentifier($dbname));
             } catch (RuntimeException $exception) {
+                /** @var \PDOException $prevException */
                 $prevException = $exception->getPrevious();
                 if (UnknownDatabaseException::isUnknownDatabase($prevException)) {
                     throw UnknownDatabaseException::createFromUnknownDatabase($dbname, $prevException);
