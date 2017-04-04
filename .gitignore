@@ -1,5 +1,3 @@
-.idea
-report
-vendor
+vendor/
 composer.lock
 phpunit.xml
