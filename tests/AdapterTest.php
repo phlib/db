@@ -141,7 +141,10 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
     public function testSetDatabaseWhenItsUnknown()
     {
         $database  = 'foobar';
-        $exception = new \PDOException("SQLSTATE[42000]: Syntax error or access violation: 1049 Unknown database '$database'.", 42000);
+        $exception = new \PDOException(
+            "SQLSTATE[42000]: Syntax error or access violation: 1049 Unknown database '$database'.",
+            42000
+        );
         $statement = $this->createMock(\PDOStatement::class);
         $statement->expects($this->any())
             ->method('execute')
@@ -366,7 +369,7 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
 
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
-        $this->assertEquals($pdoStatement,$adapter->query($sql));
+        $this->assertEquals($pdoStatement, $adapter->query($sql));
     }
 
     public function testQueryWithBind()
@@ -392,7 +395,7 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
      */
     public function testQueryWithInvalidSql()
     {
-        $exception    = new \PDOException('You have an error in your SQL syntax');
+        $exception = new \PDOException('You have an error in your SQL syntax');
         $statement = $this->createMock(\PDOStatement::class);
         $statement->expects($this->any())
             ->method('execute')

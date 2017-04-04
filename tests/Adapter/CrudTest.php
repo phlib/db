@@ -118,7 +118,7 @@ class CrudTest extends \PHPUnit_Framework_TestCase
     public function testUpdate($expectedSql, $table, $data, $where, $bind)
     {
         $bind = (is_null($bind)) ? [] : $bind;
-        $executeArgs = array_merge(array_values($data),$bind);
+        $executeArgs = array_merge(array_values($data), $bind);
 
         // Returned stmt will have rowCount called
         $pdoStatement = $this->createMock(\PDOStatement::class);

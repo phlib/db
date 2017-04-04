@@ -51,7 +51,7 @@ class Adapter implements QuotableAdapterInterface, CrudInterface
     public function __construct(array $config = array())
     {
         $this->config = new Adapter\Config($config);
-        $this->quoter = new Adapter\QuoteHandler(function($value, $type) {
+        $this->quoter = new Adapter\QuoteHandler(function ($value, $type) {
             return $this->getConnection()->quote($value, $type);
         });
         $this->crud = new Adapter\Crud($this);

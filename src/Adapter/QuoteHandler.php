@@ -55,7 +55,7 @@ class QuoteHandler implements QuotableInterface
                 $value = 'NULL';
                 break;
             case is_array($value):
-                $value = array_map(function($value) {
+                $value = array_map(function ($value) {
                     if (is_array($value)) {
                         $value = 'Array';
                     }
