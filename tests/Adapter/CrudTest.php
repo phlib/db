@@ -20,7 +20,7 @@ class CrudTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         parent::setUp();
-        $this->adapter = $this->getMockBuilder(\Phlib\Db\Adapter::class)
+        $this->adapter = $this->getMockBuilder(Adapter::class)
             ->setMethods(['query'])
             ->getMock();
         $this->crud    = new Crud($this->adapter);

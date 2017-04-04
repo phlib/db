@@ -3,9 +3,7 @@
 namespace Phlib\Db\Tests;
 
 use Phlib\Db\Adapter;
-use Phlib\Db\Exception\InvalidQueryException;
 use Phlib\Db\Exception\RuntimeException;
-use Phlib\Db\Exception\UnknownDatabaseException;
 
 class AdapterTest extends \PHPUnit_Framework_TestCase
 {
@@ -107,7 +105,7 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
         $dbname = 'MyDbName';
 
         /** @var Adapter|\PHPUnit_Framework_MockObject_MockObject $adapter */
-        $adapter = $this->getMockBuilder(\Phlib\Db\Adapter::class)
+        $adapter = $this->getMockBuilder(Adapter::class)
             ->setMethods(['query'])
             ->getMock();
         $adapter->expects($this->once())
@@ -125,7 +123,7 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
     {
         $dbname = 'MyDbName';
         /** @var Adapter|\PHPUnit_Framework_MockObject_MockObject $adapter */
-        $adapter = $this->getMockBuilder(\Phlib\Db\Adapter::class)
+        $adapter = $this->getMockBuilder(Adapter::class)
             ->setMethods(['query'])
             ->getMock();
         $adapter->setConnection($this->pdo);
@@ -320,7 +318,7 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
 
         // Exec should call query with the SQL
         /** @var Adapter|\PHPUnit_Framework_MockObject_MockObject $adapter */
-        $adapter = $this->getMockBuilder(\Phlib\Db\Adapter::class)
+        $adapter = $this->getMockBuilder(Adapter::class)
             ->setMethods(['query'])
             ->getMock();
         $adapter->expects($this->once())
@@ -343,7 +341,7 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
 
         // Exec should call query with the SQL
         /** @var Adapter|\PHPUnit_Framework_MockObject_MockObject $adapter */
-        $adapter = $this->getMockBuilder(\Phlib\Db\Adapter::class)
+        $adapter = $this->getMockBuilder(Adapter::class)
             ->setMethods(['query'])
             ->getMock();
         $adapter->expects($this->once())

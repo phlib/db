@@ -3,7 +3,6 @@
 namespace Phlib\Db\Tests\Adapter;
 
 use Phlib\Db\Adapter\Config;
-use Phlib\Db\Exception\InvalidArgumentException;
 
 class ConfigTest extends \PHPUnit_Framework_TestCase
 {

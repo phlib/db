@@ -2,9 +2,7 @@
 
 namespace Phlib\Db;
 
-use Phlib\Db\Adapter\AdapterInterface;
 use Phlib\Db\Adapter\QuotableAdapterInterface;
-use Phlib\Db\Adapter\QuotableInterface;
 use Phlib\Db\Adapter\CrudInterface;
 use Phlib\Db\Adapter\ConnectionFactory;
 use Phlib\Db\Exception\InvalidQueryException;
