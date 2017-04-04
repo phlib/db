@@ -9,7 +9,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @param array $dsnConfig
-     * @param $expectedElement
+     * @param string $expectedElement
      * @dataProvider getDsnDataProvider
      */
     public function testGetDsn(array $dsnConfig, $expectedElement)
@@ -37,6 +37,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param string $method
      * @param string $element
      * @param mixed $value
      * @dataProvider getMethodsDataProvider
@@ -60,6 +61,8 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @param array $data
+     * @param int $element
+     * @param string $expected
      * @dataProvider getOptionsDataProvider
      */
     public function testGetOptions(array $data, $element, $expected)

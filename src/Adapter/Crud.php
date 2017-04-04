@@ -4,10 +4,6 @@ namespace Phlib\Db\Adapter;
 
 use Phlib\Db\Adapter;
 
-/**
- * Class Crud
- * @package Phlib\Db\Helper
- */
 class Crud implements CrudInterface
 {
     /**

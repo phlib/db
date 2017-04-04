@@ -77,6 +77,9 @@ class CrudTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param string $expectedSql
+     * @param string $table
+     * @param array $data
      * @dataProvider insertDataProvider
      */
     public function testInsert($expectedSql, $table, $data)
@@ -105,6 +108,11 @@ class CrudTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param string $expectedSql
+     * @param string $table
+     * @param array $data
+     * @param string $where
+     * @param array $bind
      * @dataProvider updateDataProvider
      */
     public function testUpdate($expectedSql, $table, $data, $where, $bind)
@@ -151,6 +159,10 @@ class CrudTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param string $expectedSql
+     * @param string $table
+     * @param string $where
+     * @param array $bind
      * @dataProvider deleteDataProvider
      */
     public function testDelete($expectedSql, $table, $where, $bind)

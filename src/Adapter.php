@@ -11,10 +11,6 @@ use Phlib\Db\Exception\InvalidQueryException;
 use Phlib\Db\Exception\UnknownDatabaseException;
 use Phlib\Db\Exception\RuntimeException;
 
-/**
- * Class Adapter
- * @package Phlib\Db
- */
 class Adapter implements QuotableAdapterInterface, CrudInterface
 {
     /**
@@ -83,7 +79,7 @@ class Adapter implements QuotableAdapterInterface, CrudInterface
     }
 
     /**
-     * @return Adapter\QuoteHandler
+     * @return Adapter\Crud
      */
     public function getCrudHelper()
     {
@@ -134,7 +130,7 @@ class Adapter implements QuotableAdapterInterface, CrudInterface
     }
 
     /**
-     * @param $ident
+     * @param string $ident
      * @param bool $auto
      * @return string
      */

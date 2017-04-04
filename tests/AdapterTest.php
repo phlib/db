@@ -86,7 +86,7 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Phlib\Db\Adapter::setConnection
+     * @covers \Phlib\Db\Adapter::setConnection
      */
     public function testSetConnection()
     {
@@ -97,7 +97,7 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Phlib\Db\Adapter::setDatabase
+     * @covers \Phlib\Db\Adapter::setDatabase
      */
     public function testSetDatabaseMakesDbCall()
     {
@@ -116,7 +116,7 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Phlib\Db\Adapter::setDatabase
+     * @covers \Phlib\Db\Adapter::setDatabase
      */
     public function testSetDatabaseSetsConfig()
     {
@@ -188,7 +188,7 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Phlib\Db\Adapter::getConfig
+     * @covers \Phlib\Db\Adapter::getConfig
      */
     public function testGetConfigOverrides()
     {
@@ -237,7 +237,7 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Phlib\Db\Adapter::ping
+     * @covers \Phlib\Db\Adapter::ping
      */
     public function testSuccessfulPing()
     {
@@ -256,7 +256,7 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Phlib\Db\Adapter::ping
+     * @covers \Phlib\Db\Adapter::ping
      */
     public function testFailedPing()
     {

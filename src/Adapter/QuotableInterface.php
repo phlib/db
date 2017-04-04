@@ -29,14 +29,14 @@ interface QuotableInterface
 
     /**
      * @param string $ident
-     * @param string  $alias
+     * @param string $alias
      * @param bool $auto
      * @return string
      */
     public function quoteTableAs($ident, $alias = null, $auto = false);
 
     /**
-     * @param $ident
+     * @param string $ident
      * @param bool $auto
      * @return string
      */

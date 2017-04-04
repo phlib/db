@@ -54,6 +54,9 @@ class QuoteHandlerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param string $expected
+     * @param string $text
+     * @param mixed $value
      * @dataProvider quoteIntoDataProvider
      */
     public function testQuoteInto($expected, $text, $value)
@@ -75,6 +78,10 @@ class QuoteHandlerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param string $expected
+     * @param mixed $ident
+     * @param string $alias
+     * @param bool $auto
      * @dataProvider quoteColumnAsData
      */
     public function testQuoteColumnAs($expected, $ident, $alias, $auto)
@@ -97,6 +104,10 @@ class QuoteHandlerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param string $expected
+     * @param string $ident
+     * @param string $alias
+     * @param bool $auto
      * @dataProvider quoteTableAsData
      */
     public function testQuoteTableAs($expected, $ident, $alias, $auto)
@@ -118,6 +129,9 @@ class QuoteHandlerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param string $expected
+     * @param string $ident
+     * @param bool $auto
      * @dataProvider quoteIdentifierData
      */
     public function testQuoteIdentifier($expected, $ident, $auto)

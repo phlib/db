@@ -2,10 +2,6 @@
 
 namespace Phlib\Db\Tests;
 
-/**
- * Class ToStringObject
- * @package Phlib\Db
- */
 class ToStringClass
 {
     /**
