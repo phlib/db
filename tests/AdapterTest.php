@@ -40,7 +40,7 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
 
-        $adapter->quote()->quote($string);
+        $adapter->quote()->value($string);
     }
 
     public function testGetQuoteHandler()

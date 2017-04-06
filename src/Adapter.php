@@ -211,7 +211,7 @@ class Adapter implements AdapterInterface, CrudInterface
         $this->config->setDatabase($dbname);
         if ($this->connection) {
             try {
-                $this->query('USE ' . $this->quote()->quoteIdentifier($dbname));
+                $this->query('USE ' . $this->quote()->identifier($dbname));
             } catch (RuntimeException $exception) {
                 /** @var \PDOException $prevException */
                 $prevException = $exception->getPrevious();

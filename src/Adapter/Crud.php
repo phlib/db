@@ -30,7 +30,7 @@ class Crud implements CrudInterface
      */
     public function select($table, $where = '', array $bind = [])
     {
-        $table = $this->adapter->quote()->quoteIdentifier($table);
+        $table = $this->adapter->quote()->identifier($table);
         $sql   = "SELECT * FROM $table"
             . (($where) ? " WHERE $where" : '');
 
@@ -46,7 +46,7 @@ class Crud implements CrudInterface
      */
     public function insert($table, array $data)
     {
-        $table  = $this->adapter->quote()->quoteIdentifier($table);
+        $table  = $this->adapter->quote()->identifier($table);
         $fields = implode(', ', array_keys($data));
         $placeHolders = implode(', ', array_fill(0, count($data), '?'));
         $sql = "INSERT INTO $table ($fields) VALUES ($placeHolders)";
@@ -67,7 +67,7 @@ class Crud implements CrudInterface
      */
     public function update($table, array $data, $where = '', array $bind = [])
     {
-        $table  = $this->adapter->quote()->quoteIdentifier($table);
+        $table  = $this->adapter->quote()->identifier($table);
         $fields = [];
         foreach (array_keys($data) as $field) {
             $fields[] = "$field = ?";
@@ -90,7 +90,7 @@ class Crud implements CrudInterface
      */
     public function delete($table, $where = '', array $bind = [])
     {
-        $table = $this->adapter->quote()->quoteIdentifier($table);
+        $table = $this->adapter->quote()->identifier($table);
         $sql   = "DELETE FROM $table"
             . (($where) ? " WHERE $where" : '');
 

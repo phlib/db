@@ -36,7 +36,7 @@ class QuoteHandler
      * @return string
      * @throws InvalidArgumentException
      */
-    public function quote($value, $type = null)
+    public function value($value, $type = null)
     {
         switch (true) {
             case is_object($value):
@@ -59,7 +59,7 @@ class QuoteHandler
                     if (is_array($value)) {
                         $value = 'Array';
                     }
-                    return $this->quote($value);
+                    return $this->value($value);
                 }, $value);
                 $value = implode(', ', $value);
                 break;
@@ -78,9 +78,9 @@ class QuoteHandler
      * @param string $type
      * @return string
      */
-    public function quoteInto($text, $value, $type = null)
+    public function into($text, $value, $type = null)
     {
-        return str_replace('?', $this->quote($value, $type), $text);
+        return str_replace('?', $this->value($value, $type), $text);
     }
 
     /**
@@ -91,7 +91,7 @@ class QuoteHandler
      * @param boolean $auto
      * @return string
      */
-    public function quoteColumnAs($ident, $alias, $auto = false)
+    public function columnAs($ident, $alias, $auto = false)
     {
         return $this->quoteIdentifierAs($ident, $alias, $auto);
     }
@@ -104,7 +104,7 @@ class QuoteHandler
      * @param boolean $auto
      * @return string
      */
-    public function quoteTableAs($ident, $alias = null, $auto = false)
+    public function tableAs($ident, $alias = null, $auto = false)
     {
         return $this->quoteIdentifierAs($ident, $alias, $auto);
     }
@@ -116,7 +116,7 @@ class QuoteHandler
      * @param boolean $auto
      * @return string
      */
-    public function quoteIdentifier($ident, $auto = false)
+    public function identifier($ident, $auto = false)
     {
         return $this->quoteIdentifierAs($ident, null, $auto);
     }
