@@ -3,7 +3,6 @@
 namespace Phlib\Db\Tests;
 
 use Phlib\Db\Adapter;
-use Phlib\Db\Exception\RuntimeException;
 
 class AdapterTest extends \PHPUnit_Framework_TestCase
 {
