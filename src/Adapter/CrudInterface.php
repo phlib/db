@@ -12,7 +12,7 @@ interface CrudInterface
      * @param array $bind
      * @return \PDOStatement
      */
-    public function select($table, $where = '', array $bind = array());
+    public function select($table, $where = '', array $bind = []);
 
     /**
      * Insert data to table.
@@ -32,7 +32,7 @@ interface CrudInterface
      * @param array $bind
      * @return int Number of affected rows
      */
-    public function update($table, array $data, $where = '', array $bind = array());
+    public function update($table, array $data, $where = '', array $bind = []);
 
     /**
      * Delete from table.
@@ -42,5 +42,5 @@ interface CrudInterface
      * @param array $bind
      * @return int Number of affected rows
      */
-    public function delete($table, $where = '', array $bind = array());
+    public function delete($table, $where = '', array $bind = []);
 }

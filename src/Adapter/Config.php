@@ -17,10 +17,10 @@ class Config
      */
     public function __construct(array $config)
     {
-        $this->config = $config + array(
+        $this->config = $config + [
             'charset'  => 'utf8mb4',
             'timezone' => '+0:00'
-        );
+        ];
     }
 
     /**

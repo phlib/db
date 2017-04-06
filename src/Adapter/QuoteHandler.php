@@ -55,7 +55,7 @@ class QuoteHandler implements QuotableInterface
                 $value = 'NULL';
                 break;
             case is_array($value):
-                $value = array_map(function($value) {
+                $value = array_map(function ($value) {
                     if (is_array($value)) {
                         $value = 'Array';
                     }
@@ -145,7 +145,7 @@ class QuoteHandler implements QuotableInterface
                 $ident = explode('.', $ident);
             }
             if (is_array($ident)) {
-                $segments = array();
+                $segments = [];
                 foreach ($ident as $segment) {
                     if (is_object($segment)) {
                         $segments[] = (string)$segment;

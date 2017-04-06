@@ -20,7 +20,7 @@ class CrudTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         parent::setUp();
-        $this->adapter = $this->getMockBuilder(\Phlib\Db\Adapter::class)
+        $this->adapter = $this->getMockBuilder(Adapter::class)
             ->setMethods(['query'])
             ->getMock();
         $this->crud    = new Crud($this->adapter);
@@ -77,6 +77,9 @@ class CrudTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param string $expectedSql
+     * @param string $table
+     * @param array $data
      * @dataProvider insertDataProvider
      */
     public function testInsert($expectedSql, $table, $data)
@@ -105,12 +108,17 @@ class CrudTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param string $expectedSql
+     * @param string $table
+     * @param array $data
+     * @param string $where
+     * @param array $bind
      * @dataProvider updateDataProvider
      */
     public function testUpdate($expectedSql, $table, $data, $where, $bind)
     {
         $bind = (is_null($bind)) ? [] : $bind;
-        $executeArgs = array_merge(array_values($data),$bind);
+        $executeArgs = array_merge(array_values($data), $bind);
 
         // Returned stmt will have rowCount called
         $pdoStatement = $this->createMock(\PDOStatement::class);
@@ -151,6 +159,10 @@ class CrudTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param string $expectedSql
+     * @param string $table
+     * @param string $where
+     * @param array $bind
      * @dataProvider deleteDataProvider
      */
     public function testDelete($expectedSql, $table, $where, $bind)

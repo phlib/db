@@ -2,19 +2,13 @@
 
 namespace Phlib\Db;
 
-use Phlib\Db\Adapter\AdapterInterface;
 use Phlib\Db\Adapter\QuotableAdapterInterface;
-use Phlib\Db\Adapter\QuotableInterface;
 use Phlib\Db\Adapter\CrudInterface;
 use Phlib\Db\Adapter\ConnectionFactory;
 use Phlib\Db\Exception\InvalidQueryException;
 use Phlib\Db\Exception\UnknownDatabaseException;
 use Phlib\Db\Exception\RuntimeException;
 
-/**
- * Class Adapter
- * @package Phlib\Db
- */
 class Adapter implements QuotableAdapterInterface, CrudInterface
 {
     /**
@@ -54,10 +48,10 @@ class Adapter implements QuotableAdapterInterface, CrudInterface
      *
      * @param array $config
      */
-    public function __construct(array $config = array())
+    public function __construct(array $config = [])
     {
         $this->config = new Adapter\Config($config);
-        $this->quoter = new Adapter\QuoteHandler(function($value, $type) {
+        $this->quoter = new Adapter\QuoteHandler(function ($value, $type) {
             return $this->getConnection()->quote($value, $type);
         });
         $this->crud = new Adapter\Crud($this);
@@ -83,7 +77,7 @@ class Adapter implements QuotableAdapterInterface, CrudInterface
     }
 
     /**
-     * @return Adapter\QuoteHandler
+     * @return Adapter\Crud
      */
     public function getCrudHelper()
     {
@@ -134,7 +128,7 @@ class Adapter implements QuotableAdapterInterface, CrudInterface
     }
 
     /**
-     * @param $ident
+     * @param string $ident
      * @param bool $auto
      * @return string
      */
@@ -159,7 +153,7 @@ class Adapter implements QuotableAdapterInterface, CrudInterface
      * @param array $bind
      * @return \PDOStatement
      */
-    public function select($table, $where = '', array $bind = array())
+    public function select($table, $where = '', array $bind = [])
     {
         return $this->crud->select($table, $where, $bind);
     }
@@ -181,7 +175,7 @@ class Adapter implements QuotableAdapterInterface, CrudInterface
      * @param array $bind
      * @return int
      */
-    public function update($table, array $data, $where = '', array $bind = array())
+    public function update($table, array $data, $where = '', array $bind = [])
     {
         return $this->crud->update($table, $data, $where, $bind);
     }
@@ -192,7 +186,7 @@ class Adapter implements QuotableAdapterInterface, CrudInterface
      * @param array $bind
      * @return int
      */
-    public function delete($table, $where = '', array $bind = array())
+    public function delete($table, $where = '', array $bind = [])
     {
         return $this->crud->delete($table, $where, $bind);
     }
@@ -279,6 +273,7 @@ class Adapter implements QuotableAdapterInterface, CrudInterface
             try {
                 $this->query('USE ' . $this->quoter->quoteIdentifier($dbname));
             } catch (RuntimeException $exception) {
+                /** @var \PDOException $prevException */
                 $prevException = $exception->getPrevious();
                 if (UnknownDatabaseException::isUnknownDatabase($prevException)) {
                     throw UnknownDatabaseException::createFromUnknownDatabase($dbname, $prevException);
@@ -313,7 +308,7 @@ class Adapter implements QuotableAdapterInterface, CrudInterface
         if ($this->config->getCharset() !== $charset) {
             $this->config->setCharset($charset);
             if ($this->connection) {
-                $this->query('SET NAMES ?', array($charset));
+                $this->query('SET NAMES ?', [$charset]);
             }
         }
 
@@ -331,7 +326,7 @@ class Adapter implements QuotableAdapterInterface, CrudInterface
         if ($this->config->getTimezone() !== $timezone) {
             $this->config->setTimezone($timezone);
             if ($this->connection) {
-                $this->query('SET time_zone = ?', array($timezone));
+                $this->query('SET time_zone = ?', [$timezone]);
             }
         }
 
@@ -430,7 +425,7 @@ class Adapter implements QuotableAdapterInterface, CrudInterface
      * @param array $bind
      * @return int
      */
-    public function execute($statement, array $bind = array())
+    public function execute($statement, array $bind = [])
     {
         $stmt = $this->query($statement, $bind);
         return $stmt->rowCount();
@@ -444,7 +439,7 @@ class Adapter implements QuotableAdapterInterface, CrudInterface
      * @throws \PDOException
      * @return \PDOStatement
      */
-    public function query($sql, array $bind = array())
+    public function query($sql, array $bind = [])
     {
         return $this->doQuery($sql, $bind);
     }

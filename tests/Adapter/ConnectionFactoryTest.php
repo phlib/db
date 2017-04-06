@@ -56,7 +56,8 @@ class ConnectionFactoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @param mixed $setting
+     * @param string $method
+     * @param string $value
      * @dataProvider charsetIsSetOnConnectionDataProvider
      */
     public function testCharsetIsSetOnConnection($method, $value)
@@ -104,6 +105,7 @@ class ConnectionFactoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param int $attempts
      * @dataProvider exceedingNumberOfAttemptsDataProvider
      * @expectedException \Phlib\Db\Exception\RuntimeException
      */

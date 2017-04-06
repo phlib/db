@@ -2,6 +2,8 @@
 
 namespace Phlib\Db\Adapter;
 
+use Phlib\Db\Exception\UnknownDatabaseException;
+
 interface AdapterInterface
 {
     /**
@@ -22,14 +24,14 @@ interface AdapterInterface
      * Set the database connection.
      *
      * @param \PDO $connection
-     * @return Adapter
+     * @return $this
      */
     public function setConnection(\PDO $connection);
 
     /**
      * Reconnects the database connection.
      *
-     * @return Adapter
+     * @return $this
      */
     public function reconnect();
 
@@ -64,7 +66,7 @@ interface AdapterInterface
      * Set database
      *
      * @param string $dbname
-     * @return Adapter
+     * @return $this
      * @throws UnknownDatabaseException
      */
     public function setDatabase($dbname);
@@ -73,7 +75,7 @@ interface AdapterInterface
      * Set the character set on the connection.
      *
      * @param string $charset
-     * @return Adapter
+     * @return $this
      */
     public function setCharset($charset);
 
@@ -81,21 +83,21 @@ interface AdapterInterface
      * Set the timezone on the connection.
      *
      * @param string $timezone
-     * @return Adapter
+     * @return $this
      */
     public function setTimezone($timezone);
 
     /**
      * Enable connection buffering on queries.
      *
-     * @return Adapter
+     * @return $this
      */
     public function enableBuffering();
 
     /**
      * Disable connection buffering on queries.
      *
-     * @return Adapter
+     * @return $this
      */
     public function disableBuffering();
 
@@ -138,7 +140,7 @@ interface AdapterInterface
      * @param array $bind
      * @return int
      */
-    public function execute($statement, array $bind = array());
+    public function execute($statement, array $bind = []);
 
     /**
      * Query the database.
@@ -148,7 +150,7 @@ interface AdapterInterface
      * @throws \PDOException
      * @return \PDOStatement
      */
-    public function query($sql, array $bind = array());
+    public function query($sql, array $bind = []);
 
     /**
      * @return bool
