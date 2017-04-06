@@ -2,8 +2,6 @@
 
 namespace Phlib\Db;
 
-use Phlib\Db\Adapter\AdapterInterface;
-use Phlib\Db\Adapter\ConnectionFactory;
 use Phlib\Db\Exception\InvalidQueryException;
 use Phlib\Db\Exception\UnknownDatabaseException;
 use Phlib\Db\Exception\RuntimeException;
@@ -47,7 +45,7 @@ class Adapter implements AdapterInterface
     public function __construct(array $config = [])
     {
         $this->config = new Adapter\Config($config);
-        $this->connectionFactory = new ConnectionFactory();
+        $this->connectionFactory = new Adapter\ConnectionFactory();
     }
 
     /**

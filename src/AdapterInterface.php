@@ -1,6 +1,6 @@
 <?php
 
-namespace Phlib\Db\Adapter;
+namespace Phlib\Db;
 
 use Phlib\Db\Exception\UnknownDatabaseException;
 
