@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Remove QuoteHandler pass-through and setter methods from Adapter. Instead use
   QuoteHandler directly by chaining, eg. `$adapter->quoteInto()` is replaced
   with `$adapter->quote()->into()`
+- Remove `Adapter/Crud` class, replaced by `CrudTrait` on the Adapter
 
 ## [0.0.5] - 2017-01-03
 ### Fixed

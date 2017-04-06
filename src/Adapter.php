@@ -10,6 +10,8 @@ use Phlib\Db\Exception\RuntimeException;
 
 class Adapter implements AdapterInterface
 {
+    use Adapter\CrudTrait;
+
     /**
      * @var Adapter\Config
      */
@@ -31,11 +33,6 @@ class Adapter implements AdapterInterface
     protected $quoter;
 
     /**
-     * @var Adapter\Crud
-     */
-    protected $crud;
-
-    /**
      * Constructor
      *
      * === Config Params ===
@@ -50,7 +47,6 @@ class Adapter implements AdapterInterface
     public function __construct(array $config = [])
     {
         $this->config = new Adapter\Config($config);
-        $this->crud = new Adapter\Crud($this);
         $this->connectionFactory = new ConnectionFactory();
     }
 
@@ -66,68 +62,6 @@ class Adapter implements AdapterInterface
         }
 
         return $this->quoter;
-    }
-
-    /**
-     * @return Adapter\Crud
-     */
-    public function getCrudHelper()
-    {
-        return $this->crud;
-    }
-
-    /**
-     * @param Adapter\Crud $crud
-     * @return $this
-     */
-    public function setCrudHelper(Adapter\Crud $crud)
-    {
-        $this->crud = $crud;
-        return $this;
-    }
-
-    /**
-     * @param string $table
-     * @param string $where
-     * @param array $bind
-     * @return \PDOStatement
-     */
-    public function select($table, $where = '', array $bind = [])
-    {
-        return $this->crud->select($table, $where, $bind);
-    }
-
-    /**
-     * @param string $table
-     * @param array $data
-     * @return int
-     */
-    public function insert($table, array $data)
-    {
-        return $this->crud->insert($table, $data);
-    }
-
-    /**
-     * @param string $table
-     * @param array $data
-     * @param string $where
-     * @param array $bind
-     * @return int
-     */
-    public function update($table, array $data, $where = '', array $bind = [])
-    {
-        return $this->crud->update($table, $data, $where, $bind);
-    }
-
-    /**
-     * @param string $table
-     * @param string $where
-     * @param array $bind
-     * @return int
-     */
-    public function delete($table, $where = '', array $bind = [])
-    {
-        return $this->crud->delete($table, $where, $bind);
     }
 
     /**

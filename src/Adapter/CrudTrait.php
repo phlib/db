@@ -2,24 +2,8 @@
 
 namespace Phlib\Db\Adapter;
 
-use Phlib\Db\Adapter;
-
-class Crud
+trait CrudTrait
 {
-    /**
-     * @var Adapter
-     */
-    protected $adapter;
-
-    /**
-     * Crud constructor.
-     * @param Adapter $adapter
-     */
-    public function __construct(Adapter $adapter)
-    {
-        $this->adapter = $adapter;
-    }
-
     /**
      * Select data from table.
      *
@@ -30,11 +14,11 @@ class Crud
      */
     public function select($table, $where = '', array $bind = [])
     {
-        $table = $this->adapter->quote()->identifier($table);
+        $table = $this->quote()->identifier($table);
         $sql   = "SELECT * FROM $table"
             . (($where) ? " WHERE $where" : '');
 
-        return $this->adapter->query($sql, $bind);
+        return $this->query($sql, $bind);
     }
 
     /**
@@ -46,12 +30,12 @@ class Crud
      */
     public function insert($table, array $data)
     {
-        $table  = $this->adapter->quote()->identifier($table);
+        $table  = $this->quote()->identifier($table);
         $fields = implode(', ', array_keys($data));
         $placeHolders = implode(', ', array_fill(0, count($data), '?'));
         $sql = "INSERT INTO $table ($fields) VALUES ($placeHolders)";
 
-        $stmt = $this->adapter->query($sql, array_values($data));
+        $stmt = $this->query($sql, array_values($data));
 
         return $stmt->rowCount();
     }
@@ -67,7 +51,7 @@ class Crud
      */
     public function update($table, array $data, $where = '', array $bind = [])
     {
-        $table  = $this->adapter->quote()->identifier($table);
+        $table  = $this->quote()->identifier($table);
         $fields = [];
         foreach (array_keys($data) as $field) {
             $fields[] = "$field = ?";
@@ -75,7 +59,7 @@ class Crud
         $sql = "UPDATE $table SET " . implode(', ', $fields)
             . (($where) ? " WHERE $where" : '');
 
-        $stmt = $this->adapter->query($sql, array_merge(array_values($data), $bind));
+        $stmt = $this->query($sql, array_merge(array_values($data), $bind));
 
         return $stmt->rowCount();
     }
@@ -90,12 +74,25 @@ class Crud
      */
     public function delete($table, $where = '', array $bind = [])
     {
-        $table = $this->adapter->quote()->identifier($table);
+        $table = $this->quote()->identifier($table);
         $sql   = "DELETE FROM $table"
             . (($where) ? " WHERE $where" : '');
 
-        $stmt = $this->adapter->query($sql, $bind);
+        $stmt = $this->query($sql, $bind);
 
         return $stmt->rowCount();
     }
+
+    /**
+     * @return QuoteHandler
+     */
+    abstract public function quote();
+
+    /**
+     * @param string $sql
+     * @param array $bind
+     * @throws \PDOException
+     * @return \PDOStatement
+     */
+    abstract public function query($sql, array $bind = []);
 }
