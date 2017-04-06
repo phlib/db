@@ -2,14 +2,13 @@
 
 namespace Phlib\Db\Tests\Adapter;
 
-use Phlib\Db\Adapter\QuotableInterface;
 use Phlib\Db\Adapter\QuoteHandler;
 use Phlib\Db\Tests\ToStringClass;
 
 class QuoteHandlerTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var QuotableInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var QuoteHandler|\PHPUnit_Framework_MockObject_MockObject
      */
     protected $handler;
 
@@ -19,11 +18,6 @@ class QuoteHandlerTest extends \PHPUnit_Framework_TestCase
             return "`$value`";
         });
         parent::setUp();
-    }
-
-    public function testImplementInterface()
-    {
-        $this->assertInstanceOf(QuotableInterface::class, $this->handler);
     }
 
     /**

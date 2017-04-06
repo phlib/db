@@ -2,14 +2,14 @@
 
 namespace Phlib\Db;
 
-use Phlib\Db\Adapter\QuotableAdapterInterface;
+use Phlib\Db\Adapter\AdapterInterface;
 use Phlib\Db\Adapter\CrudInterface;
 use Phlib\Db\Adapter\ConnectionFactory;
 use Phlib\Db\Exception\InvalidQueryException;
 use Phlib\Db\Exception\UnknownDatabaseException;
 use Phlib\Db\Exception\RuntimeException;
 
-class Adapter implements QuotableAdapterInterface, CrudInterface
+class Adapter implements AdapterInterface, CrudInterface
 {
     /**
      * @var Adapter\Config
