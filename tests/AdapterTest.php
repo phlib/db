@@ -40,37 +40,14 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
 
-        $adapter->getQuoteHandler()->quote($string);
+        $adapter->quote()->quote($string);
     }
 
-    public function testGetDefaultQuoteHandler()
+    public function testGetQuoteHandler()
     {
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
-        $this->assertInstanceOf(Adapter\QuoteHandler::class, $adapter->getQuoteHandler());
-    }
-
-    public function testSetGetQuoteHandler()
-    {
-        /** @var Adapter\QuoteHandler|\PHPUnit_Framework_MockObject_MockObject $handler */
-        $handler = $this->createMock(Adapter\QuoteHandler::class);
-        $adapter = new Adapter();
-        $adapter->setConnection($this->pdo);
-        $adapter->setQuoteHandler($handler);
-        $this->assertSame($handler, $adapter->getQuoteHandler());
-    }
-
-    public function testQuoteHandlerForwardingMethods()
-    {
-        /** @var Adapter\QuoteHandler|\PHPUnit_Framework_MockObject_MockObject $handler */
-        $handler = $this->createMock(Adapter\QuoteHandler::class);
-        $handler->expects($this->once())
-            ->method('quote');
-
-        $adapter = new Adapter();
-        $adapter->setConnection($this->pdo);
-        $adapter->setQuoteHandler($handler);
-        $adapter->quote('foo');
+        $this->assertInstanceOf(Adapter\QuoteHandler::class, $adapter->quote());
     }
 
     public function testCrudHelperForwardingMethods()

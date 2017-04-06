@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Helpers have been migrated to the `phlib/db-helper` package: `BulkInsert`,
   `BigResult`, `QueryPlanner`, `Replication`
 - Remove `QuoteableInterface` and `QuoteableAdapterInterface`
+- Remove QuoteHandler pass-through and setter methods from Adapter. Instead use
+  QuoteHandler directly by chaining, eg. `$adapter->quoteInto()` is replaced
+  with `$adapter->quote()->quoteInto()`
 
 ## [0.0.5] - 2017-01-03
 ### Fixed

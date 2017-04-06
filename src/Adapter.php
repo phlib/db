@@ -51,9 +51,6 @@ class Adapter implements AdapterInterface, CrudInterface
     public function __construct(array $config = [])
     {
         $this->config = new Adapter\Config($config);
-        $this->quoter = new Adapter\QuoteHandler(function ($value, $type) {
-            return $this->getConnection()->quote($value, $type);
-        });
         $this->crud = new Adapter\Crud($this);
         $this->connectionFactory = new ConnectionFactory();
     }
@@ -61,19 +58,15 @@ class Adapter implements AdapterInterface, CrudInterface
     /**
      * @return Adapter\QuoteHandler
      */
-    public function getQuoteHandler()
+    public function quote()
     {
-        return $this->quoter;
-    }
+        if (!isset($this->quoter)) {
+            $this->quoter = new Adapter\QuoteHandler(function ($value, $type) {
+                return $this->getConnection()->quote($value, $type);
+            });
+        }
 
-    /**
-     * @param Adapter\QuoteHandler $quoteHandler
-     * @return $this
-     */
-    public function setQuoteHandler(Adapter\QuoteHandler $quoteHandler)
-    {
-        $this->quoter = $quoteHandler;
-        return $this;
+        return $this->quoter;
     }
 
     /**
@@ -82,59 +75,6 @@ class Adapter implements AdapterInterface, CrudInterface
     public function getCrudHelper()
     {
         return $this->crud;
-    }
-
-    /**
-     * @param mixed $value
-     * @param int $type
-     * @return string
-     */
-    public function quote($value, $type = null)
-    {
-        return $this->quoter->quote($value, $type);
-    }
-
-    /**
-     * @param string $text
-     * @param mixed $value
-     * @param int $type
-     * @return string
-     */
-    public function quoteInto($text, $value, $type = null)
-    {
-        return $this->quoter->quoteInto($text, $value, $type);
-    }
-
-    /**
-     * @param string $ident
-     * @param string $alias
-     * @param bool $auto
-     * @return string
-     */
-    public function quoteColumnAs($ident, $alias, $auto = false)
-    {
-        return $this->quoter->quoteColumnAs($ident, $alias, $auto);
-    }
-
-    /**
-     * @param string $ident
-     * @param string  $alias
-     * @param bool $auto
-     * @return string
-     */
-    public function quoteTableAs($ident, $alias = null, $auto = false)
-    {
-        return $this->quoter->quoteTableAs($ident, $alias, $auto);
-    }
-
-    /**
-     * @param string $ident
-     * @param bool $auto
-     * @return string
-     */
-    public function quoteIdentifier($ident, $auto = false)
-    {
-        return $this->quoter->quoteIdentifier($ident, $auto);
     }
 
     /**
@@ -271,7 +211,7 @@ class Adapter implements AdapterInterface, CrudInterface
         $this->config->setDatabase($dbname);
         if ($this->connection) {
             try {
-                $this->query('USE ' . $this->quoter->quoteIdentifier($dbname));
+                $this->query('USE ' . $this->quote()->quoteIdentifier($dbname));
             } catch (RuntimeException $exception) {
                 /** @var \PDOException $prevException */
                 $prevException = $exception->getPrevious();
