@@ -2,16 +2,15 @@
 
 namespace Phlib\Db\Tests\Adapter;
 
-use Phlib\Db\Adapter\QuotableInterface;
 use Phlib\Db\Adapter\QuoteHandler;
 use Phlib\Db\Tests\ToStringClass;
 
 class QuoteHandlerTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var QuotableInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var QuoteHandler|\PHPUnit_Framework_MockObject_MockObject
      */
-    protected $handler;
+    private $handler;
 
     public function setUp()
     {
@@ -21,22 +20,17 @@ class QuoteHandlerTest extends \PHPUnit_Framework_TestCase
         parent::setUp();
     }
 
-    public function testImplementInterface()
-    {
-        $this->assertInstanceOf(QuotableInterface::class, $this->handler);
-    }
-
     /**
      * @param mixed $value
      * @param mixed $expected
-     * @dataProvider quoteDataProvider
+     * @dataProvider valueDataProvider
      */
-    public function testQuote($value, $expected)
+    public function testValue($value, $expected)
     {
-        $this->assertEquals($expected, $this->handler->quote($value));
+        $this->assertEquals($expected, $this->handler->value($value));
     }
 
-    public function quoteDataProvider()
+    public function valueDataProvider()
     {
         $toStringVal = 'foo';
         $object = new ToStringClass($toStringVal);
@@ -60,14 +54,14 @@ class QuoteHandlerTest extends \PHPUnit_Framework_TestCase
      * @param string $expected
      * @param string $text
      * @param mixed $value
-     * @dataProvider quoteIntoDataProvider
+     * @dataProvider intoDataProvider
      */
-    public function testQuoteInto($expected, $text, $value)
+    public function testInto($expected, $text, $value)
     {
-        $this->assertEquals($expected, $this->handler->quoteInto($text, $value));
+        $this->assertEquals($expected, $this->handler->into($text, $value));
     }
 
-    public function quoteIntoDataProvider()
+    public function intoDataProvider()
     {
         return [
             ["field = `value`", 'field = ?', 'value'],
@@ -85,17 +79,17 @@ class QuoteHandlerTest extends \PHPUnit_Framework_TestCase
      * @param mixed $ident
      * @param string $alias
      * @param bool $auto
-     * @dataProvider quoteColumnAsData
+     * @dataProvider columnAsData
      */
-    public function testQuoteColumnAs($expected, $ident, $alias, $auto)
+    public function testColumnAs($expected, $ident, $alias, $auto)
     {
         $result = (!is_null($auto)) ?
-            $this->handler->quoteColumnAs($ident, $alias, $auto) :
-            $this->handler->quoteColumnAs($ident, $alias);
+            $this->handler->columnAs($ident, $alias, $auto) :
+            $this->handler->columnAs($ident, $alias);
         $this->assertEquals($expected, $result);
     }
 
-    public function quoteColumnAsData()
+    public function columnAsData()
     {
         return [
             ["`col1`", 'col1', null, null],
@@ -111,18 +105,18 @@ class QuoteHandlerTest extends \PHPUnit_Framework_TestCase
      * @param string $ident
      * @param string $alias
      * @param bool $auto
-     * @dataProvider quoteTableAsData
+     * @dataProvider tableAsData
      */
-    public function testQuoteTableAs($expected, $ident, $alias, $auto)
+    public function testTableAs($expected, $ident, $alias, $auto)
     {
         $result = (!is_null($alias)) ? (!is_null($auto)) ?
-            $this->handler->quoteTableAs($ident, $alias, $auto) :
-            $this->handler->quoteTableAs($ident, $alias) :
-            $this->handler->quoteTableAs($ident);
+            $this->handler->tableAs($ident, $alias, $auto) :
+            $this->handler->tableAs($ident, $alias) :
+            $this->handler->tableAs($ident);
         $this->assertEquals($expected, $result);
     }
 
-    public function quoteTableAsData()
+    public function tableAsData()
     {
         return [
             ["`table1`", 'table1', null, null],
@@ -135,17 +129,17 @@ class QuoteHandlerTest extends \PHPUnit_Framework_TestCase
      * @param string $expected
      * @param string $ident
      * @param bool $auto
-     * @dataProvider quoteIdentifierData
+     * @dataProvider identifierData
      */
-    public function testQuoteIdentifier($expected, $ident, $auto)
+    public function testIdentifier($expected, $ident, $auto)
     {
         $result = (!is_null($auto)) ?
-            $this->handler->quoteIdentifier($ident, $auto) :
-            $this->handler->quoteIdentifier($ident);
+            $this->handler->identifier($ident, $auto) :
+            $this->handler->identifier($ident);
         $this->assertEquals($expected, $result);
     }
 
-    public function quoteIdentifierData()
+    public function identifierData()
     {
         return [
             ["`col1`", 'col1', null],

@@ -21,7 +21,7 @@ class UnknownDatabaseException extends RuntimeException implements Exception
     /**
      * @var string
      */
-    protected $name;
+    private $name;
 
     /**
      * @param string $database

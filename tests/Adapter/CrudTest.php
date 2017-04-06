@@ -2,40 +2,35 @@
 
 namespace Phlib\Db\Tests\Adapter;
 
-use Phlib\Db\Adapter;
-use Phlib\Db\Adapter\Crud;
+use Phlib\Db\Adapter\CrudTrait;
+use Phlib\Db\Adapter\QuoteHandler;
 
-class CrudTest extends \PHPUnit_Framework_TestCase
+class CrudTraitTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var Adapter|\PHPUnit_Framework_MockObject_MockObject
+     * @var CrudTrait|\PHPUnit_Framework_MockObject_MockObject
      */
-    protected $adapter;
-
-    /**
-     * @var Crud
-     */
-    protected $crud;
+    private $crud;
 
     public function setUp()
     {
         parent::setUp();
-        $this->adapter = $this->getMockBuilder(Adapter::class)
-            ->setMethods(['query'])
-            ->getMock();
-        $this->crud    = new Crud($this->adapter);
+
+        $this->crud = $this->getMockBuilder(CrudTrait::class)
+            ->setMethods(['query', 'quote'])
+            ->getMockForTrait();
+
+        $quoteHandler = new QuoteHandler(function ($value) {
+            return "`$value`";
+        });
+        $this->crud->method('quote')
+            ->willReturn($quoteHandler);
     }
 
     public function tearDown()
     {
-        $this->crud    = null;
-        $this->adapter = null;
+        $this->crud = null;
         parent::tearDown();
-    }
-
-    public function testImplementsInterface()
-    {
-        $this->assertInstanceOf(Adapter\CrudInterface::class, $this->crud);
     }
 
     /**
@@ -49,7 +44,7 @@ class CrudTest extends \PHPUnit_Framework_TestCase
     {
         $pdoStatement = $this->createMock(\PDOStatement::class);
 
-        $this->adapter->expects($this->once())
+        $this->crud->expects($this->once())
             ->method('query')
             ->with($expectedSql, $data)
             ->will($this->returnValue($pdoStatement));
@@ -69,7 +64,7 @@ class CrudTest extends \PHPUnit_Framework_TestCase
     public function testSelectReturnsStatement()
     {
         $pdoStatement = $this->createMock(\PDOStatement::class);
-        $this->adapter->expects($this->any())
+        $this->crud->expects($this->any())
             ->method('query')
             ->will($this->returnValue($pdoStatement));
 
@@ -91,7 +86,7 @@ class CrudTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue(count($data)));
 
         $bind = array_values($data);
-        $this->adapter->expects($this->any())
+        $this->crud->expects($this->any())
             ->method('query')
             ->with($expectedSql, $bind)
             ->will($this->returnValue($pdoStatement));
@@ -126,7 +121,7 @@ class CrudTest extends \PHPUnit_Framework_TestCase
             ->method('rowCount');
 
         // Query should be called with the SQL and bind
-        $this->adapter->expects($this->once())
+        $this->crud->expects($this->once())
             ->method('query')
             ->with($expectedSql, $executeArgs)
             ->will($this->returnValue($pdoStatement));
@@ -175,7 +170,7 @@ class CrudTest extends \PHPUnit_Framework_TestCase
             ->method('rowCount');
 
         // Query should be called with the SQL and bind
-        $this->adapter->expects($this->once())
+        $this->crud->expects($this->once())
             ->method('query')
             ->with($expectedSql, $executeArgs)
             ->will($this->returnValue($pdoStatement));

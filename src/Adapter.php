@@ -2,39 +2,33 @@
 
 namespace Phlib\Db;
 
-use Phlib\Db\Adapter\QuotableAdapterInterface;
-use Phlib\Db\Adapter\CrudInterface;
-use Phlib\Db\Adapter\ConnectionFactory;
 use Phlib\Db\Exception\InvalidQueryException;
 use Phlib\Db\Exception\UnknownDatabaseException;
 use Phlib\Db\Exception\RuntimeException;
 
-class Adapter implements QuotableAdapterInterface, CrudInterface
+class Adapter implements AdapterInterface
 {
+    use Adapter\CrudTrait;
+
     /**
      * @var Adapter\Config
      */
-    protected $config;
+    private $config;
 
     /**
      * @var \PDO
      */
-    protected $connection = null;
+    private $connection = null;
 
     /**
      * @var callable
      */
-    protected $connectionFactory;
+    private $connectionFactory;
 
     /**
      * @var Adapter\QuoteHandler
      */
-    protected $quoter;
-
-    /**
-     * @var Adapter\Crud
-     */
-    protected $crud;
+    private $quoter;
 
     /**
      * Constructor
@@ -51,144 +45,21 @@ class Adapter implements QuotableAdapterInterface, CrudInterface
     public function __construct(array $config = [])
     {
         $this->config = new Adapter\Config($config);
-        $this->quoter = new Adapter\QuoteHandler(function ($value, $type) {
-            return $this->getConnection()->quote($value, $type);
-        });
-        $this->crud = new Adapter\Crud($this);
-        $this->connectionFactory = new ConnectionFactory();
+        $this->connectionFactory = new Adapter\ConnectionFactory();
     }
 
     /**
      * @return Adapter\QuoteHandler
      */
-    public function getQuoteHandler()
+    public function quote()
     {
+        if (!isset($this->quoter)) {
+            $this->quoter = new Adapter\QuoteHandler(function ($value, $type) {
+                return $this->getConnection()->quote($value, $type);
+            });
+        }
+
         return $this->quoter;
-    }
-
-    /**
-     * @param Adapter\QuoteHandler $quoteHandler
-     * @return $this
-     */
-    public function setQuoteHandler(Adapter\QuoteHandler $quoteHandler)
-    {
-        $this->quoter = $quoteHandler;
-        return $this;
-    }
-
-    /**
-     * @return Adapter\Crud
-     */
-    public function getCrudHelper()
-    {
-        return $this->crud;
-    }
-
-    /**
-     * @param mixed $value
-     * @param int $type
-     * @return string
-     */
-    public function quote($value, $type = null)
-    {
-        return $this->quoter->quote($value, $type);
-    }
-
-    /**
-     * @param string $text
-     * @param mixed $value
-     * @param int $type
-     * @return string
-     */
-    public function quoteInto($text, $value, $type = null)
-    {
-        return $this->quoter->quoteInto($text, $value, $type);
-    }
-
-    /**
-     * @param string $ident
-     * @param string $alias
-     * @param bool $auto
-     * @return string
-     */
-    public function quoteColumnAs($ident, $alias, $auto = false)
-    {
-        return $this->quoter->quoteColumnAs($ident, $alias, $auto);
-    }
-
-    /**
-     * @param string $ident
-     * @param string  $alias
-     * @param bool $auto
-     * @return string
-     */
-    public function quoteTableAs($ident, $alias = null, $auto = false)
-    {
-        return $this->quoter->quoteTableAs($ident, $alias, $auto);
-    }
-
-    /**
-     * @param string $ident
-     * @param bool $auto
-     * @return string
-     */
-    public function quoteIdentifier($ident, $auto = false)
-    {
-        return $this->quoter->quoteIdentifier($ident, $auto);
-    }
-
-    /**
-     * @param Adapter\Crud $crud
-     * @return $this
-     */
-    public function setCrudHelper(Adapter\Crud $crud)
-    {
-        $this->crud = $crud;
-        return $this;
-    }
-
-    /**
-     * @param string $table
-     * @param string $where
-     * @param array $bind
-     * @return \PDOStatement
-     */
-    public function select($table, $where = '', array $bind = [])
-    {
-        return $this->crud->select($table, $where, $bind);
-    }
-
-    /**
-     * @param string $table
-     * @param array $data
-     * @return int
-     */
-    public function insert($table, array $data)
-    {
-        return $this->crud->insert($table, $data);
-    }
-
-    /**
-     * @param string $table
-     * @param array $data
-     * @param string $where
-     * @param array $bind
-     * @return int
-     */
-    public function update($table, array $data, $where = '', array $bind = [])
-    {
-        return $this->crud->update($table, $data, $where, $bind);
-    }
-
-    /**
-     * @param string $table
-     * @param string $where
-     * @param array $bind
-     * @return int
-     */
-    public function delete($table, $where = '', array $bind = [])
-    {
-        return $this->crud->delete($table, $where, $bind);
     }
 
     /**
@@ -271,7 +142,7 @@ class Adapter implements QuotableAdapterInterface, CrudInterface
         $this->config->setDatabase($dbname);
         if ($this->connection) {
             try {
-                $this->query('USE ' . $this->quoter->quoteIdentifier($dbname));
+                $this->query('USE ' . $this->quote()->identifier($dbname));
             } catch (RuntimeException $exception) {
                 /** @var \PDOException $prevException */
                 $prevException = $exception->getPrevious();
@@ -372,7 +243,7 @@ class Adapter implements QuotableAdapterInterface, CrudInterface
      * @param boolean $enabled
      * @return Adapter
      */
-    protected function setBuffering($enabled)
+    private function setBuffering($enabled)
     {
         $this->getConnection()
             ->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, $enabled);
@@ -450,7 +321,7 @@ class Adapter implements QuotableAdapterInterface, CrudInterface
      * @param bool $hasCaughtException
      * @return \PDOStatement
      */
-    protected function doQuery($sql, array $bind, $hasCaughtException = false)
+    private function doQuery($sql, array $bind, $hasCaughtException = false)
     {
         try {
             $stmt = $this->getConnection()->prepare($sql);
@@ -472,7 +343,7 @@ class Adapter implements QuotableAdapterInterface, CrudInterface
      *
      * @return Adapter
      */
-    protected function connect()
+    private function connect()
     {
         if (is_null($this->connection)) {
             $this->connection = call_user_func($this->connectionFactory, $this->config);
@@ -503,7 +374,7 @@ class Adapter implements QuotableAdapterInterface, CrudInterface
      * @param bool $hasCaughtException
      * @return bool
      */
-    protected function doBeginTransaction($hasCaughtException = false)
+    private function doBeginTransaction($hasCaughtException = false)
     {
         try {
             return $this->getConnection()->beginTransaction();

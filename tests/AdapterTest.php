@@ -9,13 +9,13 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
     /**
      * @var \PDO|\PHPUnit_Framework_MockObject_MockObject
      */
-    protected $pdo;
+    private $pdo;
 
     /**
      * Quote Character
      * @var string
      */
-    protected $qc = '`';
+    private $qc = '`';
 
     public function setUp()
     {
@@ -39,50 +39,14 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
 
-        $adapter->getQuoteHandler()->quote($string);
+        $adapter->quote()->value($string);
     }
 
-    public function testGetDefaultQuoteHandler()
+    public function testGetQuoteHandler()
     {
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
-        $this->assertInstanceOf(Adapter\QuoteHandler::class, $adapter->getQuoteHandler());
-    }
-
-    public function testSetGetQuoteHandler()
-    {
-        /** @var Adapter\QuoteHandler|\PHPUnit_Framework_MockObject_MockObject $handler */
-        $handler = $this->createMock(Adapter\QuoteHandler::class);
-        $adapter = new Adapter();
-        $adapter->setConnection($this->pdo);
-        $adapter->setQuoteHandler($handler);
-        $this->assertSame($handler, $adapter->getQuoteHandler());
-    }
-
-    public function testQuoteHandlerForwardingMethods()
-    {
-        /** @var Adapter\QuoteHandler|\PHPUnit_Framework_MockObject_MockObject $handler */
-        $handler = $this->createMock(Adapter\QuoteHandler::class);
-        $handler->expects($this->once())
-            ->method('quote');
-
-        $adapter = new Adapter();
-        $adapter->setConnection($this->pdo);
-        $adapter->setQuoteHandler($handler);
-        $adapter->quote('foo');
-    }
-
-    public function testCrudHelperForwardingMethods()
-    {
-        /** @var Adapter\Crud|\PHPUnit_Framework_MockObject_MockObject $helper */
-        $helper = $this->createMock(Adapter\Crud::class);
-        $helper->expects($this->once())
-            ->method('select');
-
-        $adapter = new Adapter();
-        $adapter->setConnection($this->pdo);
-        $adapter->setCrudHelper($helper);
-        $adapter->select('foo');
+        $this->assertInstanceOf(Adapter\QuoteHandler::class, $adapter->quote());
     }
 
     /**

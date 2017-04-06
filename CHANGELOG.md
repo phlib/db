@@ -5,10 +5,18 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Changed
+- Removed *quote* prefix from QuoteHandler method names, for better chaining
+  from Adapter, eg. `$adapter->quote()->into()`
 ### Removed
 - Drop support for PHP 5.5
 - Helpers have been migrated to the `phlib/db-helper` package: `BulkInsert`,
   `BigResult`, `QueryPlanner`, `Replication`
+- Remove `CrudInterface`, `QuoteableInterface` and `QuoteableAdapterInterface`
+- Remove QuoteHandler pass-through and setter methods from Adapter. Instead use
+  QuoteHandler directly by chaining, eg. `$adapter->quoteInto()` is replaced
+  with `$adapter->quote()->into()`
+- Remove `Adapter/Crud` class, replaced by `CrudTrait` on the Adapter
 
 ## [0.0.5] - 2017-01-03
 ### Fixed
