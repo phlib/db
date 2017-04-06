@@ -10,13 +10,13 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
     /**
      * @var \PDO|\PHPUnit_Framework_MockObject_MockObject
      */
-    protected $pdo;
+    private $pdo;
 
     /**
      * Quote Character
      * @var string
      */
-    protected $qc = '`';
+    private $qc = '`';
 
     public function setUp()
     {

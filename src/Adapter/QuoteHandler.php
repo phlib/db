@@ -10,12 +10,12 @@ class QuoteHandler
     /**
      * @var boolean
      */
-    protected $autoQuoteIdentifiers = true;
+    private $autoQuoteIdentifiers = true;
 
     /**
      * @var callable
      */
-    protected $quoteFn;
+    private $quoteFn;
 
     /**
      * QuoteHandler constructor.
@@ -131,7 +131,7 @@ class QuoteHandler
      * @return string
      * @throws InvalidArgumentException
      */
-    protected function quoteIdentifierAs($ident, $alias = null, $auto = false, $as = ' AS ')
+    private function quoteIdentifierAs($ident, $alias = null, $auto = false, $as = ' AS ')
     {
         if (is_object($ident) && method_exists($ident, 'assemble')) {
             $quoted = '(' . $ident->assemble() . ')';
@@ -176,7 +176,7 @@ class QuoteHandler
      * @param boolean $auto
      * @return string
      */
-    protected function performQuoteIdentifier($value, $auto = false)
+    private function performQuoteIdentifier($value, $auto = false)
     {
         if ($auto === false || $this->autoQuoteIdentifiers === true) {
             $q = '`';

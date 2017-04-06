@@ -10,17 +10,17 @@ class ConnectionFactoryTest extends \PHPUnit_Framework_TestCase
     /**
      * @var Config|\PHPUnit_Framework_MockObject_MockObject
      */
-    protected $config;
+    private $config;
 
     /**
      * @var \PDO|\PHPUnit_Framework_MockObject_MockObject
      */
-    protected $pdo;
+    private $pdo;
 
     /**
      * @var ConnectionFactory|\PHPUnit_Framework_MockObject_MockObject
      */
-    protected $factory;
+    private $factory;
 
     public function setUp()
     {

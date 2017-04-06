@@ -10,7 +10,7 @@ class QuoteHandlerTest extends \PHPUnit_Framework_TestCase
     /**
      * @var QuoteHandler|\PHPUnit_Framework_MockObject_MockObject
      */
-    protected $handler;
+    private $handler;
 
     public function setUp()
     {

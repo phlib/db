@@ -13,22 +13,22 @@ class Adapter implements AdapterInterface
     /**
      * @var Adapter\Config
      */
-    protected $config;
+    private $config;
 
     /**
      * @var \PDO
      */
-    protected $connection = null;
+    private $connection = null;
 
     /**
      * @var callable
      */
-    protected $connectionFactory;
+    private $connectionFactory;
 
     /**
      * @var Adapter\QuoteHandler
      */
-    protected $quoter;
+    private $quoter;
 
     /**
      * Constructor
@@ -243,7 +243,7 @@ class Adapter implements AdapterInterface
      * @param boolean $enabled
      * @return Adapter
      */
-    protected function setBuffering($enabled)
+    private function setBuffering($enabled)
     {
         $this->getConnection()
             ->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, $enabled);
@@ -321,7 +321,7 @@ class Adapter implements AdapterInterface
      * @param bool $hasCaughtException
      * @return \PDOStatement
      */
-    protected function doQuery($sql, array $bind, $hasCaughtException = false)
+    private function doQuery($sql, array $bind, $hasCaughtException = false)
     {
         try {
             $stmt = $this->getConnection()->prepare($sql);
@@ -343,7 +343,7 @@ class Adapter implements AdapterInterface
      *
      * @return Adapter
      */
-    protected function connect()
+    private function connect()
     {
         if (is_null($this->connection)) {
             $this->connection = call_user_func($this->connectionFactory, $this->config);
@@ -374,7 +374,7 @@ class Adapter implements AdapterInterface
      * @param bool $hasCaughtException
      * @return bool
      */
-    protected function doBeginTransaction($hasCaughtException = false)
+    private function doBeginTransaction($hasCaughtException = false)
     {
         try {
             return $this->getConnection()->beginTransaction();

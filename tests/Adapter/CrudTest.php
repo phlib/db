@@ -10,7 +10,7 @@ class CrudTraitTest extends \PHPUnit_Framework_TestCase
     /**
      * @var CrudTrait|\PHPUnit_Framework_MockObject_MockObject
      */
-    protected $crud;
+    private $crud;
 
     public function setUp()
     {

@@ -7,12 +7,12 @@ class InvalidQueryException extends RuntimeException implements Exception
     /**
      * @var string
      */
-    protected $query;
+    private $query;
 
     /**
      * @var array
      */
-    protected $bind;
+    private $bind;
 
     /**
      * @param \PDOException $exception

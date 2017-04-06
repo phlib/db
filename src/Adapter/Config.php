@@ -9,7 +9,7 @@ class Config
     /**
      * @var array
      */
-    protected $config;
+    private $config;
 
     /**
      * Config constructor.

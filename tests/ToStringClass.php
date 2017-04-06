@@ -7,7 +7,7 @@ class ToStringClass
     /**
      * @var string
      */
-    protected $value = '';
+    private $value = '';
 
     /**
      * @param string $value
