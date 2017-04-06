@@ -4,7 +4,7 @@ namespace Phlib\Db\Adapter;
 
 use Phlib\Db\Adapter;
 
-class Crud implements CrudInterface
+class Crud
 {
     /**
      * @var Adapter

@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Drop support for PHP 5.5
 - Helpers have been migrated to the `phlib/db-helper` package: `BulkInsert`,
   `BigResult`, `QueryPlanner`, `Replication`
-- Remove `QuoteableInterface` and `QuoteableAdapterInterface`
+- Remove `CrudInterface`, `QuoteableInterface` and `QuoteableAdapterInterface`
 - Remove QuoteHandler pass-through and setter methods from Adapter. Instead use
   QuoteHandler directly by chaining, eg. `$adapter->quoteInto()` is replaced
   with `$adapter->quote()->into()`
