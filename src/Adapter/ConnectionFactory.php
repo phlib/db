@@ -30,18 +30,6 @@ class ConnectionFactory
                 }
 
                 if ($maxAttempts > $attempt) {
-                    // more tries left, so we'll log this error
-//                    $template = 'Failed connection to "%s" on attempt %d with error "%s"';
-//                    $dsn      = $config->getDsn();
-//                    error_log(sprintf($template, $dsn, $attempt, $exception->getMessage()));
-//                    $logger->error(sprintf($template, $dsn, $attempt, $exception->getMessage()), [
-//                        'e_message' => $exception->getMessage(),
-//                        'e_code'    => $exception->getCode(),
-//                        'e_file'    => $exception->getFile(),
-//                        'e_line'    => $exception->getLine(),
-//                        'e_trace'   => $exception->getTraceAsString()
-//                    ]);
-
                     // sleep with some exponential backoff
                     $msec = pow(2, $attempt) * 50;
                     usleep($msec * 1000);
