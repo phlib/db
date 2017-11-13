@@ -3,7 +3,7 @@
 namespace Phlib\Db\Tests\Adapter;
 
 use Phlib\Db\Adapter\QuoteHandler;
-use Phlib\Db\Tests\ToStringClass;
+use Phlib\Db\SqlFragment;
 
 class QuoteHandlerTest extends \PHPUnit_Framework_TestCase
 {
@@ -33,7 +33,7 @@ class QuoteHandlerTest extends \PHPUnit_Framework_TestCase
     public function valueDataProvider()
     {
         $toStringVal = 'foo';
-        $object = new ToStringClass($toStringVal);
+        $object = new SqlFragment($toStringVal);
         return [
             [false, 0],
             [true, 1],
@@ -74,7 +74,7 @@ class QuoteHandlerTest extends \PHPUnit_Framework_TestCase
             ['field IN (1, 2, 3)', 'field IN (?)', [1, 2, 3]],
             ["field IN (`one`, `two`)", 'field IN (?)', ['one', 'two']],
             ["field IN (`one`, `Array`)", 'field IN (?)', ['one', ['two']]],
-            ['field = NOW()', 'field = ?', new ToStringClass('NOW()')]
+            ['field = NOW()', 'field = ?', new SqlFragment('NOW()')]
         ];
     }
 
@@ -148,8 +148,8 @@ class QuoteHandlerTest extends \PHPUnit_Framework_TestCase
         return [
             ["`col1`", 'col1', null],
             ["`col1`", 'col1', true],
-            ["NOW()", new ToStringClass('NOW()'), true],
-            ["`col1`.NOW()", ['col1', new ToStringClass('NOW()')], true],
+            ["NOW()", new SqlFragment('NOW()'), true],
+            ["`col1`.NOW()", ['col1', new SqlFragment('NOW()')], true],
             ["`table1`.`*`", 'table1.*', true]
         ];
     }
