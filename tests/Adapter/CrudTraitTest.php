@@ -21,7 +21,7 @@ class CrudTraitTest extends \PHPUnit_Framework_TestCase
             ->getMockForTrait();
 
         $quoteHandler = new QuoteHandler(function ($value) {
-            return "`$value`";
+            return "'{$value}'";
         });
         $this->crud->method('quote')
             ->willReturn($quoteHandler);
