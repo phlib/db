@@ -8,15 +8,18 @@ trait CrudTrait
      * Select data from table.
      *
      * @param string $table
-     * @param string $where
-     * @param array $bind
+     * @param array|string $where Deprecated usage of parameter as string
+     * @param array $bind Deprecated in favour of $where as array
      * @return \PDOStatement
      */
-    public function select($table, $where = '', array $bind = [])
+    public function select($table, $where = [], array $bind = [])
     {
         $table = $this->quote()->identifier($table);
-        $sql   = "SELECT * FROM $table"
-            . (($where) ? " WHERE $where" : '');
+        $sql   = "SELECT * FROM $table";
+        if (is_array($where)) {
+            $where = $this->createWhereExpression($where);
+        }
+        $sql .= (($where) ? " WHERE {$where}" : '');
 
         return $this->query($sql, $bind);
     }
@@ -45,19 +48,22 @@ trait CrudTrait
      *
      * @param string $table
      * @param array $data
-     * @param string $where
-     * @param array $bind
+     * @param array|string $where Deprecated usage of parameter as string
+     * @param array $bind Deprecated in favour of $where as array
      * @return int Number of affected rows
      */
-    public function update($table, array $data, $where = '', array $bind = [])
+    public function update($table, array $data, $where = [], array $bind = [])
     {
         $table  = $this->quote()->identifier($table);
         $fields = [];
         foreach ($data as $field => $value) {
             $fields[] = $this->quote()->into("{$field} = ?", $value);
         }
-        $sql = "UPDATE $table SET " . implode(', ', $fields)
-            . (($where) ? " WHERE $where" : '');
+        $sql = "UPDATE $table SET " . implode(', ', $fields);
+        if (is_array($where)) {
+            $where = $this->createWhereExpression($where);
+        }
+        $sql .= (($where) ? " WHERE {$where}" : '');
 
         $stmt = $this->query($sql, $bind);
 
@@ -68,19 +74,41 @@ trait CrudTrait
      * Delete from table.
      *
      * @param string $table
-     * @param string $where
-     * @param array $bind
+     * @param array|string $where Deprecated usage of parameter as string
+     * @param array $bind Deprecated in favour of $where as array
      * @return int Number of affected rows
      */
-    public function delete($table, $where = '', array $bind = [])
+    public function delete($table, $where = [], array $bind = [])
     {
         $table = $this->quote()->identifier($table);
-        $sql   = "DELETE FROM $table"
-            . (($where) ? " WHERE $where" : '');
+        $sql   = "DELETE FROM $table";
+        if (is_array($where)) {
+            $where = $this->createWhereExpression($where);
+        }
+        $sql .= (($where) ? " WHERE {$where}" : '');
 
         $stmt = $this->query($sql, $bind);
 
         return $stmt->rowCount();
+    }
+
+    /**
+     * Create WHERE expression from given criteria
+     *
+     * @param array $where
+     * @return string
+     */
+    private function createWhereExpression(array $where = [])
+    {
+        $criteria = [];
+        foreach ($where as $str => $value) {
+            if (is_int($str)) {
+                $criteria[] = $value;
+            } else {
+                $criteria[] = $this->quote()->into($str, $value);
+            }
+        }
+        return implode(' AND ', $criteria);
     }
 
     /**
