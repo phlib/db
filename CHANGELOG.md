@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - New class `SqlFragment` can be used when passing raw SQL to the quoter. The
   quoter already supports objects (on which it will call `__toString()`), this
   class simply helps with the implementation.
+- Full quoter support added to `insert()` and `update()` data parameter,
+  providing handling for objects and numbers.
 
 ## [1.0.0] - 2017-04-10
 ### Changed

@@ -32,10 +32,10 @@ trait CrudTrait
     {
         $table  = $this->quote()->identifier($table);
         $fields = implode(', ', array_keys($data));
-        $placeHolders = implode(', ', array_fill(0, count($data), '?'));
-        $sql = "INSERT INTO $table ($fields) VALUES ($placeHolders)";
+        $values = implode(', ', array_map([$this->quote(), 'value'], $data));
+        $sql = "INSERT INTO $table ($fields) VALUES ($values)";
 
-        $stmt = $this->query($sql, array_values($data));
+        $stmt = $this->query($sql);
 
         return $stmt->rowCount();
     }
@@ -53,13 +53,13 @@ trait CrudTrait
     {
         $table  = $this->quote()->identifier($table);
         $fields = [];
-        foreach (array_keys($data) as $field) {
-            $fields[] = "$field = ?";
+        foreach ($data as $field => $value) {
+            $fields[] = $this->quote()->into("{$field} = ?", $value);
         }
         $sql = "UPDATE $table SET " . implode(', ', $fields)
             . (($where) ? " WHERE $where" : '');
 
-        $stmt = $this->query($sql, array_merge(array_values($data), $bind));
+        $stmt = $this->query($sql, $bind);
 
         return $stmt->rowCount();
     }

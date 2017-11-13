@@ -4,6 +4,7 @@ namespace Phlib\Db\Tests\Adapter;
 
 use Phlib\Db\Adapter\CrudTrait;
 use Phlib\Db\Adapter\QuoteHandler;
+use Phlib\Db\SqlFragment;
 
 class CrudTraitTest extends \PHPUnit_Framework_TestCase
 {
@@ -77,7 +78,7 @@ class CrudTraitTest extends \PHPUnit_Framework_TestCase
      * @param array $data
      * @dataProvider insertDataProvider
      */
-    public function testInsert($expectedSql, $table, $data)
+    public function testInsert($expectedSql, $table, array $data)
     {
         // Returned stmt will have rowCount called
         $pdoStatement = $this->createMock(\PDOStatement::class);
@@ -85,10 +86,9 @@ class CrudTraitTest extends \PHPUnit_Framework_TestCase
             ->method('rowCount')
             ->will($this->returnValue(count($data)));
 
-        $bind = array_values($data);
         $this->crud->expects($this->any())
             ->method('query')
-            ->with($expectedSql, $bind)
+            ->with($expectedSql, [])
             ->will($this->returnValue($pdoStatement));
 
         $this->crud->insert($table, $data);
@@ -97,8 +97,12 @@ class CrudTraitTest extends \PHPUnit_Framework_TestCase
     public function insertDataProvider()
     {
         return [
-            ["INSERT INTO `table` (col1) VALUES (?)", 'table', ['col1' => 'v1']],
-            ["INSERT INTO `table` (col1, col2) VALUES (?, ?)", 'table', ['col1' => 'v1', 'col2' => 'v2']]
+            ["INSERT INTO `table` (col1) VALUES ('v1')", 'table', ['col1' => 'v1']],
+            ["INSERT INTO `table` (col1, col2) VALUES ('v1', 'v2')", 'table', ['col1' => 'v1', 'col2' => 'v2']],
+            // Number should not be quoted
+            ["INSERT INTO `table` (col1) VALUES (123)", 'table', ['col1' => 123]],
+            // Object should be handled
+            ["INSERT INTO `table` (col1) VALUES (col2)", 'table', ['col1' => new SqlFragment('col2')]],
         ];
     }
 
@@ -113,7 +117,7 @@ class CrudTraitTest extends \PHPUnit_Framework_TestCase
     public function testUpdate($expectedSql, $table, $data, $where, $bind)
     {
         $bind = (is_null($bind)) ? [] : $bind;
-        $executeArgs = array_merge(array_values($data), $bind);
+        $executeArgs = $bind;
 
         // Returned stmt will have rowCount called
         $pdoStatement = $this->createMock(\PDOStatement::class);
@@ -135,19 +139,20 @@ class CrudTraitTest extends \PHPUnit_Framework_TestCase
     public function updateDataProvider()
     {
         return [
-            ["UPDATE `table` SET col1 = ?", 'table', ['col1' => 'v1'], null, null],
-            ["UPDATE `table` SET col1 = ?, col2 = ?", 'table', ['col1' => 'v1', 'col2' => 'v2'], null, null],
+            ["UPDATE `table` SET col1 = 'v1'", 'table', ['col1' => 'v1'], null, null],
+            ["UPDATE `table` SET col1 = 'v1', col2 = 'v2'", 'table', ['col1' => 'v1', 'col2' => 'v2'], null, null],
             [
-                "UPDATE `table` SET col1 = ?, col2 = ? WHERE col3 = `v3`",
+                "UPDATE `table` SET col1 = 'v1', col2 = 'v2' WHERE col3 = 'v3'",
                 'table',
-                ['col1' => 'v1', 'col2' => 'v2'], "col3 = `v3`",
+                ['col1' => 'v1', 'col2' => 'v2'],
+                "col3 = 'v3'",
                 null
             ],
             [
-                "UPDATE `table` SET col1 = ? WHERE col3 = `v3` AND col4 = ?",
+                "UPDATE `table` SET col1 = 'v1' WHERE col3 = 'v3' AND col4 = ?",
                 'table',
                 ['col1' => 'v1'],
-                "col3 = `v3` AND col4 = ?",
+                "col3 = 'v3' AND col4 = ?",
                 ['v4']
             ]
         ];
