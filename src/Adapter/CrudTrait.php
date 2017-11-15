@@ -101,11 +101,11 @@ trait CrudTrait
     private function createWhereExpression(array $where = [])
     {
         $criteria = [];
-        foreach ($where as $str => $value) {
-            if (is_int($str)) {
+        foreach ($where as $index => $value) {
+            if (is_int($index)) {
                 $criteria[] = $value;
             } else {
-                $criteria[] = $this->quote()->into($str, $value);
+                $criteria[] = $this->quote()->into($index, $value);
             }
         }
         return implode(' AND ', $criteria);
