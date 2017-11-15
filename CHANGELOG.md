@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [1.1.0] - 2017-11-15
 ### Added
 - New class `SqlFragment` can be used when passing raw SQL to the quoter. The
   quoter already supports objects (on which it will call `__toString()`), this
