@@ -115,12 +115,12 @@ class CrudTraitTest extends \PHPUnit_Framework_TestCase
     public function insertDataProvider()
     {
         return [
-            ["INSERT INTO `table` (col1) VALUES ('v1')", 'table', ['col1' => 'v1']],
-            ["INSERT INTO `table` (col1, col2) VALUES ('v1', 'v2')", 'table', ['col1' => 'v1', 'col2' => 'v2']],
+            ["INSERT INTO `table` (`col1`) VALUES ('v1')", 'table', ['col1' => 'v1']],
+            ["INSERT INTO `table` (`col1`, `col2`) VALUES ('v1', 'v2')", 'table', ['col1' => 'v1', 'col2' => 'v2']],
             // Number should not be quoted
-            ["INSERT INTO `table` (col1) VALUES (123)", 'table', ['col1' => 123]],
+            ["INSERT INTO `table` (`col1`) VALUES (123)", 'table', ['col1' => 123]],
             // Object should be handled
-            ["INSERT INTO `table` (col1) VALUES (col2)", 'table', ['col1' => new SqlFragment('col2')]],
+            ["INSERT INTO `table` (`col1`) VALUES (col2)", 'table', ['col1' => new SqlFragment('col2')]],
         ];
     }
 
@@ -157,11 +157,11 @@ class CrudTraitTest extends \PHPUnit_Framework_TestCase
     public function updateDataProvider()
     {
         return [
-            ["UPDATE `table` SET col1 = 'v1'", 'table', ['col1' => 'v1'], [], []],
-            ["UPDATE `table` SET col1 = 'v1', col2 = 'v2'", 'table', ['col1' => 'v1', 'col2' => 'v2'], [], []],
+            ["UPDATE `table` SET `col1` = 'v1'", 'table', ['col1' => 'v1'], [], []],
+            ["UPDATE `table` SET `col1` = 'v1', `col2` = 'v2'", 'table', ['col1' => 'v1', 'col2' => 'v2'], [], []],
             // Deprecated $where param as string
             [
-                "UPDATE `table` SET col1 = 'v1', col2 = 'v2' WHERE col3 = 'v3'",
+                "UPDATE `table` SET `col1` = 'v1', `col2` = 'v2' WHERE col3 = 'v3'",
                 'table',
                 ['col1' => 'v1', 'col2' => 'v2'],
                 "col3 = 'v3'",
@@ -169,14 +169,14 @@ class CrudTraitTest extends \PHPUnit_Framework_TestCase
             ],
             // Deprecated $where param as string with bind
             [
-                "UPDATE `table` SET col1 = 'v1' WHERE col3 = 'v3' AND col4 = ?",
+                "UPDATE `table` SET `col1` = 'v1' WHERE col3 = 'v3' AND col4 = ?",
                 'table',
                 ['col1' => 'v1'],
                 "col3 = 'v3' AND col4 = ?",
                 ['v4']
             ],
             [
-                "UPDATE `table` SET col1 = 'v1' WHERE col3 = 'v3' AND col4 = 'v4' AND col5 IS NULL",
+                "UPDATE `table` SET `col1` = 'v1' WHERE col3 = 'v3' AND col4 = 'v4' AND col5 IS NULL",
                 'table',
                 ['col1' => 'v1'],
                 ['col3 = ?' => 'v3', 'col4 = ?' => 'v4', 'col5 IS NULL'],
@@ -184,7 +184,7 @@ class CrudTraitTest extends \PHPUnit_Framework_TestCase
             ],
             // Correct quote behaviour for number and object
             [
-                "UPDATE `table` SET col1 = 'v1' WHERE col3 = 123 AND col4 = col2",
+                "UPDATE `table` SET `col1` = 'v1' WHERE col3 = 123 AND col4 = col2",
                 'table',
                 ['col1' => 'v1'],
                 ['col3 = ?' => 123, 'col4 = ?' => new SqlFragment('col2')],
