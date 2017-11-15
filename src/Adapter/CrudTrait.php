@@ -34,7 +34,7 @@ trait CrudTrait
     public function insert($table, array $data)
     {
         $table  = $this->quote()->identifier($table);
-        $fields = implode(', ', array_keys($data));
+        $fields = implode(', ', array_map([$this->quote(), 'identifier'], array_keys($data)));
         $values = implode(', ', array_map([$this->quote(), 'value'], $data));
         $sql = "INSERT INTO $table ($fields) VALUES ($values)";
 
@@ -57,7 +57,8 @@ trait CrudTrait
         $table  = $this->quote()->identifier($table);
         $fields = [];
         foreach ($data as $field => $value) {
-            $fields[] = $this->quote()->into("{$field} = ?", $value);
+            $identifier = $this->quote()->identifier($field);
+            $fields[] = $this->quote()->into("{$identifier} = ?", $value);
         }
         $sql = "UPDATE $table SET " . implode(', ', $fields);
         if (is_array($where)) {
