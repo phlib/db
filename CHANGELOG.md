@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - New class `SqlFragment` can be used when passing raw SQL to the quoter. The
   quoter already supports objects (on which it will call `__toString()`), this
   class simply helps with the implementation.
+- Full quoter support added to *data* parameter of `insert()` and `update()`,
+  providing handling for objects and numbers.
+- Full quoter support added to *where* parameter of `select()`, `insert()`,
+  `update()` and `delete()` when passed as an array, providing handling for
+  objects, numbers and arrays.
+### Deprecated
+- For `select()`, `insert()`, `update()` and `delete()`, the *bind* parameter,
+  and passing a string to the *where* parameter are deprecated in favour of
+  providing an array for *where*.
 
 ## [1.0.0] - 2017-04-10
 ### Changed
