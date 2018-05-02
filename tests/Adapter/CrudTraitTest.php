@@ -244,4 +244,37 @@ class CrudTraitTest extends \PHPUnit_Framework_TestCase
             ]
         ];
     }
+
+    /**
+     * @dataProvider upsertDataProvider
+     */
+    public function testUpsert($expectedSql, $table, array $data, array $updateFields)
+    {
+        // Returned stmt will have rowCount called
+        $pdoStatement = $this->createMock(\PDOStatement::class);
+        $pdoStatement->expects($this->once())
+            ->method('rowCount')
+            ->willReturn(1);
+
+        $bind = array_values($data);
+        // Query should be called with the SQL and bind
+        $this->crud->expects($this->once())
+            ->method('query')
+            ->with($expectedSql, $bind)
+            ->willReturn($pdoStatement);
+
+        $this->assertEquals(1, $this->crud->upsert($table, $data, $updateFields));
+    }
+
+    public function upsertDataProvider()
+    {
+        return [
+            ["INSERT INTO `table` (`col1`) VALUES (?) ON DUPLICATE KEY UPDATE `col1` = VALUES(`col1`)",
+                'table', ['col1' => 'v1'], ['col1']],
+            ["INSERT INTO `table` (`col1`, `col2`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `col1` = VALUES(`col1`)",
+                'table', ['col1' => 'v1', 'col2' => 'v2'], ['col1']],
+            ["INSERT INTO `table` (`col1`, `col2`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `col1` = VALUES(`col1`), `col2` = VALUES(`col2`)",
+                'table', ['col1' => 'v1', 'col2' => 'v2'], ['col1', 'col2']],
+        ];
+    }
 }

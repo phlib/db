@@ -93,6 +93,32 @@ trait CrudTrait
     }
 
     /**
+     * Insert (on duplicate key update) data in table.
+     *
+     * @param string $table
+     * @param array $data
+     * @param array $updateFields
+     * @return int Number of affected rows
+     */
+    public function upsert($table, array $data, array $updateFields)
+    {
+        $table  = $this->quote()->identifier($table);
+        $fields = implode(', ', array_map([$this->quote(), 'identifier'], array_keys($data)));
+        $placeHolders = implode(', ', array_fill(0, count($data), '?'));
+        $updateValues = [];
+        foreach ($updateFields as $field) {
+            $field = $this->quote()->identifier($field);
+            $updateValues[] = "$field = VALUES($field)";
+        }
+        $updates = implode(', ', $updateValues);
+        $sql = "INSERT INTO $table ($fields) VALUES ($placeHolders) ON DUPLICATE KEY UPDATE $updates";
+
+        $stmt = $this->query($sql, array_values($data));
+
+        return $stmt->rowCount();
+    }
+
+    /**
      * Create WHERE expression from given criteria
      *
      * @param array $where
