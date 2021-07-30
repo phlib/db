@@ -1,9 +1,9 @@
 # phlib/db
 
-[![Build Status](https://img.shields.io/travis/phlib/db/master.svg)](https://travis-ci.org/phlib/db)
-[![Codecov](https://img.shields.io/codecov/c/github/phlib/db.svg)](https://codecov.io/gh/phlib/db)
-[![Latest Stable Version](https://img.shields.io/packagist/v/phlib/db.svg)](https://packagist.org/packages/phlib/db)
-[![Total Downloads](https://img.shields.io/packagist/dt/phlib/db.svg)](https://packagist.org/packages/phlib/db)
+[![Code Checks](https://img.shields.io/github/workflow/status/phlib/db/CodeChecks?logo=github)](https://github.com/phlib/db/actions/workflows/code-checks.yml)
+[![Codecov](https://img.shields.io/codecov/c/github/phlib/db.svg?logo=codecov)](https://codecov.io/gh/phlib/db)
+[![Latest Stable Version](https://img.shields.io/packagist/v/phlib/db.svg?logo=packagist)](https://packagist.org/packages/phlib/db)
+[![Total Downloads](https://img.shields.io/packagist/dt/phlib/db.svg?logo=packagist)](https://packagist.org/packages/phlib/db)
 ![Licence](https://img.shields.io/github/license/phlib/db.svg)
 
 MySQL PDO DB Adapter. PDO with some extra good stuff specifically for MySQL.
