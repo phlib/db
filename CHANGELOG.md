@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - New method on adapter `upsert()` for performing an insert/on duplicate update
   of a single row
+### Fixed
+- **BC break**: Automatically quote identifiers used in data parameters for
+  `insert()` and `update()`. Implementations must remove any manual identifer 
+  quotes that they were previously forced to include manually.
 
 ## [1.1.0] - 2017-11-15
 ### Added
