@@ -11,18 +11,13 @@ jobs:
     strategy:
       matrix:
         php:
-          - '5.6'
-          - '7.0'
-          - '7.1'
-          - '7.2'
-          - '7.3'
           - '7.4'
 
     name: PHP ${{ matrix.php }} tests
 
     services:
       mysql:
-        image: mysql:5.7
+        image: mysql:latest
         env:
           MYSQL_DATABASE: test_database
           MYSQL_HOST: 127.0.0.1

@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   quotes that they were previously forced to include manually.
 - `RuntimeException::createFromException()` no longer wraps an instance of itself.
 ### Removed
+- **BC break**: Removed support for PHP versions <= v7.3 as they are no longer
+  [actively supported](https://php.net/supported-versions.php) by the PHP project.
 - Previous deprecated *bind* parameter for `select()`, `update()` and
   `delete()`, and passing a string to the *where* parameter.
 

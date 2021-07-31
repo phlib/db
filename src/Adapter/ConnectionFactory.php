@@ -31,7 +31,7 @@ class ConnectionFactory
 
                 if ($maxAttempts > $attempt) {
                     // sleep with some exponential backoff
-                    $msec = pow(2, $attempt) * 50;
+                    $msec = (2 ** $attempt) * 50;
                     usleep($msec * 1000);
                 } else {
                     // ran out of attempts, throw the last error

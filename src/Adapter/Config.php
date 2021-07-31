@@ -48,7 +48,7 @@ class Config
      */
     public function getUsername()
     {
-        return isset($this->config['username']) ? $this->config['username'] : '';
+        return $this->config['username'] ?? '';
     }
 
     /**
@@ -56,7 +56,7 @@ class Config
      */
     public function getPassword()
     {
-        return isset($this->config['password']) ? $this->config['password'] : '';
+        return $this->config['password'] ?? '';
     }
 
     /**
@@ -64,7 +64,7 @@ class Config
      */
     public function getOptions()
     {
-        $timeoutValue   = isset($this->config['timeout']) ? $this->config['timeout'] : '';
+        $timeoutValue   = $this->config['timeout'] ?? '';
         $timeoutOptions = ['options' => ['min_range' => 0, 'max_range' => 120, 'default' => 2]];
         $timeout        = filter_var($timeoutValue, FILTER_VALIDATE_INT, $timeoutOptions);
         return [
@@ -79,7 +79,7 @@ class Config
      */
     public function getDatabase()
     {
-        return isset($this->config['dbname'])  ? $this->config['dbname']  : '';
+        return $this->config['dbname'] ?? '';
     }
 
     /**
@@ -97,7 +97,7 @@ class Config
      */
     public function getCharset()
     {
-        return isset($this->config['charset'])  ? $this->config['charset']  : 'utf8mb4';
+        return $this->config['charset'] ?? 'utf8mb4';
     }
 
     /**
@@ -115,7 +115,7 @@ class Config
      */
     public function getTimezone()
     {
-        return isset($this->config['timezone']) ? $this->config['timezone'] : '+0:00';
+        return $this->config['timezone'] ?? '+0:00';
     }
 
     /**
@@ -133,7 +133,7 @@ class Config
      */
     public function getMaximumAttempts()
     {
-        $retryValue   = isset($this->config['retryCount']) ? $this->config['retryCount'] : 0;
+        $retryValue   = $this->config['retryCount'] ?? 0;
         $retryOptions = ['options' => ['min_range' => 0, 'max_range' => 10, 'default' => 0]];
         $retryCount   = filter_var($retryValue, FILTER_VALIDATE_INT, $retryOptions);
         return $retryCount + 1;
