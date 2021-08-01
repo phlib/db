@@ -1,20 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\Db\Tests\Adapter;
 
 use Phlib\Db\Adapter\QuoteHandler;
 use Phlib\Db\SqlFragment;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class QuoteHandlerTest extends TestCase
 {
-    /**
-     * @var QuoteHandler|MockObject
-     */
-    private $handler;
+    private QuoteHandler $handler;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->handler = new QuoteHandler(function ($value) {
             return "`{$value}`";
@@ -27,12 +25,12 @@ class QuoteHandlerTest extends TestCase
      * @param mixed $expected
      * @dataProvider valueDataProvider
      */
-    public function testValue($value, $expected)
+    public function testValue($value, $expected): void
     {
         static::assertEquals($expected, $this->handler->value($value));
     }
 
-    public function valueDataProvider()
+    public function valueDataProvider(): array
     {
         $toStringVal = 'foo';
         $object = new SqlFragment($toStringVal);
@@ -57,17 +55,15 @@ class QuoteHandlerTest extends TestCase
     }
 
     /**
-     * @param string $expected
-     * @param string $text
      * @param mixed $value
      * @dataProvider intoDataProvider
      */
-    public function testInto($expected, $text, $value)
+    public function testInto(string $expected, string $text, $value): void
     {
         static::assertEquals($expected, $this->handler->into($text, $value));
     }
 
-    public function intoDataProvider()
+    public function intoDataProvider(): array
     {
         return [
             ['field = `value`', 'field = ?', 'value'],
@@ -81,13 +77,10 @@ class QuoteHandlerTest extends TestCase
     }
 
     /**
-     * @param string $expected
-     * @param mixed $ident
-     * @param string $alias
-     * @param bool $auto
+     * @param string|string[] $ident
      * @dataProvider columnAsData
      */
-    public function testColumnAs($expected, $ident, $alias, $auto)
+    public function testColumnAs(string $expected, $ident, string $alias, ?bool $auto): void
     {
         $result = ($auto !== null) ?
             $this->handler->columnAs($ident, $alias, $auto) :
@@ -95,49 +88,42 @@ class QuoteHandlerTest extends TestCase
         static::assertEquals($expected, $result);
     }
 
-    public function columnAsData()
+    public function columnAsData(): array
     {
         return [
-            ['`col1`', 'col1', null, null],
             ['`col1` AS `alias`', 'col1', 'alias', null],
             ['`col1` AS `alias`', 'col1', 'alias', true],
-            ['`table1`.`col1`', ['table1', 'col1'], null, true],
+            ['`table1`.`col1` AS `alias`', ['table1', 'col1'], 'alias', true],
             ['`table1`.`col1`.`alias`', ['table1', 'col1', 'alias'], 'alias', true],
         ];
     }
 
     /**
-     * @param string $expected
-     * @param string $ident
-     * @param string $alias
-     * @param bool $auto
+     * @param string|string[] $ident
      * @dataProvider tableAsData
      */
-    public function testTableAs($expected, $ident, $alias, $auto)
+    public function testTableAs(string $expected, $ident, string $alias, ?bool $auto): void
     {
-        $result = ($alias !== null) ? ($auto !== null) ?
+        $result = ($auto !== null) ?
             $this->handler->tableAs($ident, $alias, $auto) :
-            $this->handler->tableAs($ident, $alias) :
-            $this->handler->tableAs($ident);
+            $this->handler->tableAs($ident, $alias);
         static::assertEquals($expected, $result);
     }
 
-    public function tableAsData()
+    public function tableAsData(): array
     {
         return [
-            ['`table1`', 'table1', null, null],
             ['`table1` AS `alias`', 'table1', 'alias', null],
             ['`table1` AS `alias`', 'table1', 'alias', true],
+            ['`schema1`.`table1` AS `alias`', ['schema1', 'table1'], 'alias', true],
         ];
     }
 
     /**
-     * @param string $expected
-     * @param string $ident
-     * @param bool $auto
+     * @param string|string[] $ident
      * @dataProvider identifierData
      */
-    public function testIdentifier($expected, $ident, $auto)
+    public function testIdentifier(string $expected, $ident, ?bool $auto): void
     {
         $result = ($auto !== null) ?
             $this->handler->identifier($ident, $auto) :
@@ -145,7 +131,7 @@ class QuoteHandlerTest extends TestCase
         static::assertEquals($expected, $result);
     }
 
-    public function identifierData()
+    public function identifierData(): array
     {
         return [
             ['`col1`', 'col1', null],

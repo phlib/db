@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\Db\Adapter;
 
 use Phlib\Db\Exception\RuntimeException;
@@ -7,12 +9,7 @@ use Phlib\Db\Exception\UnknownDatabaseException;
 
 class ConnectionFactory
 {
-    /**
-     * @return \PDO
-     * @throws UnknownDatabaseException
-     * @throws RuntimeException
-     */
-    public function __invoke(Config $config)
+    public function __invoke(Config $config): \PDO
     {
         $attempt = 0;
         $maxAttempts = $config->getMaximumAttempts();
@@ -40,10 +37,7 @@ class ConnectionFactory
         }
     }
 
-    /**
-     * @return \PDO
-     */
-    public function create(Config $config)
+    public function create(Config $config): \PDO
     {
         return new \PDO(
             $config->getDsn(),

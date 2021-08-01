@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\Db;
 
 use Phlib\Db\Exception\InvalidQueryException;
@@ -10,25 +12,16 @@ class Adapter implements AdapterInterface
 {
     use Adapter\CrudTrait;
 
-    /**
-     * @var Adapter\Config
-     */
-    private $config;
+    private Adapter\Config $config;
 
-    /**
-     * @var \PDO
-     */
-    private $connection = null;
+    private \PDO $connection;
 
     /**
      * @var callable
      */
     private $connectionFactory;
 
-    /**
-     * @var Adapter\QuoteHandler
-     */
-    private $quoter;
+    private Adapter\QuoteHandler $quoter;
 
     /**
      * @param array $config {
@@ -45,10 +38,7 @@ class Adapter implements AdapterInterface
         $this->connectionFactory = new Adapter\ConnectionFactory();
     }
 
-    /**
-     * @return Adapter\QuoteHandler
-     */
-    public function quote()
+    public function quote(): Adapter\QuoteHandler
     {
         if (!isset($this->quoter)) {
             $this->quoter = new Adapter\QuoteHandler(function ($value): string {
@@ -59,83 +49,49 @@ class Adapter implements AdapterInterface
         return $this->quoter;
     }
 
-    /**
-     * Sets the item which creates a new DB connection.
-     * @return $this
-     */
-    public function setConnectionFactory(callable $factory)
+    public function setConnectionFactory(callable $factory): self
     {
         $this->connectionFactory = $factory;
         return $this;
     }
 
-    /**
-     * Magic method to clone the object.
-     */
     public function __clone()
     {
         // close our existing connection, we'll create a new one when we need it
         $this->closeConnection();
     }
 
-    /**
-     * Close connection
-     *
-     * @return void
-     */
-    public function closeConnection()
+    public function closeConnection(): void
     {
-        $this->connection = null;
+        unset($this->connection);
     }
 
-    /**
-     * Reconnects the database connection.
-     *
-     * @return Adapter
-     */
-    public function reconnect()
+    public function reconnect(): self
     {
-        $this->connection = null;
+        unset($this->connection);
         $this->connect();
 
         return $this;
     }
 
-    /**
-     * Get the database connection.
-     *
-     * @return \PDO
-     */
-    public function getConnection()
+    public function getConnection(): \PDO
     {
         $this->connect();
 
         return $this->connection;
     }
 
-    /**
-     * Set the database connection.
-     *
-     * @return Adapter
-     */
-    public function setConnection(\PDO $connection)
+    public function setConnection(\PDO $connection): self
     {
         $this->connection = $connection;
 
         return $this;
     }
 
-    /**
-     * Set database
-     *
-     * @param string $dbname
-     * @return Adapter
-     * @throws UnknownDatabaseException
-     */
-    public function setDatabase($dbname)
+    public function setDatabase(string $dbname): self
     {
         $this->config->setDatabase($dbname);
-        if ($this->connection) {
+        if (isset($this->connection)) {
             try {
                 $this->query('USE ' . $this->quote()->identifier($dbname));
             } catch (RuntimeException $exception) {
@@ -155,25 +111,17 @@ class Adapter implements AdapterInterface
     /**
      * Get the config for the database connection. This could be empty if the
      * object was created with an empty array.
-     *
-     * @return array
      */
-    public function getConfig()
+    public function getConfig(): array
     {
         return $this->config->toArray();
     }
 
-    /**
-     * Set the character set on the connection.
-     *
-     * @param string $charset
-     * @return Adapter
-     */
-    public function setCharset($charset)
+    public function setCharset(string $charset): self
     {
         if ($this->config->getCharset() !== $charset) {
             $this->config->setCharset($charset);
-            if ($this->connection) {
+            if (isset($this->connection)) {
                 $this->query('SET NAMES ?', [$charset]);
             }
         }
@@ -181,17 +129,11 @@ class Adapter implements AdapterInterface
         return $this;
     }
 
-    /**
-     * Set the timezone on the connection.
-     *
-     * @param string $timezone
-     * @return Adapter
-     */
-    public function setTimezone($timezone)
+    public function setTimezone(string $timezone): self
     {
         if ($this->config->getTimezone() !== $timezone) {
             $this->config->setTimezone($timezone);
-            if ($this->connection) {
+            if (isset($this->connection)) {
                 $this->query('SET time_zone = ?', [$timezone]);
             }
         }
@@ -199,58 +141,30 @@ class Adapter implements AdapterInterface
         return $this;
     }
 
-    /**
-     * Enable connection buffering on queries.
-     *
-     * @return Adapter
-     */
-    public function enableBuffering()
+    public function enableBuffering(): self
     {
         return $this->setBuffering(true);
     }
 
-    /**
-     * Disable connection buffering on queries.
-     *
-     * @return Adapter
-     */
-    public function disableBuffering()
+    public function disableBuffering(): self
     {
         return $this->setBuffering(false);
     }
 
-    /**
-     * Returns whether the connection is set to buffered or not. By default
-     * it's true, all results are buffered.
-     *
-     * @return boolean
-     */
-    public function isBuffered()
+    public function isBuffered(): bool
     {
         return (bool)$this->getConnection()
             ->getAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY);
     }
 
-    /**
-     * Sets whether the connection is buffered or unbuffered. By default the
-     * connection is buffered.
-     *
-     * @param boolean $enabled
-     * @return Adapter
-     */
-    private function setBuffering($enabled)
+    private function setBuffering(bool $enabled): self
     {
         $this->getConnection()
             ->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, $enabled);
         return $this;
     }
 
-    /**
-     * Ping the database connection to make sure the connection is still alive.
-     *
-     * @return boolean
-     */
-    public function ping()
+    public function ping(): bool
     {
         try {
             return ($this->query('SELECT 1')->fetchColumn() == 1);
@@ -262,58 +176,31 @@ class Adapter implements AdapterInterface
     /**
      * Get the last inserted id. If the tablename is provided the id returned is
      * the last insert id will be for that table.
-     *
-     * @param string $tablename
-     * @return string
      */
-    public function lastInsertId($tablename = null)
+    public function lastInsertId(string $tablename = null): string
     {
         // the lastInsertId is cached from the last insert, so no point in detected disconnection
         return $this->getConnection()->lastInsertId($tablename);
     }
 
-    /**
-     * Prepare an SQL statement for execution.
-     *
-     * @param string $statement
-     * @return \PDOStatement
-     */
-    public function prepare($statement)
+    public function prepare(string $statement): \PDOStatement
     {
         // the prepare method is emulated by PDO, so no point in detected disconnection
         return $this->getConnection()->prepare($statement);
     }
 
-    /**
-     * Execute an SQL statement
-     *
-     * @param string $statement
-     * @return int
-     */
-    public function execute($statement, array $bind = [])
+    public function execute(string $statement, array $bind = []): int
     {
         $stmt = $this->query($statement, $bind);
         return $stmt->rowCount();
     }
 
-    /**
-     * Query the database.
-     *
-     * @param string $sql
-     * @throws \PDOException
-     * @return \PDOStatement
-     */
-    public function query($sql, array $bind = [])
+    public function query(string $sql, array $bind = []): \PDOStatement
     {
         return $this->doQuery($sql, $bind);
     }
 
-    /**
-     * @param string $sql
-     * @param bool $hasCaughtException
-     * @return \PDOStatement
-     */
-    private function doQuery($sql, array $bind, $hasCaughtException = false)
+    private function doQuery(string $sql, array $bind, bool $hasCaughtException = false): \PDOStatement
     {
         try {
             $stmt = $this->getConnection()->prepare($sql);
@@ -330,43 +217,26 @@ class Adapter implements AdapterInterface
         }
     }
 
-    /**
-     * Connect
-     *
-     * @return Adapter
-     */
-    private function connect()
+    private function connect(): self
     {
-        if ($this->connection === null) {
+        if (!isset($this->connection)) {
             $this->connection = call_user_func($this->connectionFactory, $this->config);
         }
 
         return $this;
     }
 
-    /**
-     * Clone connection
-     *
-     * @return \PDO
-     */
-    public function cloneConnection()
+    public function cloneConnection(): \PDO
     {
         return call_user_func($this->connectionFactory, $this->config);
     }
 
-    /**
-     * @return bool
-     */
-    public function beginTransaction()
+    public function beginTransaction(): bool
     {
         return $this->doBeginTransaction();
     }
 
-    /**
-     * @param bool $hasCaughtException
-     * @return bool
-     */
-    private function doBeginTransaction($hasCaughtException = false)
+    private function doBeginTransaction(bool $hasCaughtException = false): bool
     {
         try {
             return $this->getConnection()->beginTransaction();
@@ -379,18 +249,12 @@ class Adapter implements AdapterInterface
         }
     }
 
-    /**
-     * @return bool
-     */
-    public function commit()
+    public function commit(): bool
     {
         return $this->getConnection()->commit();
     }
 
-    /**
-     * @return bool
-     */
-    public function rollBack()
+    public function rollBack(): bool
     {
         return $this->getConnection()->rollBack();
     }

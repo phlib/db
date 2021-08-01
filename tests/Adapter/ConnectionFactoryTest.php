@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\Db\Tests\Adapter;
 
 use Phlib\Db\Adapter\Config;
@@ -15,19 +17,19 @@ class ConnectionFactoryTest extends TestCase
     /**
      * @var Config|MockObject
      */
-    private $config;
+    private MockObject $config;
 
     /**
      * @var \PDO|MockObject
      */
-    private $pdo;
+    private MockObject $pdo;
 
     /**
      * @var ConnectionFactory|MockObject
      */
-    private $factory;
+    private MockObject $factory;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->config = $this->createMock(Config::class);
         $this->pdo = $this->createMock(\PDO::class);
@@ -36,7 +38,7 @@ class ConnectionFactoryTest extends TestCase
         parent::setUp();
     }
 
-    public function testGettingConnection()
+    public function testGettingConnection(): void
     {
         $this->factory->method('create')
             ->willReturn($this->pdo);
@@ -51,11 +53,9 @@ class ConnectionFactoryTest extends TestCase
     }
 
     /**
-     * @param string $method
-     * @param string $value
      * @dataProvider charsetIsSetOnConnectionDataProvider
      */
-    public function testCharsetIsSetOnConnection($method, $value)
+    public function testCharsetIsSetOnConnection(string $method, string $value): void
     {
         $this->factory->method('create')
             ->willReturn($this->pdo);
@@ -73,7 +73,7 @@ class ConnectionFactoryTest extends TestCase
         static::assertSame($this->pdo, $this->factory->__invoke($this->config));
     }
 
-    public function charsetIsSetOnConnectionDataProvider()
+    public function charsetIsSetOnConnectionDataProvider(): array
     {
         return [
             ['getCharset', 'latin1'],
@@ -81,7 +81,7 @@ class ConnectionFactoryTest extends TestCase
         ];
     }
 
-    public function testSettingUnknownDatabase()
+    public function testSettingUnknownDatabase(): void
     {
         $this->expectException(UnknownDatabaseException::class);
 
@@ -96,10 +96,9 @@ class ConnectionFactoryTest extends TestCase
     }
 
     /**
-     * @param int $attempts
      * @dataProvider exceedingNumberOfAttemptsDataProvider
      */
-    public function testExceedingNumberOfAttempts($attempts)
+    public function testExceedingNumberOfAttempts(int $attempts): void
     {
         $this->expectException(RuntimeException::class);
 
@@ -113,7 +112,7 @@ class ConnectionFactoryTest extends TestCase
         $this->factory->__invoke($this->config);
     }
 
-    public function exceedingNumberOfAttemptsDataProvider()
+    public function exceedingNumberOfAttemptsDataProvider(): array
     {
         return [
             [1],
@@ -122,7 +121,7 @@ class ConnectionFactoryTest extends TestCase
         ];
     }
 
-    public function testFailedAttemptThenSucceeds()
+    public function testFailedAttemptThenSucceeds(): void
     {
         $this->factory->method('create')
             ->willReturn($this->pdo);

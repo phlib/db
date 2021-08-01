@@ -1,31 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\Db\Exception;
 
 class InvalidQueryException extends RuntimeException implements Exception
 {
-    /**
-     * @var string
-     */
-    private $query;
+    private string $query;
 
-    /**
-     * @var array
-     */
-    private $bind;
+    private array $bind;
 
-    /**
-     * @return bool
-     */
-    public static function isInvalidSyntax(\PDOException $exception)
+    public static function isInvalidSyntax(\PDOException $exception): bool
     {
         return stripos($exception->getMessage(), 'You have an error in your SQL syntax') !== false;
     }
 
-    /**
-     * @param string $query
-     */
-    public function __construct($query, array $bind = [], \PDOException $previous = null)
+    public function __construct(string $query, array $bind = [], \PDOException $previous = null)
     {
         $this->query = $query;
         $this->bind = $bind;
@@ -41,18 +31,12 @@ class InvalidQueryException extends RuntimeException implements Exception
         parent::__construct($message, $code, $previous);
     }
 
-    /**
-     * @return string
-     */
-    public function getQuery()
+    public function getQuery(): string
     {
         return $this->query;
     }
 
-    /**
-     * @return array
-     */
-    public function getBindData()
+    public function getBindData(): array
     {
         return $this->bind;
     }

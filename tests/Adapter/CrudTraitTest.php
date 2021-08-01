@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\Db\Tests\Adapter;
 
 use Phlib\Db\Adapter\CrudTrait;
@@ -13,9 +15,9 @@ class CrudTraitTest extends TestCase
     /**
      * @var CrudTrait|MockObject
      */
-    private $crud;
+    private MockObject $crud;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -31,11 +33,9 @@ class CrudTraitTest extends TestCase
     }
 
     /**
-     * @param string $expectedSql
-     * @param string $table
      * @dataProvider selectDataProvider
      */
-    public function testSelect($expectedSql, $table, array $where)
+    public function testSelect(string $expectedSql, string $table, array $where): void
     {
         $pdoStatement = $this->createMock(\PDOStatement::class);
 
@@ -49,7 +49,7 @@ class CrudTraitTest extends TestCase
             $this->crud->select($table);
     }
 
-    public function selectDataProvider()
+    public function selectDataProvider(): array
     {
         return [
             [
@@ -78,7 +78,7 @@ class CrudTraitTest extends TestCase
         ];
     }
 
-    public function testSelectReturnsStatement()
+    public function testSelectReturnsStatement(): void
     {
         $pdoStatement = $this->createMock(\PDOStatement::class);
         $this->crud->method('query')
@@ -88,26 +88,27 @@ class CrudTraitTest extends TestCase
     }
 
     /**
-     * @param string $expectedSql
-     * @param string $table
      * @dataProvider insertDataProvider
      */
-    public function testInsert($expectedSql, $table, array $data)
+    public function testInsert(string $expectedSql, string $table, array $data): void
     {
         // Returned stmt will have rowCount called
+        $rowCount = count($data);
         $pdoStatement = $this->createMock(\PDOStatement::class);
         $pdoStatement->expects(static::once())
             ->method('rowCount')
-            ->willReturn(count($data));
+            ->willReturn($rowCount);
 
         $this->crud->method('query')
             ->with($expectedSql, [])
             ->willReturn($pdoStatement);
 
-        $this->crud->insert($table, $data);
+        $actual = $this->crud->insert($table, $data);
+
+        static::assertSame($rowCount, $actual);
     }
 
-    public function insertDataProvider()
+    public function insertDataProvider(): array
     {
         return [
             [
@@ -143,17 +144,16 @@ class CrudTraitTest extends TestCase
     }
 
     /**
-     * @param string $expectedSql
-     * @param string $table
-     * @param array $data
      * @dataProvider updateDataProvider
      */
-    public function testUpdate($expectedSql, $table, $data, array $where)
+    public function testUpdate(string $expectedSql, string $table, array $data, array $where): void
     {
         // Returned stmt will have rowCount called
+        $rowCount = rand();
         $pdoStatement = $this->createMock(\PDOStatement::class);
         $pdoStatement->expects(static::once())
-            ->method('rowCount');
+            ->method('rowCount')
+            ->willReturn($rowCount);
 
         // Query should be called with the SQL and bind
         $this->crud->expects(static::once())
@@ -161,12 +161,14 @@ class CrudTraitTest extends TestCase
             ->with($expectedSql, [])
             ->willReturn($pdoStatement);
 
-        (!empty($where)) ?
+        $actual = (!empty($where)) ?
             $this->crud->update($table, $data, $where) :
             $this->crud->update($table, $data);
+
+        static::assertSame($rowCount, $actual);
     }
 
-    public function updateDataProvider()
+    public function updateDataProvider(): array
     {
         return [
             [
@@ -214,16 +216,16 @@ class CrudTraitTest extends TestCase
     }
 
     /**
-     * @param string $expectedSql
-     * @param string $table
      * @dataProvider deleteDataProvider
      */
-    public function testDelete($expectedSql, $table, array $where)
+    public function testDelete(string $expectedSql, string $table, array $where): void
     {
         // Returned stmt will have rowCount called
+        $rowCount = rand();
         $pdoStatement = $this->createMock(\PDOStatement::class);
         $pdoStatement->expects(static::once())
-            ->method('rowCount');
+            ->method('rowCount')
+            ->willReturn($rowCount);
 
         // Query should be called with the SQL and bind
         $this->crud->expects(static::once())
@@ -231,12 +233,14 @@ class CrudTraitTest extends TestCase
             ->with($expectedSql, [])
             ->willReturn($pdoStatement);
 
-        (!empty($where)) ?
+        $actual = (!empty($where)) ?
             $this->crud->delete($table, $where) :
             $this->crud->delete($table);
+
+        static::assertSame($rowCount, $actual);
     }
 
-    public function deleteDataProvider()
+    public function deleteDataProvider(): array
     {
         return [
             [
@@ -268,7 +272,7 @@ class CrudTraitTest extends TestCase
     /**
      * @dataProvider upsertDataProvider
      */
-    public function testUpsert($expectedSql, $table, array $data, array $updateFields)
+    public function testUpsert(string $expectedSql, string $table, array $data, array $updateFields): void
     {
         // Returned stmt will have rowCount called
         $pdoStatement = $this->createMock(\PDOStatement::class);
@@ -286,7 +290,7 @@ class CrudTraitTest extends TestCase
         static::assertEquals(1, $this->crud->upsert($table, $data, $updateFields));
     }
 
-    public function upsertDataProvider()
+    public function upsertDataProvider(): array
     {
         return [
             [

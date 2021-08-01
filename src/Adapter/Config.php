@@ -1,15 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\Db\Adapter;
 
 use Phlib\Db\Exception\InvalidArgumentException;
 
 class Config
 {
-    /**
-     * @var array
-     */
-    private $config;
+    private array $config;
 
     public function __construct(array $config)
     {
@@ -19,11 +18,7 @@ class Config
         ];
     }
 
-    /**
-     * @return string
-     * @throws InvalidArgumentException
-     */
-    public function getDsn()
+    public function getDsn(): string
     {
         if (!isset($this->config['host'])) {
             throw new InvalidArgumentException('Missing host config param');
@@ -39,26 +34,17 @@ class Config
         return $dsn;
     }
 
-    /**
-     * @return string
-     */
-    public function getUsername()
+    public function getUsername(): string
     {
         return $this->config['username'] ?? '';
     }
 
-    /**
-     * @return string
-     */
-    public function getPassword()
+    public function getPassword(): string
     {
         return $this->config['password'] ?? '';
     }
 
-    /**
-     * @return array
-     */
-    public function getOptions()
+    public function getOptions(): array
     {
         $timeoutValue = $this->config['timeout'] ?? '';
         $timeoutOptions = [
@@ -76,64 +62,40 @@ class Config
         ];
     }
 
-    /**
-     * @return string
-     */
-    public function getDatabase()
+    public function getDatabase(): string
     {
         return $this->config['dbname'] ?? '';
     }
 
-    /**
-     * @param string $name
-     * @return $this
-     */
-    public function setDatabase($name)
+    public function setDatabase(string $name): self
     {
         $this->config['dbname'] = $name;
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getCharset()
+    public function getCharset(): string
     {
         return $this->config['charset'] ?? 'utf8mb4';
     }
 
-    /**
-     * @param string $value
-     * @return $this
-     */
-    public function setCharset($value)
+    public function setCharset(string $value): self
     {
         $this->config['charset'] = $value;
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getTimezone()
+    public function getTimezone(): string
     {
         return $this->config['timezone'] ?? '+0:00';
     }
 
-    /**
-     * @param string $timezone
-     * @return $this
-     */
-    public function setTimezone($timezone)
+    public function setTimezone(string $timezone): self
     {
         $this->config['timezone'] = $timezone;
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getMaximumAttempts()
+    public function getMaximumAttempts(): int
     {
         $retryValue = $this->config['retryCount'] ?? 0;
         $retryOptions = [
@@ -147,10 +109,7 @@ class Config
         return $retryCount + 1;
     }
 
-    /**
-     * @return array
-     */
-    public function toArray()
+    public function toArray(): array
     {
         return $this->config;
     }

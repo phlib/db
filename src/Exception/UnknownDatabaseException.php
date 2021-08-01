@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\Db\Exception;
 
 class UnknownDatabaseException extends RuntimeException implements Exception
@@ -22,24 +24,14 @@ class UnknownDatabaseException extends RuntimeException implements Exception
      */
     public const ER_BAD_DB_ERROR_2 = 42000;
 
-    /**
-     * @var string
-     */
-    private $name;
+    private string $name;
 
-    /**
-     * @param string $database
-     * @return static
-     */
-    public static function createFromUnknownDatabase($database, \PDOException $exception)
+    public static function createFromUnknownDatabase(string $database, \PDOException $exception): self
     {
         return new static($database, "Unknown database '{$database}'.", self::ER_BAD_DB_ERROR_1, $exception);
     }
 
-    /**
-     * @return bool
-     */
-    public static function isUnknownDatabase(\PDOException $exception)
+    public static function isUnknownDatabase(\PDOException $exception): bool
     {
         return $exception->getCode() == self::ER_BAD_DB_ERROR_1 ||
         (
@@ -48,22 +40,13 @@ class UnknownDatabaseException extends RuntimeException implements Exception
         );
     }
 
-    /**
-     * UnknownDatabaseException constructor.
-     * @param string $database
-     * @param string $message
-     * @param int $code
-     */
-    public function __construct($database, $message, $code = 0, \PDOException $previous = null)
+    public function __construct(string $database, string $message, int $code = 0, \PDOException $previous = null)
     {
         $this->name = $database;
         parent::__construct($message, $code, $previous);
     }
 
-    /**
-     * @return string
-     */
-    public function getDatabaseName()
+    public function getDatabaseName(): string
     {
         return $this->name;
     }

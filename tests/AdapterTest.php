@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\Db\Tests;
 
 use Phlib\Db\Adapter;
@@ -12,24 +14,15 @@ use PHPUnit\Framework\TestCase;
 
 class AdapterTest extends TestCase
 {
-    /**
-     * @var \PDO|MockObject
-     */
-    private $pdo;
+    private MockObject $pdo;
 
-    /**
-     * Quote Character
-     * @var string
-     */
-    private $qc = '`';
-
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->pdo = $this->createMock(\PDO::class);
     }
 
-    public function testQuoteHandlerIsSetupCorrectly()
+    public function testQuoteHandlerIsSetupCorrectly(): void
     {
         $string = 'foo';
         $expected = "'{$string}'";
@@ -46,7 +39,7 @@ class AdapterTest extends TestCase
         static::assertSame($expected, $actual);
     }
 
-    public function testGetQuoteHandler()
+    public function testGetQuoteHandler(): void
     {
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
@@ -56,7 +49,7 @@ class AdapterTest extends TestCase
     /**
      * @covers \Phlib\Db\Adapter::setConnection
      */
-    public function testSetConnection()
+    public function testSetConnection(): void
     {
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
@@ -67,7 +60,7 @@ class AdapterTest extends TestCase
     /**
      * @covers \Phlib\Db\Adapter::setDatabase
      */
-    public function testSetDatabaseMakesDbCall()
+    public function testSetDatabaseMakesDbCall(): void
     {
         $dbname = 'MyDbName';
 
@@ -86,7 +79,7 @@ class AdapterTest extends TestCase
     /**
      * @covers \Phlib\Db\Adapter::setDatabase
      */
-    public function testSetDatabaseSetsConfig()
+    public function testSetDatabaseSetsConfig(): void
     {
         $dbname = 'MyDbName';
         /** @var Adapter|MockObject $adapter */
@@ -102,7 +95,7 @@ class AdapterTest extends TestCase
         static::assertSame($dbname, $config['dbname']);
     }
 
-    public function testSetDatabaseWhenItsUnknown()
+    public function testSetDatabaseWhenItsUnknown(): void
     {
         $this->expectException(UnknownDatabaseException::class);
 
@@ -122,7 +115,7 @@ class AdapterTest extends TestCase
         $adapter->setDatabase($database);
     }
 
-    public function testGetConfigDefaults()
+    public function testGetConfigDefaults(): void
     {
         $defaults = [
             'charset' => 'utf8mb4',
@@ -133,7 +126,7 @@ class AdapterTest extends TestCase
         static::assertEquals($defaults, $adapter->getConfig());
     }
 
-    public function testGetConfigMixed()
+    public function testGetConfigMixed(): void
     {
         $expected = [
             'host' => 'localhost',
@@ -158,7 +151,7 @@ class AdapterTest extends TestCase
     /**
      * @covers \Phlib\Db\Adapter::getConfig
      */
-    public function testGetConfigOverrides()
+    public function testGetConfigOverrides(): void
     {
         $config = [
             'host' => 'localhost',
@@ -174,11 +167,10 @@ class AdapterTest extends TestCase
     }
 
     /**
-     * @param string $option
      * @param mixed $value
      * @dataProvider settingAdapterOptionsDataProvider
      */
-    public function testSettingAdapterOptionsWithConnection($option, $value)
+    public function testSettingAdapterOptionsWithConnection(string $option, $value): void
     {
         $statement = $this->createMock(\PDOStatement::class);
         $statement->expects(static::once())
@@ -193,7 +185,7 @@ class AdapterTest extends TestCase
         $adapter->{$method}($value);
     }
 
-    public function settingAdapterOptionsDataProvider()
+    public function settingAdapterOptionsDataProvider(): array
     {
         return [
             ['charset', 'iso-8859-1'],
@@ -206,7 +198,7 @@ class AdapterTest extends TestCase
     /**
      * @covers \Phlib\Db\Adapter::ping
      */
-    public function testSuccessfulPing()
+    public function testSuccessfulPing(): void
     {
         $pdoStatement = $this->createMock(\PDOStatement::class);
         $pdoStatement->method('fetchColumn')
@@ -222,7 +214,7 @@ class AdapterTest extends TestCase
     /**
      * @covers \Phlib\Db\Adapter::ping
      */
-    public function testFailedPing()
+    public function testFailedPing(): void
     {
         $this->pdo->method('prepare')
             ->willThrowException(new \Exception());
@@ -232,30 +224,38 @@ class AdapterTest extends TestCase
         static::assertFalse($adapter->ping());
     }
 
-    public function testLastInsertIdNoTableName()
+    public function testLastInsertIdNoTableName(): void
     {
+        $insertId = (string)rand();
         $this->pdo->expects(static::once())
             ->method('lastInsertId')
-            ->with(null);
+            ->with(null)
+            ->willReturn($insertId);
 
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
-        $adapter->lastInsertId();
+        $actual = $adapter->lastInsertId();
+
+        static::assertSame($insertId, $actual);
     }
 
-    public function testLastInsertIdWithTableName()
+    public function testLastInsertIdWithTableName(): void
     {
+        $insertId = (string)rand();
         $tableName = 'table';
         $this->pdo->expects(static::once())
             ->method('lastInsertId')
-            ->with($tableName);
+            ->with($tableName)
+            ->willReturn($insertId);
 
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
-        $adapter->lastInsertId($tableName);
+        $actual = $adapter->lastInsertId($tableName);
+
+        static::assertSame($insertId, $actual);
     }
 
-    public function testPrepare()
+    public function testPrepare(): void
     {
         $pdoStatement = $this->createMock(\PDOStatement::class);
         $sql = 'SELECT * FROM table';
@@ -269,14 +269,16 @@ class AdapterTest extends TestCase
         static::assertEquals($pdoStatement, $adapter->prepare($sql));
     }
 
-    public function testExecute()
+    public function testExecute(): void
     {
         $sql = 'dummy sql';
+        $rowCount = rand();
 
         // Returned stmt will have rowCount called
         $pdoStatement = $this->createMock(\PDOStatement::class);
         $pdoStatement->expects(static::once())
-            ->method('rowCount');
+            ->method('rowCount')
+            ->willReturn($rowCount);
 
         // Exec should call query with the SQL
         /** @var Adapter|MockObject $adapter */
@@ -288,18 +290,22 @@ class AdapterTest extends TestCase
             ->with($sql)
             ->willReturn($pdoStatement);
         $adapter->setConnection($this->pdo);
-        $adapter->execute($sql);
+        $actual = $adapter->execute($sql);
+
+        static::assertSame($rowCount, $actual);
     }
 
-    public function testExecuteBind()
+    public function testExecuteBind(): void
     {
         $sql = 'dummy sql';
         $bind = [1, 2, 3];
+        $rowCount = rand();
 
         // Returned stmt will have rowCount called
         $pdoStatement = $this->createMock(\PDOStatement::class);
         $pdoStatement->expects(static::once())
-            ->method('rowCount');
+            ->method('rowCount')
+            ->willReturn($rowCount);
 
         // Exec should call query with the SQL
         /** @var Adapter|MockObject $adapter */
@@ -311,10 +317,12 @@ class AdapterTest extends TestCase
             ->with($sql, $bind)
             ->willReturn($pdoStatement);
         $adapter->setConnection($this->pdo);
-        $adapter->execute($sql, $bind);
+        $actual = $adapter->execute($sql, $bind);
+
+        static::assertSame($rowCount, $actual);
     }
 
-    public function testQueryNoBind()
+    public function testQueryNoBind(): void
     {
         $sql = 'SELECT * FROM table';
         $pdoStatement = $this->createMock(\PDOStatement::class);
@@ -331,7 +339,7 @@ class AdapterTest extends TestCase
         static::assertEquals($pdoStatement, $adapter->query($sql));
     }
 
-    public function testQueryWithBind()
+    public function testQueryWithBind(): void
     {
         $sql = 'SELECT * FROM table WHERE col1 = ?';
         $bind = ['col1' => 'v1'];
@@ -349,7 +357,7 @@ class AdapterTest extends TestCase
         static::assertEquals($pdoStatement, $adapter->query($sql, $bind));
     }
 
-    public function testQueryWithInvalidSql()
+    public function testQueryWithInvalidSql(): void
     {
         $this->expectException(InvalidQueryException::class);
 
@@ -365,7 +373,7 @@ class AdapterTest extends TestCase
         $adapter->query('SELEECT * FORM foo');
     }
 
-    public function testQueryReconnectsWhenMysqlHasGoneAway()
+    public function testQueryReconnectsWhenMysqlHasGoneAway(): void
     {
         $exception = new \PDOException('MySQL server has gone away');
         $statement = $this->createMock(\PDOStatement::class);
@@ -388,7 +396,7 @@ class AdapterTest extends TestCase
         $adapter->query('SELECT * FROM foo');
     }
 
-    public function testQueryFailsAfterSuccessfulReconnect()
+    public function testQueryFailsAfterSuccessfulReconnect(): void
     {
         $this->expectException(RuntimeException::class);
 
@@ -414,7 +422,7 @@ class AdapterTest extends TestCase
         $adapter->query('SELECT * FROM foo');
     }
 
-    public function testSetBufferedConnectionToUnbuffered()
+    public function testSetBufferedConnectionToUnbuffered(): void
     {
         $this->pdo->expects(static::once())
             ->method('setAttribute')
@@ -426,7 +434,7 @@ class AdapterTest extends TestCase
         $adapter->disableBuffering();
     }
 
-    public function testSetUnbufferedConnectionToBuffered()
+    public function testSetUnbufferedConnectionToBuffered(): void
     {
         $this->pdo->expects(static::once())
             ->method('setAttribute')
@@ -438,7 +446,7 @@ class AdapterTest extends TestCase
         $adapter->enableBuffering();
     }
 
-    public function testIsBufferedConnection()
+    public function testIsBufferedConnection(): void
     {
         $this->pdo->expects(static::once())
             ->method('getAttribute')
@@ -450,7 +458,7 @@ class AdapterTest extends TestCase
         static::assertTrue($adapter->isBuffered());
     }
 
-    public function testCloning()
+    public function testCloning(): void
     {
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
@@ -462,17 +470,20 @@ class AdapterTest extends TestCase
         static::assertNotSame($adapter, $newAdapter);
     }
 
-    public function testBeginTransaction()
+    public function testBeginTransaction(): void
     {
         $this->pdo->expects(static::once())
-            ->method('beginTransaction');
+            ->method('beginTransaction')
+            ->willReturn(true);
 
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
-        $adapter->beginTransaction();
+        $actual = $adapter->beginTransaction();
+
+        static::assertTrue($actual);
     }
 
-    public function testBeginTransactionWhenServerHasGoneAway()
+    public function testBeginTransactionWhenServerHasGoneAway(): void
     {
         $exception = new \PDOException('MySQL server has gone away');
         $this->pdo->method('beginTransaction')
@@ -483,13 +494,16 @@ class AdapterTest extends TestCase
         $adapter->setConnectionFactory(function () {
             $pdo = $this->createMock(\PDO::class);
             $pdo->expects(static::once())
-                ->method('beginTransaction');
+                ->method('beginTransaction')
+                ->willReturn(true);
             return $pdo;
         });
-        $adapter->beginTransaction();
+        $actual = $adapter->beginTransaction();
+
+        static::assertTrue($actual);
     }
 
-    public function testBeginTransactionWhenServerHasGoneAwayAndThenFails()
+    public function testBeginTransactionWhenServerHasGoneAwayAndThenFails(): void
     {
         $this->expectException(RuntimeException::class);
 
@@ -509,23 +523,29 @@ class AdapterTest extends TestCase
         $adapter->beginTransaction();
     }
 
-    public function testCommit()
+    public function testCommit(): void
     {
         $this->pdo->expects(static::once())
-            ->method('commit');
+            ->method('commit')
+            ->willReturn(true);
 
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
-        $adapter->commit();
+        $actual = $adapter->commit();
+
+        static::assertTrue($actual);
     }
 
-    public function testRollback()
+    public function testRollback(): void
     {
         $this->pdo->expects(static::once())
-            ->method('rollback');
+            ->method('rollback')
+            ->willReturn(true);
 
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
-        $adapter->rollBack();
+        $actual = $adapter->rollBack();
+
+        static::assertTrue($actual);
     }
 }

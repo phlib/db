@@ -1,29 +1,24 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\Db\Adapter;
 
 use Phlib\Db\Exception\InvalidArgumentException;
 
 class QuoteHandler
 {
-    /**
-     * @var boolean
-     */
-    private $autoQuoteIdentifiers = true;
+    private bool $autoQuoteIdentifiers;
 
-    /**
-     * @var \Closure
-     */
-    private $quoteFn;
+    private \Closure $quoteFn;
 
     /**
      * @param \Closure $quoteFn {
      *   @var mixed $value
      *   @return string
      * }
-     * @param bool $autoQuoteIdentifiers
      */
-    public function __construct(\Closure $quoteFn, $autoQuoteIdentifiers = true)
+    public function __construct(\Closure $quoteFn, bool $autoQuoteIdentifiers = true)
     {
         $this->quoteFn = $quoteFn;
         $this->autoQuoteIdentifiers = $autoQuoteIdentifiers;
@@ -32,11 +27,9 @@ class QuoteHandler
     /**
      * Quote a database value.
      *
-     * @param string $value
-     * @return string
-     * @throws InvalidArgumentException
+     * @param mixed $value
      */
-    public function value($value)
+    public function value($value): string
     {
         switch (true) {
             case is_object($value):
@@ -45,9 +38,9 @@ class QuoteHandler
                 }
                 return (string)$value;
             case is_bool($value):
-                return (int)$value;
+                return (string)(int)$value;
             case (is_numeric($value) && (string)($value + 0) === (string)$value):
-                return $value + 0;
+                return (string)($value + 0);
             case $value === null:
                 return 'NULL';
             case is_array($value):
@@ -66,11 +59,9 @@ class QuoteHandler
     /**
      * Quote into the value for the database.
      *
-     * @param string $text
      * @param mixed $value
-     * @return string
      */
-    public function into($text, $value)
+    public function into(string $text, $value): string
     {
         return str_replace('?', $this->value($value), $text);
     }
@@ -78,12 +69,9 @@ class QuoteHandler
     /**
      * Quote a column identifier and alias.
      *
-     * @param string|array $ident
-     * @param string $alias
-     * @param boolean $auto
-     * @return string
+     * @param string|string[] $ident
      */
-    public function columnAs($ident, $alias, $auto = false)
+    public function columnAs($ident, string $alias, bool $auto = false): string
     {
         return $this->quoteIdentifierAs($ident, $alias, $auto);
     }
@@ -91,12 +79,9 @@ class QuoteHandler
     /**
      * Quote a table identifier and alias.
      *
-     * @param string|array $ident
-     * @param string $alias
-     * @param boolean $auto
-     * @return string
+     * @param string|string[] $ident
      */
-    public function tableAs($ident, $alias = null, $auto = false)
+    public function tableAs($ident, string $alias, bool $auto = false): string
     {
         return $this->quoteIdentifierAs($ident, $alias, $auto);
     }
@@ -104,11 +89,9 @@ class QuoteHandler
     /**
      * Quotes an identifier
      *
-     * @param string|array $ident
-     * @param boolean $auto
-     * @return string
+     * @param string|string[] $ident
      */
-    public function identifier($ident, $auto = false)
+    public function identifier($ident, bool $auto = false): string
     {
         return $this->quoteIdentifierAs($ident, null, $auto);
     }
@@ -117,13 +100,8 @@ class QuoteHandler
      * Quote an identifier and an optional alias.
      *
      * @param string|array|object $ident
-     * @param string $alias
-     * @param boolean $auto
-     * @param string $as
-     * @return string
-     * @throws InvalidArgumentException
      */
-    private function quoteIdentifierAs($ident, $alias = null, $auto = false, $as = ' AS ')
+    private function quoteIdentifierAs($ident, string $alias = null, bool $auto = false, string $as = ' AS '): string
     {
         if (is_object($ident) && method_exists($ident, 'assemble')) {
             $quoted = '(' . $ident->assemble() . ')';
@@ -161,14 +139,7 @@ class QuoteHandler
         return $quoted;
     }
 
-    /**
-     * Quote an identifier.
-     *
-     * @param string $value
-     * @param boolean $auto
-     * @return string
-     */
-    private function performQuoteIdentifier($value, $auto = false)
+    private function performQuoteIdentifier(string $value, bool $auto = false): string
     {
         if ($auto === false || $this->autoQuoteIdentifiers === true) {
             $q = '`';
