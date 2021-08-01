@@ -4,15 +4,16 @@ namespace Phlib\Db\Tests\Adapter;
 
 use Phlib\Db\Adapter\QuoteHandler;
 use Phlib\Db\SqlFragment;
+use PHPUnit\Framework\TestCase;
 
-class QuoteHandlerTest extends \PHPUnit_Framework_TestCase
+class QuoteHandlerTest extends TestCase
 {
     /**
      * @var QuoteHandler|\PHPUnit_Framework_MockObject_MockObject
      */
     private $handler;
 
-    public function setUp()
+    protected function setUp()
     {
         $this->handler = new QuoteHandler(function ($value) {
             return "`$value`";
@@ -27,7 +28,7 @@ class QuoteHandlerTest extends \PHPUnit_Framework_TestCase
      */
     public function testValue($value, $expected)
     {
-        $this->assertEquals($expected, $this->handler->value($value));
+        static::assertEquals($expected, $this->handler->value($value));
     }
 
     public function valueDataProvider()
@@ -62,7 +63,7 @@ class QuoteHandlerTest extends \PHPUnit_Framework_TestCase
      */
     public function testInto($expected, $text, $value)
     {
-        $this->assertEquals($expected, $this->handler->into($text, $value));
+        static::assertEquals($expected, $this->handler->into($text, $value));
     }
 
     public function intoDataProvider()
@@ -90,7 +91,7 @@ class QuoteHandlerTest extends \PHPUnit_Framework_TestCase
         $result = (!is_null($auto)) ?
             $this->handler->columnAs($ident, $alias, $auto) :
             $this->handler->columnAs($ident, $alias);
-        $this->assertEquals($expected, $result);
+        static::assertEquals($expected, $result);
     }
 
     public function columnAsData()
@@ -117,7 +118,7 @@ class QuoteHandlerTest extends \PHPUnit_Framework_TestCase
             $this->handler->tableAs($ident, $alias, $auto) :
             $this->handler->tableAs($ident, $alias) :
             $this->handler->tableAs($ident);
-        $this->assertEquals($expected, $result);
+        static::assertEquals($expected, $result);
     }
 
     public function tableAsData()
@@ -140,7 +141,7 @@ class QuoteHandlerTest extends \PHPUnit_Framework_TestCase
         $result = (!is_null($auto)) ?
             $this->handler->identifier($ident, $auto) :
             $this->handler->identifier($ident);
-        $this->assertEquals($expected, $result);
+        static::assertEquals($expected, $result);
     }
 
     public function identifierData()

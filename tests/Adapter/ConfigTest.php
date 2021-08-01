@@ -3,8 +3,9 @@
 namespace Phlib\Db\Tests\Adapter;
 
 use Phlib\Db\Adapter\Config;
+use PHPUnit\Framework\TestCase;
 
-class ConfigTest extends \PHPUnit_Framework_TestCase
+class ConfigTest extends TestCase
 {
     /**
      * @param array $dsnConfig
@@ -14,7 +15,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     public function testGetDsn(array $dsnConfig, $expectedElement)
     {
         $config = new Config($dsnConfig);
-        $this->assertContains($dsnConfig[$expectedElement], $config->getDsn());
+        static::assertContains($dsnConfig[$expectedElement], $config->getDsn());
     }
 
     public function getDsnDataProvider()
@@ -44,7 +45,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     public function testGetMethods($method, $element, $value)
     {
         $config = new Config([$element => $value]);
-        $this->assertEquals($value, $config->$method());
+        static::assertEquals($value, $config->$method());
     }
 
     public function getMethodsDataProvider()
@@ -67,8 +68,8 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     public function testGetOptions(array $data, $element, $expected)
     {
         $options = (new Config($data))->getOptions();
-        $this->assertArrayHasKey($element, $options);
-        $this->assertEquals($expected, $options[$element]);
+        static::assertArrayHasKey($element, $options);
+        static::assertEquals($expected, $options[$element]);
     }
 
     public function getOptionsDataProvider()
@@ -91,7 +92,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetMaximumAttempts($value, $expected)
     {
-        $this->assertEquals($expected, (new Config(['retryCount' => $value]))->getMaximumAttempts());
+        static::assertEquals($expected, (new Config(['retryCount' => $value]))->getMaximumAttempts());
     }
 
     public function getMaximumAttemptsDataProvider()

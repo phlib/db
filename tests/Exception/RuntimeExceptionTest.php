@@ -3,13 +3,14 @@
 namespace Phlib\Db\Tests\Exception;
 
 use Phlib\Db\Exception\RuntimeException;
+use PHPUnit\Framework\TestCase;
 
-class RuntimeExceptionTest extends \PHPUnit_Framework_TestCase
+class RuntimeExceptionTest extends TestCase
 {
     public function testCreate()
     {
         $pdoException = new \PDOException();
-        $this->assertInstanceOf(RuntimeException::class, RuntimeException::createFromException($pdoException));
+        static::assertInstanceOf(RuntimeException::class, RuntimeException::createFromException($pdoException));
     }
 
     public function testSuccessfullyDetectServerHasGoneAway()
@@ -17,7 +18,7 @@ class RuntimeExceptionTest extends \PHPUnit_Framework_TestCase
         $code = 2006;
         $message = 'SQLSTATE[HY000]: General error: 2006 MySQL server has gone away';
         $pdoException = new \PDOException($message, $code);
-        $this->assertTrue(RuntimeException::hasServerGoneAway($pdoException));
+        static::assertTrue(RuntimeException::hasServerGoneAway($pdoException));
     }
 
     public function testIgnoresOtherPdoExceptions()
@@ -25,7 +26,7 @@ class RuntimeExceptionTest extends \PHPUnit_Framework_TestCase
         $code = 2002;
         $message = "SQLSTATE[HY000] [2002] Connection reset by peer";
         $pdoException = new \PDOException($message, $code);
-        $this->assertFalse(RuntimeException::hasServerGoneAway($pdoException));
+        static::assertFalse(RuntimeException::hasServerGoneAway($pdoException));
     }
 
     /**
@@ -34,7 +35,7 @@ class RuntimeExceptionTest extends \PHPUnit_Framework_TestCase
     public function testCreateWithWeirdPdoExceptionCodeStringType()
     {
         $pdoException = new PDOExceptionStub('Unknown or incorrect', 'HY000');
-        $this->assertInstanceOf(RuntimeException::class, RuntimeException::createFromException($pdoException));
+        static::assertInstanceOf(RuntimeException::class, RuntimeException::createFromException($pdoException));
     }
 
     public function testCreateWithWeirdPdoExceptionCodeDocumentGetCodeReturnValue()
@@ -42,6 +43,6 @@ class RuntimeExceptionTest extends \PHPUnit_Framework_TestCase
         $code = 'HY000';
         $pdoException = new PDOExceptionStub('Unknow or incorrect', $code);
         $newException = RuntimeException::createFromException($pdoException);
-        $this->assertEquals($code, $newException->getCode());
+        static::assertEquals($code, $newException->getCode());
     }
 }

@@ -3,13 +3,14 @@
 namespace Phlib\Db\Tests\Exception;
 
 use Phlib\Db\Exception\InvalidQueryException;
+use PHPUnit\Framework\TestCase;
 
-class InvalidQueryExceptionTest extends \PHPUnit_Framework_TestCase
+class InvalidQueryExceptionTest extends TestCase
 {
     public function testConstructor()
     {
         $exception = new InvalidQueryException('SLECT * FRM foo', []);
-        $this->assertNotEmpty($exception->getMessage());
+        static::assertNotEmpty($exception->getMessage());
     }
 
     public function testConstructorUsesPreviousException()
@@ -20,21 +21,21 @@ class InvalidQueryExceptionTest extends \PHPUnit_Framework_TestCase
             "'FRM foo' at line 1";
         $pdoException = new \PDOException($message, $code);
         $exception = new InvalidQueryException('SELECT * FRM foo', [], $pdoException);
-        $this->assertStringStartsWith($message, $exception->getMessage());
+        static::assertStringStartsWith($message, $exception->getMessage());
     }
 
     public function testGetQuery()
     {
         $query = 'SELECT * FRM foo';
         $exception = new InvalidQueryException($query, []);
-        $this->assertEquals($query, $exception->getQuery());
+        static::assertEquals($query, $exception->getQuery());
     }
 
     public function testGetBindData()
     {
         $bind = ['foo', 'bar'];
         $exception = new InvalidQueryException('', $bind);
-        $this->assertEquals($bind, $exception->getBindData());
+        static::assertEquals($bind, $exception->getBindData());
     }
 
     public function testSuccessfullyDetectsInvalidSyntaxException()
@@ -44,7 +45,7 @@ class InvalidQueryExceptionTest extends \PHPUnit_Framework_TestCase
             "check the manual that corresponds to your MySQL server version for the right syntax to use near " .
             "'FRM foo' at line 1";
         $pdoException = new \PDOException($message, $code);
-        $this->assertTrue(InvalidQueryException::isInvalidSyntax($pdoException));
+        static::assertTrue(InvalidQueryException::isInvalidSyntax($pdoException));
     }
 
     public function testDetectsNonSyntaxException()
@@ -52,6 +53,6 @@ class InvalidQueryExceptionTest extends \PHPUnit_Framework_TestCase
         $code = 2002;
         $message = "SQLSTATE[HY000] [2002] Connection reset by peer";
         $pdoException = new \PDOException($message, $code);
-        $this->assertFalse(InvalidQueryException::isInvalidSyntax($pdoException));
+        static::assertFalse(InvalidQueryException::isInvalidSyntax($pdoException));
     }
 }

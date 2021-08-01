@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<phpunit bootstrap="vendor/autoload.php" colors="true">
+<phpunit
+    bootstrap="vendor/autoload.php"
+    beStrictAboutTestsThatDoNotTestAnything="true"
+    beStrictAboutOutputDuringTests="true"
+    beStrictAboutChangesToGlobalState="true"
+    colors="true"
+>
     <php>
         <env name="INTEGRATION_ENABLED" value="0" />
         <env name="INTEGRATION_HOST" value="127.0.0.1" />

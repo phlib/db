@@ -4,8 +4,9 @@ namespace Phlib\Db\Tests\Adapter;
 
 use Phlib\Db\Adapter\ConnectionFactory;
 use Phlib\Db\Adapter\Config;
+use PHPUnit\Framework\TestCase;
 
-class ConnectionFactoryTest extends \PHPUnit_Framework_TestCase
+class ConnectionFactoryTest extends TestCase
 {
     /**
      * @var Config|\PHPUnit_Framework_MockObject_MockObject
@@ -22,7 +23,7 @@ class ConnectionFactoryTest extends \PHPUnit_Framework_TestCase
      */
     private $factory;
 
-    public function setUp()
+    protected function setUp()
     {
         $this->config  = $this->createMock(Config::class);
         $this->pdo     = $this->createMock(\PDO::class);
@@ -31,28 +32,18 @@ class ConnectionFactoryTest extends \PHPUnit_Framework_TestCase
         parent::setUp();
     }
 
-    public function tearDown()
-    {
-        parent::tearDown();
-        $this->factory = null;
-        $this->pdo     = null;
-    }
-
     public function testGettingConnection()
     {
-        $this->factory->expects($this->any())
-            ->method('create')
-            ->will($this->returnValue($this->pdo));
+        $this->factory->method('create')
+            ->willReturn($this->pdo);
 
         $pdoStatement = $this->createMock(\PDOStatement::class);
-        $this->pdo->expects($this->any())
-            ->method('prepare')
-            ->will($this->returnValue($pdoStatement));
+        $this->pdo->method('prepare')
+            ->willReturn($pdoStatement);
 
-        $this->config->expects($this->any())
-            ->method('getMaximumAttempts')
-            ->will($this->returnValue(5));
-        $this->assertSame($this->pdo, $this->factory->__invoke($this->config));
+        $this->config->method('getMaximumAttempts')
+            ->willReturn(5);
+        static::assertSame($this->pdo, $this->factory->__invoke($this->config));
     }
 
     /**
@@ -62,21 +53,20 @@ class ConnectionFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testCharsetIsSetOnConnection($method, $value)
     {
-        $this->factory->expects($this->any())
-            ->method('create')
-            ->will($this->returnValue($this->pdo));
+        $this->factory->method('create')
+            ->willReturn($this->pdo);
 
         $pdoStatement = $this->createMock(\PDOStatement::class);
-        $pdoStatement->expects($this->any())
-            ->method('execute')
-            ->with($this->contains($value));
-        $this->pdo->expects($this->any())
-            ->method('prepare')
-            ->will($this->returnValue($pdoStatement));
+        $pdoStatement->method('execute')
+            ->with(static::contains($value));
+        $this->pdo->method('prepare')
+            ->willReturn($pdoStatement);
 
-        $this->config->expects($this->any())->method('getMaximumAttempts')->will($this->returnValue(1));
-        $this->config->expects($this->any())->method($method)->will($this->returnValue($value));
-        $this->assertSame($this->pdo, $this->factory->__invoke($this->config));
+        $this->config->method('getMaximumAttempts')
+            ->willReturn(1);
+        $this->config->method($method)
+            ->willReturn($value);
+        static::assertSame($this->pdo, $this->factory->__invoke($this->config));
     }
 
     public function charsetIsSetOnConnectionDataProvider()
@@ -92,15 +82,13 @@ class ConnectionFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testSettingUnknownDatabase()
     {
-        $this->factory->expects($this->any())
-            ->method('create')
-            ->will($this->throwException(new \PDOException(
+        $this->factory->method('create')
+            ->willThrowException(new \PDOException(
                 "SQLSTATE[HY000] [1049] Unknown database '<dbname>'",
                 1049
-            )));
-        $this->config->expects($this->any())
-            ->method('getMaximumAttempts')
-            ->will($this->returnValue(5));
+            ));
+        $this->config->method('getMaximumAttempts')
+            ->willReturn(5);
         $this->factory->__invoke($this->config);
     }
 
@@ -111,15 +99,13 @@ class ConnectionFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testExceedingNumberOfAttempts($attempts)
     {
-        $this->factory->expects($this->any())
-            ->method('create')
-            ->will($this->throwException(new \PDOException(
+        $this->factory->method('create')
+            ->willThrowException(new \PDOException(
                 "SQLSTATE[HY000] [1049] Unknown database '<dbname>'",
                 1049
-            )));
-        $this->config->expects($this->any())
-            ->method('getMaximumAttempts')
-            ->will($this->returnValue($attempts));
+            ));
+        $this->config->method('getMaximumAttempts')
+            ->willReturn($attempts);
         $this->factory->__invoke($this->config);
     }
 
@@ -134,22 +120,18 @@ class ConnectionFactoryTest extends \PHPUnit_Framework_TestCase
 
     public function testFailedAttemptThenSucceeds()
     {
-        $this->factory->expects($this->any())
-            ->method('create')
-            ->will($this->returnValue($this->pdo));
+        $this->factory->method('create')
+            ->willReturn($this->pdo);
         $pdoStatement = $this->createMock(\PDOStatement::class);
-        $pdoStatement->expects($this->any())
-            ->method('execute')
-            ->will($this->onConsecutiveCalls(
-                $this->throwException(new \PDOException()),
-                $this->returnValue(true)
+        $pdoStatement->method('execute')
+            ->will(static::onConsecutiveCalls(
+                static::throwException(new \PDOException()),
+                static::returnValue(true)
             ));
-        $this->pdo->expects($this->any())
-            ->method('prepare')
-            ->will($this->returnValue($pdoStatement));
-        $this->config->expects($this->any())
-            ->method('getMaximumAttempts')
-            ->will($this->returnValue(2));
-        $this->assertSame($this->pdo, $this->factory->__invoke($this->config));
+        $this->pdo->method('prepare')
+            ->willReturn($pdoStatement);
+        $this->config->method('getMaximumAttempts')
+            ->willReturn(2);
+        static::assertSame($this->pdo, $this->factory->__invoke($this->config));
     }
 }
