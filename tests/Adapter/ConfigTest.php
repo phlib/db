@@ -3,6 +3,7 @@
 namespace Phlib\Db\Tests\Adapter;
 
 use Phlib\Db\Adapter\Config;
+use Phlib\Db\Exception\InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
 class ConfigTest extends TestCase
@@ -27,11 +28,10 @@ class ConfigTest extends TestCase
         ];
     }
 
-    /**
-     * @expectedException \Phlib\Db\Exception\InvalidArgumentException
-     */
     public function testGetDsnWithoutHost()
     {
+        $this->expectException(InvalidArgumentException::class);
+
         $config = new Config([]);
         $config->getDsn();
     }

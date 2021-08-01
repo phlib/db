@@ -5,12 +5,13 @@ namespace Phlib\Db\Tests\Adapter;
 use Phlib\Db\Adapter\CrudTrait;
 use Phlib\Db\Adapter\QuoteHandler;
 use Phlib\Db\SqlFragment;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class CrudTraitTest extends TestCase
 {
     /**
-     * @var CrudTrait|\PHPUnit_Framework_MockObject_MockObject
+     * @var CrudTrait|MockObject
      */
     private $crud;
 

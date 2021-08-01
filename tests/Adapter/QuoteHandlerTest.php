@@ -4,12 +4,13 @@ namespace Phlib\Db\Tests\Adapter;
 
 use Phlib\Db\Adapter\QuoteHandler;
 use Phlib\Db\SqlFragment;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class QuoteHandlerTest extends TestCase
 {
     /**
-     * @var QuoteHandler|\PHPUnit_Framework_MockObject_MockObject
+     * @var QuoteHandler|MockObject
      */
     private $handler;
 

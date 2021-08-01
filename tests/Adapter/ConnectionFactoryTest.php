@@ -4,22 +4,25 @@ namespace Phlib\Db\Tests\Adapter;
 
 use Phlib\Db\Adapter\ConnectionFactory;
 use Phlib\Db\Adapter\Config;
+use Phlib\Db\Exception\RuntimeException;
+use Phlib\Db\Exception\UnknownDatabaseException;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class ConnectionFactoryTest extends TestCase
 {
     /**
-     * @var Config|\PHPUnit_Framework_MockObject_MockObject
+     * @var Config|MockObject
      */
     private $config;
 
     /**
-     * @var \PDO|\PHPUnit_Framework_MockObject_MockObject
+     * @var \PDO|MockObject
      */
     private $pdo;
 
     /**
-     * @var ConnectionFactory|\PHPUnit_Framework_MockObject_MockObject
+     * @var ConnectionFactory|MockObject
      */
     private $factory;
 
@@ -77,11 +80,10 @@ class ConnectionFactoryTest extends TestCase
         ];
     }
 
-    /**
-     * @expectedException \Phlib\Db\Exception\UnknownDatabaseException
-     */
     public function testSettingUnknownDatabase()
     {
+        $this->expectException(UnknownDatabaseException::class);
+
         $this->factory->method('create')
             ->willThrowException(new \PDOException(
                 "SQLSTATE[HY000] [1049] Unknown database '<dbname>'",
@@ -95,10 +97,11 @@ class ConnectionFactoryTest extends TestCase
     /**
      * @param int $attempts
      * @dataProvider exceedingNumberOfAttemptsDataProvider
-     * @expectedException \Phlib\Db\Exception\RuntimeException
      */
     public function testExceedingNumberOfAttempts($attempts)
     {
+        $this->expectException(RuntimeException::class);
+
         $this->factory->method('create')
             ->willThrowException(new \PDOException(
                 "SQLSTATE[HY000] [1049] Unknown database '<dbname>'",

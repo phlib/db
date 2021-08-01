@@ -3,12 +3,16 @@
 namespace Phlib\Db\Tests;
 
 use Phlib\Db\Adapter;
+use Phlib\Db\Exception\InvalidQueryException;
+use Phlib\Db\Exception\RuntimeException;
+use Phlib\Db\Exception\UnknownDatabaseException;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class AdapterTest extends TestCase
 {
     /**
-     * @var \PDO|\PHPUnit_Framework_MockObject_MockObject
+     * @var \PDO|MockObject
      */
     private $pdo;
 
@@ -62,7 +66,7 @@ class AdapterTest extends TestCase
     {
         $dbname = 'MyDbName';
 
-        /** @var Adapter|\PHPUnit_Framework_MockObject_MockObject $adapter */
+        /** @var Adapter|MockObject $adapter */
         $adapter = $this->getMockBuilder(Adapter::class)
             ->setMethods(['query'])
             ->getMock();
@@ -80,7 +84,7 @@ class AdapterTest extends TestCase
     public function testSetDatabaseSetsConfig()
     {
         $dbname = 'MyDbName';
-        /** @var Adapter|\PHPUnit_Framework_MockObject_MockObject $adapter */
+        /** @var Adapter|MockObject $adapter */
         $adapter = $this->getMockBuilder(Adapter::class)
             ->setMethods(['query'])
             ->getMock();
@@ -93,11 +97,10 @@ class AdapterTest extends TestCase
         static::assertSame($dbname, $config['dbname']);
     }
 
-    /**
-     * @expectedException \Phlib\Db\Exception\UnknownDatabaseException
-     */
     public function testSetDatabaseWhenItsUnknown()
     {
+        $this->expectException(UnknownDatabaseException::class);
+
         $database  = 'foobar';
         $exception = new \PDOException(
             "SQLSTATE[42000]: Syntax error or access violation: 1049 Unknown database '$database'.",
@@ -271,7 +274,7 @@ class AdapterTest extends TestCase
             ->method('rowCount');
 
         // Exec should call query with the SQL
-        /** @var Adapter|\PHPUnit_Framework_MockObject_MockObject $adapter */
+        /** @var Adapter|MockObject $adapter */
         $adapter = $this->getMockBuilder(Adapter::class)
             ->setMethods(['query'])
             ->getMock();
@@ -294,7 +297,7 @@ class AdapterTest extends TestCase
             ->method('rowCount');
 
         // Exec should call query with the SQL
-        /** @var Adapter|\PHPUnit_Framework_MockObject_MockObject $adapter */
+        /** @var Adapter|MockObject $adapter */
         $adapter = $this->getMockBuilder(Adapter::class)
             ->setMethods(['query'])
             ->getMock();
@@ -341,11 +344,10 @@ class AdapterTest extends TestCase
         static::assertEquals($pdoStatement, $adapter->query($sql, $bind));
     }
 
-    /**
-     * @expectedException \Phlib\Db\Exception\InvalidQueryException
-     */
     public function testQueryWithInvalidSql()
     {
+        $this->expectException(InvalidQueryException::class);
+
         $exception = new \PDOException('You have an error in your SQL syntax');
         $statement = $this->createMock(\PDOStatement::class);
         $statement->method('execute')
@@ -381,11 +383,10 @@ class AdapterTest extends TestCase
         $adapter->query('SELECT * FROM foo');
     }
 
-    /**
-     * @expectedException \Phlib\Db\Exception\RuntimeException
-     */
     public function testQueryFailsAfterSuccessfulReconnect()
     {
+        $this->expectException(RuntimeException::class);
+
         $exception = new \PDOException('MySQL server has gone away');
         $statement = $this->createMock(\PDOStatement::class);
         $statement->method('execute')
@@ -483,11 +484,10 @@ class AdapterTest extends TestCase
         $adapter->beginTransaction();
     }
 
-    /**
-     * @expectedException \Phlib\Db\Exception\RuntimeException
-     */
     public function testBeginTransactionWhenServerHasGoneAwayAndThenFails()
     {
+        $this->expectException(RuntimeException::class);
+
         $exception = new \PDOException('MySQL server has gone away');
         $this->pdo->method('beginTransaction')
             ->willThrowException($exception);
