@@ -8,14 +8,13 @@ use Phlib\Db\Exception\UnknownDatabaseException;
 class ConnectionFactory
 {
     /**
-     * @param Config $config
      * @return \PDO
      * @throws UnknownDatabaseException
      * @throws RuntimeException
      */
     public function __invoke(Config $config)
     {
-        $attempt     = 0;
+        $attempt = 0;
         $maxAttempts = $config->getMaximumAttempts();
         while (++$attempt <= $maxAttempts) {
             try {
@@ -42,7 +41,6 @@ class ConnectionFactory
     }
 
     /**
-     * @param Config $config
      * @return \PDO
      */
     public function create(Config $config)

@@ -24,7 +24,7 @@ class RuntimeExceptionTest extends TestCase
     public function testIgnoresOtherPdoExceptions()
     {
         $code = 2002;
-        $message = "SQLSTATE[HY000] [2002] Connection reset by peer";
+        $message = 'SQLSTATE[HY000] [2002] Connection reset by peer';
         $pdoException = new \PDOException($message, $code);
         static::assertFalse(RuntimeException::hasServerGoneAway($pdoException));
     }

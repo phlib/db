@@ -3,8 +3,8 @@
 namespace Phlib\Db;
 
 use Phlib\Db\Exception\InvalidQueryException;
-use Phlib\Db\Exception\UnknownDatabaseException;
 use Phlib\Db\Exception\RuntimeException;
+use Phlib\Db\Exception\UnknownDatabaseException;
 
 class Adapter implements AdapterInterface
 {
@@ -31,16 +31,13 @@ class Adapter implements AdapterInterface
     private $quoter;
 
     /**
-     * Constructor
-     *
-     * === Config Params ===
-     * host
-     * username
-     * password
-     * [port]
-     * [dbname]
-     *
-     * @param array $config
+     * @param array $config {
+     *   @var string $host required
+     *   @var string $username required
+     *   @var string $password required
+     *   @var int $port optional
+     *   @var string $dbname optional
+     * }
      */
     public function __construct(array $config = [])
     {
@@ -64,7 +61,6 @@ class Adapter implements AdapterInterface
 
     /**
      * Sets the item which creates a new DB connection.
-     * @param callable $factory
      * @return $this
      */
     public function setConnectionFactory(callable $factory)
@@ -120,7 +116,6 @@ class Adapter implements AdapterInterface
     /**
      * Set the database connection.
      *
-     * @param \PDO $connection
      * @return Adapter
      */
     public function setConnection(\PDO $connection)
@@ -293,7 +288,6 @@ class Adapter implements AdapterInterface
      * Execute an SQL statement
      *
      * @param string $statement
-     * @param array $bind
      * @return int
      */
     public function execute($statement, array $bind = [])
@@ -306,7 +300,6 @@ class Adapter implements AdapterInterface
      * Query the database.
      *
      * @param string $sql
-     * @param array $bind
      * @throws \PDOException
      * @return \PDOStatement
      */
@@ -317,7 +310,6 @@ class Adapter implements AdapterInterface
 
     /**
      * @param string $sql
-     * @param array $bind
      * @param bool $hasCaughtException
      * @return \PDOStatement
      */
@@ -345,7 +337,7 @@ class Adapter implements AdapterInterface
      */
     private function connect()
     {
-        if (is_null($this->connection)) {
+        if ($this->connection === null) {
             $this->connection = call_user_func($this->connectionFactory, $this->config);
         }
 

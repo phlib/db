@@ -15,7 +15,6 @@ class InvalidQueryException extends RuntimeException implements Exception
     private $bind;
 
     /**
-     * @param \PDOException $exception
      * @return bool
      */
     public static function isInvalidSyntax(\PDOException $exception)
@@ -25,19 +24,17 @@ class InvalidQueryException extends RuntimeException implements Exception
 
     /**
      * @param string $query
-     * @param array $bind
-     * @param \PDOException|null $previous
      */
     public function __construct($query, array $bind = [], \PDOException $previous = null)
     {
         $this->query = $query;
-        $this->bind  = $bind;
+        $this->bind = $bind;
 
         $message = 'You have an error in your SQL syntax.';
-        $code    = 0;
-        if (!is_null($previous)) {
+        $code = 0;
+        if ($previous !== null) {
             $message = $previous->getMessage();
-            $code    = $previous->getCode();
+            $code = $previous->getCode();
         }
         $message .= ' SQL: ' . $query . ' Bind: ' . var_export($bind, true);
 

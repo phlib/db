@@ -6,7 +6,6 @@ use Phlib\Db\Exception\InvalidArgumentException;
 
 class QuoteHandler
 {
-
     /**
      * @var boolean
      */
@@ -19,7 +18,6 @@ class QuoteHandler
 
     /**
      * QuoteHandler constructor.
-     * @param callable $quoteFn
      * @param bool $autoQuoteIdentifiers
      */
     public function __construct(callable $quoteFn, $autoQuoteIdentifiers = true)
@@ -51,7 +49,7 @@ class QuoteHandler
             case (is_numeric($value) && (string)($value + 0) === (string)$value):
                 $value = $value + 0;
                 break;
-            case is_null($value):
+            case $value === null:
                 $value = 'NULL';
                 break;
             case is_array($value):
@@ -180,7 +178,7 @@ class QuoteHandler
     {
         if ($auto === false || $this->autoQuoteIdentifiers === true) {
             $q = '`';
-            return ($q . str_replace("$q", "$q$q", $value) . $q);
+            return ($q . str_replace("{$q}", "{$q}{$q}", $value) . $q);
         }
 
         return $value;

@@ -44,8 +44,8 @@ class UnknownDatabaseExceptionTest extends TestCase
     public function testCorrectlyEvaluatesPdoExceptionForNonDatabaseError()
     {
         $code = '42000';
-        $message = "SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; " .
-            "check the manual that corresponds to your MySQL server version for the right syntax to use near " .
+        $message = 'SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; ' .
+            'check the manual that corresponds to your MySQL server version for the right syntax to use near ' .
             "'FRM foo' at line 1";
         $pdoException = new \PDOException($message, $code);
         static::assertFalse(UnknownDatabaseException::isUnknownDatabase($pdoException));

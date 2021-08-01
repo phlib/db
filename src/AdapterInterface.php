@@ -8,7 +8,6 @@ interface AdapterInterface
 {
     /**
      * Sets the item which creates a new DB connection.
-     * @param callable $factory
      * @return $this
      */
     public function setConnectionFactory(callable $factory);
@@ -23,7 +22,6 @@ interface AdapterInterface
     /**
      * Set the database connection.
      *
-     * @param \PDO $connection
      * @return $this
      */
     public function setConnection(\PDO $connection);
@@ -137,7 +135,6 @@ interface AdapterInterface
      * Execute an SQL statement
      *
      * @param string $statement
-     * @param array $bind
      * @return int
      */
     public function execute($statement, array $bind = []);
@@ -146,7 +143,6 @@ interface AdapterInterface
      * Query the database.
      *
      * @param string $sql
-     * @param array $bind
      * @throws \PDOException
      * @return \PDOStatement
      */

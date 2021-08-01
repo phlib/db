@@ -5,7 +5,6 @@ namespace Phlib\Db\Exception;
 class RuntimeException extends \PDOException implements Exception
 {
     /**
-     * @param \PDOException $exception
      * @return static
      */
     public static function createFromException(\PDOException $exception)
@@ -20,7 +19,6 @@ class RuntimeException extends \PDOException implements Exception
     }
 
     /**
-     * @param \PDOException $exception
      * @return bool
      */
     public static function hasServerGoneAway(\PDOException $exception)

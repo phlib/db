@@ -33,7 +33,6 @@ class CrudTraitTest extends TestCase
     /**
      * @param string $expectedSql
      * @param string $table
-     * @param array $where
      * @dataProvider selectDataProvider
      */
     public function testSelect($expectedSql, $table, array $where)
@@ -53,18 +52,29 @@ class CrudTraitTest extends TestCase
     public function selectDataProvider()
     {
         return [
-            ["SELECT * FROM `my_table`", 'my_table', []],
+            [
+                'SELECT * FROM `my_table`',
+                'my_table',
+                [],
+            ],
             [
                 "SELECT * FROM `table` WHERE col1 = 'v1' AND col2 = 'v2' AND col3 IS NULL",
                 'table',
-                ['col1 = ?' => 'v1', 'col2 = ?' => 'v2', 'col3 IS NULL'],
+                [
+                    'col1 = ?' => 'v1',
+                    'col2 = ?' => 'v2',
+                    'col3 IS NULL',
+                ],
             ],
             // Correct quote behaviour for number and object
             [
-                "SELECT * FROM `table` WHERE col1 = 123 AND col2 = col3",
+                'SELECT * FROM `table` WHERE col1 = 123 AND col2 = col3',
                 'table',
-                ['col1 = ?' => 123, 'col2 = ?' => new SqlFragment('col3')],
-            ]
+                [
+                    'col1 = ?' => 123,
+                    'col2 = ?' => new SqlFragment('col3'),
+                ],
+            ],
         ];
     }
 
@@ -80,7 +90,6 @@ class CrudTraitTest extends TestCase
     /**
      * @param string $expectedSql
      * @param string $table
-     * @param array $data
      * @dataProvider insertDataProvider
      */
     public function testInsert($expectedSql, $table, array $data)
@@ -101,12 +110,35 @@ class CrudTraitTest extends TestCase
     public function insertDataProvider()
     {
         return [
-            ["INSERT INTO `table` (`col1`) VALUES ('v1')", 'table', ['col1' => 'v1']],
-            ["INSERT INTO `table` (`col1`, `col2`) VALUES ('v1', 'v2')", 'table', ['col1' => 'v1', 'col2' => 'v2']],
+            [
+                "INSERT INTO `table` (`col1`) VALUES ('v1')",
+                'table',
+                [
+                    'col1' => 'v1',
+                ],
+            ],
+            [
+                "INSERT INTO `table` (`col1`, `col2`) VALUES ('v1', 'v2')",
+                'table',
+                [
+                    'col1' => 'v1',
+                    'col2' => 'v2',
+                ],
+            ],
             // Number should not be quoted
-            ["INSERT INTO `table` (`col1`) VALUES (123)", 'table', ['col1' => 123]],
+            [
+                'INSERT INTO `table` (`col1`) VALUES (123)',
+                'table', [
+                    'col1' => 123,
+                ],
+            ],
             // Object should be handled
-            ["INSERT INTO `table` (`col1`) VALUES (col2)", 'table', ['col1' => new SqlFragment('col2')]],
+            [
+                'INSERT INTO `table` (`col1`) VALUES (col2)',
+                'table', [
+                    'col1' => new SqlFragment('col2'),
+                ],
+            ],
         ];
     }
 
@@ -114,7 +146,6 @@ class CrudTraitTest extends TestCase
      * @param string $expectedSql
      * @param string $table
      * @param array $data
-     * @param array $where
      * @dataProvider updateDataProvider
      */
     public function testUpdate($expectedSql, $table, $data, array $where)
@@ -138,28 +169,53 @@ class CrudTraitTest extends TestCase
     public function updateDataProvider()
     {
         return [
-            ["UPDATE `table` SET `col1` = 'v1'", 'table', ['col1' => 'v1'], []],
-            ["UPDATE `table` SET `col1` = 'v1', `col2` = 'v2'", 'table', ['col1' => 'v1', 'col2' => 'v2'], []],
+            [
+                "UPDATE `table` SET `col1` = 'v1'",
+                'table',
+                [
+                    'col1' => 'v1',
+                ],
+                [],
+            ],
+            [
+                "UPDATE `table` SET `col1` = 'v1', `col2` = 'v2'",
+                'table',
+                [
+                    'col1' => 'v1',
+                    'col2' => 'v2',
+                ],
+                [],
+            ],
             [
                 "UPDATE `table` SET `col1` = 'v1' WHERE col3 = 'v3' AND col4 = 'v4' AND col5 IS NULL",
                 'table',
-                ['col1' => 'v1'],
-                ['col3 = ?' => 'v3', 'col4 = ?' => 'v4', 'col5 IS NULL'],
+                [
+                    'col1' => 'v1',
+                ],
+                [
+                    'col3 = ?' => 'v3',
+                    'col4 = ?' => 'v4',
+                    'col5 IS NULL',
+                ],
             ],
             // Correct quote behaviour for number and object
             [
                 "UPDATE `table` SET `col1` = 'v1' WHERE col3 = 123 AND col4 = col2",
                 'table',
-                ['col1' => 'v1'],
-                ['col3 = ?' => 123, 'col4 = ?' => new SqlFragment('col2')],
-            ]
+                [
+                    'col1' => 'v1',
+                ],
+                [
+                    'col3 = ?' => 123,
+                    'col4 = ?' => new SqlFragment('col2'),
+                ],
+            ],
         ];
     }
 
     /**
      * @param string $expectedSql
      * @param string $table
-     * @param array $where
      * @dataProvider deleteDataProvider
      */
     public function testDelete($expectedSql, $table, array $where)
@@ -183,18 +239,29 @@ class CrudTraitTest extends TestCase
     public function deleteDataProvider()
     {
         return [
-            ["DELETE FROM `table`", 'table', []],
+            [
+                'DELETE FROM `table`',
+                'table',
+                [],
+            ],
             [
                 "DELETE FROM `table` WHERE col1 = 'v1' AND col2 = 'v2' AND col3 IS NULL",
                 'table',
-                ['col1 = ?' => 'v1', 'col2 = ?' => 'v2', 'col3 IS NULL'],
+                [
+                    'col1 = ?' => 'v1',
+                    'col2 = ?' => 'v2',
+                    'col3 IS NULL',
+                ],
             ],
             // Correct quote behaviour for number and object
             [
-                "DELETE FROM `table` WHERE col1 = 123 AND col2 = col3",
+                'DELETE FROM `table` WHERE col1 = 123 AND col2 = col3',
                 'table',
-                ['col1 = ?' => 123, 'col2 = ?' => new SqlFragment('col3')],
-            ]
+                [
+                    'col1 = ?' => 123,
+                    'col2 = ?' => new SqlFragment('col3'),
+                ],
+            ],
         ];
     }
 
@@ -222,12 +289,38 @@ class CrudTraitTest extends TestCase
     public function upsertDataProvider()
     {
         return [
-            ["INSERT INTO `table` (`col1`) VALUES (?) ON DUPLICATE KEY UPDATE `col1` = VALUES(`col1`)",
-                'table', ['col1' => 'v1'], ['col1']],
-            ["INSERT INTO `table` (`col1`, `col2`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `col1` = VALUES(`col1`)",
-                'table', ['col1' => 'v1', 'col2' => 'v2'], ['col1']],
-            ["INSERT INTO `table` (`col1`, `col2`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `col1` = VALUES(`col1`), `col2` = VALUES(`col2`)",
-                'table', ['col1' => 'v1', 'col2' => 'v2'], ['col1', 'col2']],
+            [
+                'INSERT INTO `table` (`col1`) VALUES (?) ON DUPLICATE KEY UPDATE `col1` = VALUES(`col1`)',
+                'table',
+                [
+                    'col1' => 'v1',
+                ],
+                [
+                    'col1',
+                ],
+            ],
+            [
+                'INSERT INTO `table` (`col1`, `col2`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `col1` = VALUES(`col1`)',
+                'table',
+                [
+                    'col1' => 'v1',
+                    'col2' => 'v2',
+                ], [
+                    'col1',
+                ],
+            ],
+            [
+                'INSERT INTO `table` (`col1`, `col2`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `col1` = VALUES(`col1`), `col2` = VALUES(`col2`)',
+                'table',
+                [
+                    'col1' => 'v1',
+                    'col2' => 'v2',
+                ],
+                [
+                    'col1',
+                    'col2',
+                ],
+            ],
         ];
     }
 }

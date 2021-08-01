@@ -17,7 +17,7 @@ class QuoteHandlerTest extends TestCase
     protected function setUp()
     {
         $this->handler = new QuoteHandler(function ($value) {
-            return "`$value`";
+            return "`{$value}`";
         });
         parent::setUp();
     }
@@ -70,13 +70,13 @@ class QuoteHandlerTest extends TestCase
     public function intoDataProvider()
     {
         return [
-            ["field = `value`", 'field = ?', 'value'],
+            ['field = `value`', 'field = ?', 'value'],
             ['field = 123', 'field = ?', 123],
             ['field IS NULL', 'field IS ?', null],
             ['field IN (1, 2, 3)', 'field IN (?)', [1, 2, 3]],
-            ["field IN (`one`, `two`)", 'field IN (?)', ['one', 'two']],
-            ["field IN (`one`, `Array`)", 'field IN (?)', ['one', ['two']]],
-            ['field = NOW()', 'field = ?', new SqlFragment('NOW()')]
+            ['field IN (`one`, `two`)', 'field IN (?)', ['one', 'two']],
+            ['field IN (`one`, `Array`)', 'field IN (?)', ['one', ['two']]],
+            ['field = NOW()', 'field = ?', new SqlFragment('NOW()')],
         ];
     }
 
@@ -89,7 +89,7 @@ class QuoteHandlerTest extends TestCase
      */
     public function testColumnAs($expected, $ident, $alias, $auto)
     {
-        $result = (!is_null($auto)) ?
+        $result = ($auto !== null) ?
             $this->handler->columnAs($ident, $alias, $auto) :
             $this->handler->columnAs($ident, $alias);
         static::assertEquals($expected, $result);
@@ -98,11 +98,11 @@ class QuoteHandlerTest extends TestCase
     public function columnAsData()
     {
         return [
-            ["`col1`", 'col1', null, null],
-            ["`col1` AS `alias`", 'col1', 'alias', null],
-            ["`col1` AS `alias`", 'col1', 'alias', true],
-            ["`table1`.`col1`", ['table1', 'col1'], null, true],
-            ["`table1`.`col1`.`alias`", ['table1', 'col1', 'alias'], 'alias', true]
+            ['`col1`', 'col1', null, null],
+            ['`col1` AS `alias`', 'col1', 'alias', null],
+            ['`col1` AS `alias`', 'col1', 'alias', true],
+            ['`table1`.`col1`', ['table1', 'col1'], null, true],
+            ['`table1`.`col1`.`alias`', ['table1', 'col1', 'alias'], 'alias', true],
         ];
     }
 
@@ -115,7 +115,7 @@ class QuoteHandlerTest extends TestCase
      */
     public function testTableAs($expected, $ident, $alias, $auto)
     {
-        $result = (!is_null($alias)) ? (!is_null($auto)) ?
+        $result = ($alias !== null) ? ($auto !== null) ?
             $this->handler->tableAs($ident, $alias, $auto) :
             $this->handler->tableAs($ident, $alias) :
             $this->handler->tableAs($ident);
@@ -125,9 +125,9 @@ class QuoteHandlerTest extends TestCase
     public function tableAsData()
     {
         return [
-            ["`table1`", 'table1', null, null],
-            ["`table1` AS `alias`", 'table1', 'alias', null],
-            ["`table1` AS `alias`", 'table1', 'alias', true],
+            ['`table1`', 'table1', null, null],
+            ['`table1` AS `alias`', 'table1', 'alias', null],
+            ['`table1` AS `alias`', 'table1', 'alias', true],
         ];
     }
 
@@ -139,7 +139,7 @@ class QuoteHandlerTest extends TestCase
      */
     public function testIdentifier($expected, $ident, $auto)
     {
-        $result = (!is_null($auto)) ?
+        $result = ($auto !== null) ?
             $this->handler->identifier($ident, $auto) :
             $this->handler->identifier($ident);
         static::assertEquals($expected, $result);
@@ -148,11 +148,11 @@ class QuoteHandlerTest extends TestCase
     public function identifierData()
     {
         return [
-            ["`col1`", 'col1', null],
-            ["`col1`", 'col1', true],
-            ["NOW()", new SqlFragment('NOW()'), true],
-            ["`col1`.NOW()", ['col1', new SqlFragment('NOW()')], true],
-            ["`table1`.`*`", 'table1.*', true]
+            ['`col1`', 'col1', null],
+            ['`col1`', 'col1', true],
+            ['NOW()', new SqlFragment('NOW()'), true],
+            ['`col1`.NOW()', ['col1', new SqlFragment('NOW()')], true],
+            ['`table1`.`*`', 'table1.*', true],
         ];
     }
 }

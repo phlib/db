@@ -72,7 +72,7 @@ class AdapterTest extends TestCase
             ->getMock();
         $adapter->expects(static::once())
             ->method('query')
-            ->with("USE `$dbname`");
+            ->with("USE `{$dbname}`");
 
         $adapter->setConnection($this->pdo);
         $adapter->setDatabase($dbname);
@@ -101,9 +101,9 @@ class AdapterTest extends TestCase
     {
         $this->expectException(UnknownDatabaseException::class);
 
-        $database  = 'foobar';
+        $database = 'foobar';
         $exception = new \PDOException(
-            "SQLSTATE[42000]: Syntax error or access violation: 1049 Unknown database '$database'.",
+            "SQLSTATE[42000]: Syntax error or access violation: 1049 Unknown database '{$database}'.",
             42000
         );
         $statement = $this->createMock(\PDOStatement::class);
@@ -120,8 +120,8 @@ class AdapterTest extends TestCase
     public function testGetConfigDefaults()
     {
         $defaults = [
-            'charset'  => 'utf8mb4',
-            'timezone' => '+0:00'
+            'charset' => 'utf8mb4',
+            'timezone' => '+0:00',
         ];
 
         $adapter = new Adapter();
@@ -131,19 +131,19 @@ class AdapterTest extends TestCase
     public function testGetConfigMixed()
     {
         $expected = [
-            'host'     => 'localhost',
+            'host' => 'localhost',
             'username' => 'username',
             'password' => 'password',
-            'port'     => '3306',
-            'charset'  => 'utf8mb4',
-            'timezone' => '+0:00'
+            'port' => '3306',
+            'charset' => 'utf8mb4',
+            'timezone' => '+0:00',
         ];
 
         $config = [
-            'host'     => 'localhost',
+            'host' => 'localhost',
             'username' => 'username',
             'password' => 'password',
-            'port'     => '3306'
+            'port' => '3306',
         ];
         $adapter = new Adapter($config);
 
@@ -156,12 +156,12 @@ class AdapterTest extends TestCase
     public function testGetConfigOverrides()
     {
         $config = [
-            'host'     => 'localhost',
+            'host' => 'localhost',
             'username' => 'username',
             'password' => 'password',
-            'port'     => '3306',
-            'charset'  => 'iso-8859-1',
-            'timezone' => '+1:00'
+            'port' => '3306',
+            'charset' => 'iso-8859-1',
+            'timezone' => '+1:00',
         ];
         $adapter = new Adapter($config);
 
@@ -182,10 +182,10 @@ class AdapterTest extends TestCase
         $this->pdo->method('prepare')
             ->willReturn($statement);
 
-        $method  = 'set' . ucfirst($option);
+        $method = 'set' . ucfirst($option);
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
-        $adapter->$method($value);
+        $adapter->{$method}($value);
     }
 
     public function settingAdapterOptionsDataProvider()
@@ -194,7 +194,7 @@ class AdapterTest extends TestCase
             ['charset', 'iso-8859-1'],
             ['charset', 'utf8'],
             ['timezone', '+05:00'],
-            ['timezone', '+03:00']
+            ['timezone', '+03:00'],
         ];
     }
 
@@ -220,7 +220,7 @@ class AdapterTest extends TestCase
     public function testFailedPing()
     {
         $this->pdo->method('prepare')
-            ->willThrowException(new \Exception);
+            ->willThrowException(new \Exception());
 
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);

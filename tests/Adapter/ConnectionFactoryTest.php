@@ -2,8 +2,8 @@
 
 namespace Phlib\Db\Tests\Adapter;
 
-use Phlib\Db\Adapter\ConnectionFactory;
 use Phlib\Db\Adapter\Config;
+use Phlib\Db\Adapter\ConnectionFactory;
 use Phlib\Db\Exception\RuntimeException;
 use Phlib\Db\Exception\UnknownDatabaseException;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -28,8 +28,8 @@ class ConnectionFactoryTest extends TestCase
 
     protected function setUp()
     {
-        $this->config  = $this->createMock(Config::class);
-        $this->pdo     = $this->createMock(\PDO::class);
+        $this->config = $this->createMock(Config::class);
+        $this->pdo = $this->createMock(\PDO::class);
         $this->factory = $this->createPartialMock(ConnectionFactory::class, ['create']);
 
         parent::setUp();
@@ -76,7 +76,7 @@ class ConnectionFactoryTest extends TestCase
     {
         return [
             ['getCharset', 'latin1'],
-            ['getTimezone', '+0200']
+            ['getTimezone', '+0200'],
         ];
     }
 
@@ -117,7 +117,7 @@ class ConnectionFactoryTest extends TestCase
         return [
             [1],
             [2],
-            [3]
+            [3],
         ];
     }
 

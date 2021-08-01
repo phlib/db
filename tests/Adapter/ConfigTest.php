@@ -9,7 +9,6 @@ use PHPUnit\Framework\TestCase;
 class ConfigTest extends TestCase
 {
     /**
-     * @param array $dsnConfig
      * @param string $expectedElement
      * @dataProvider getDsnDataProvider
      */
@@ -44,8 +43,10 @@ class ConfigTest extends TestCase
      */
     public function testGetMethods($method, $element, $value)
     {
-        $config = new Config([$element => $value]);
-        static::assertEquals($value, $config->$method());
+        $config = new Config([
+            $element => $value,
+        ]);
+        static::assertEquals($value, $config->{$method}());
     }
 
     public function getMethodsDataProvider()
@@ -60,7 +61,6 @@ class ConfigTest extends TestCase
     }
 
     /**
-     * @param array $data
      * @param int $element
      * @param string $expected
      * @dataProvider getOptionsDataProvider
@@ -81,7 +81,7 @@ class ConfigTest extends TestCase
             [['timeout' => ''], \PDO::ATTR_TIMEOUT, 2], // default
             [['timeout' => 121], \PDO::ATTR_TIMEOUT, 2], // max
             [[], \PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION],
-            [[], \PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC]
+            [[], \PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC],
         ];
     }
 
@@ -92,7 +92,10 @@ class ConfigTest extends TestCase
      */
     public function testGetMaximumAttempts($value, $expected)
     {
-        static::assertEquals($expected, (new Config(['retryCount' => $value]))->getMaximumAttempts());
+        $config = new Config([
+            'retryCount' => $value,
+        ]);
+        static::assertEquals($expected, $config->getMaximumAttempts());
     }
 
     public function getMaximumAttemptsDataProvider()

@@ -11,15 +11,11 @@ class Config
      */
     private $config;
 
-    /**
-     * Config constructor.
-     * @param array $config
-     */
     public function __construct(array $config)
     {
         $this->config = $config + [
-            'charset'  => 'utf8mb4',
-            'timezone' => '+0:00'
+            'charset' => 'utf8mb4',
+            'timezone' => '+0:00',
         ];
     }
 
@@ -64,13 +60,19 @@ class Config
      */
     public function getOptions()
     {
-        $timeoutValue   = $this->config['timeout'] ?? '';
-        $timeoutOptions = ['options' => ['min_range' => 0, 'max_range' => 120, 'default' => 2]];
-        $timeout        = filter_var($timeoutValue, FILTER_VALIDATE_INT, $timeoutOptions);
+        $timeoutValue = $this->config['timeout'] ?? '';
+        $timeoutOptions = [
+            'options' => [
+                'min_range' => 0,
+                'max_range' => 120,
+                'default' => 2,
+            ],
+        ];
+        $timeout = filter_var($timeoutValue, FILTER_VALIDATE_INT, $timeoutOptions);
         return [
-            \PDO::ATTR_TIMEOUT            => $timeout,
-            \PDO::ATTR_ERRMODE            => \PDO::ERRMODE_EXCEPTION,
-            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC
+            \PDO::ATTR_TIMEOUT => $timeout,
+            \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
         ];
     }
 
@@ -133,9 +135,15 @@ class Config
      */
     public function getMaximumAttempts()
     {
-        $retryValue   = $this->config['retryCount'] ?? 0;
-        $retryOptions = ['options' => ['min_range' => 0, 'max_range' => 10, 'default' => 0]];
-        $retryCount   = filter_var($retryValue, FILTER_VALIDATE_INT, $retryOptions);
+        $retryValue = $this->config['retryCount'] ?? 0;
+        $retryOptions = [
+            'options' => [
+                'min_range' => 0,
+                'max_range' => 10,
+                'default' => 0,
+            ],
+        ];
+        $retryCount = filter_var($retryValue, FILTER_VALIDATE_INT, $retryOptions);
         return $retryCount + 1;
     }
 
