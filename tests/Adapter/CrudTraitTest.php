@@ -37,21 +37,19 @@ class CrudTraitTest extends \PHPUnit_Framework_TestCase
     /**
      * @param string $expectedSql
      * @param string $table
-     * @param array|string $where
-     * @param array $bind
+     * @param array $where
      * @dataProvider selectDataProvider
      */
-    public function testSelect($expectedSql, $table, $where, array $bind)
+    public function testSelect($expectedSql, $table, array $where)
     {
         $pdoStatement = $this->createMock(\PDOStatement::class);
 
         $this->crud->expects($this->once())
             ->method('query')
-            ->with($expectedSql, $bind)
+            ->with($expectedSql, [])
             ->will($this->returnValue($pdoStatement));
 
-        (!empty($where)) ? (!empty($bind)) ?
-            $this->crud->select($table, $where, $bind) :
+        (!empty($where)) ?
             $this->crud->select($table, $where) :
             $this->crud->select($table);
     }
@@ -59,23 +57,17 @@ class CrudTraitTest extends \PHPUnit_Framework_TestCase
     public function selectDataProvider()
     {
         return [
-            ["SELECT * FROM `my_table`", 'my_table', [], []],
-            // Deprecated $where param as string
-            ["SELECT * FROM `my_table` WHERE id = 1", 'my_table', 'id = 1', []],
-            // Deprecated $where param as string with bind
-            ["SELECT * FROM `my_table` WHERE id = ?", 'my_table', 'id = ?', [1]],
+            ["SELECT * FROM `my_table`", 'my_table', []],
             [
                 "SELECT * FROM `table` WHERE col1 = 'v1' AND col2 = 'v2' AND col3 IS NULL",
                 'table',
                 ['col1 = ?' => 'v1', 'col2 = ?' => 'v2', 'col3 IS NULL'],
-                []
             ],
             // Correct quote behaviour for number and object
             [
                 "SELECT * FROM `table` WHERE col1 = 123 AND col2 = col3",
                 'table',
                 ['col1 = ?' => 123, 'col2 = ?' => new SqlFragment('col3')],
-                []
             ]
         ];
     }
@@ -128,15 +120,11 @@ class CrudTraitTest extends \PHPUnit_Framework_TestCase
      * @param string $expectedSql
      * @param string $table
      * @param array $data
-     * @param array|string $where
-     * @param array $bind
+     * @param array $where
      * @dataProvider updateDataProvider
      */
-    public function testUpdate($expectedSql, $table, $data, $where, array $bind)
+    public function testUpdate($expectedSql, $table, $data, array $where)
     {
-        $bind = (is_null($bind)) ? [] : $bind;
-        $executeArgs = $bind;
-
         // Returned stmt will have rowCount called
         $pdoStatement = $this->createMock(\PDOStatement::class);
         $pdoStatement->expects($this->once())
@@ -145,11 +133,10 @@ class CrudTraitTest extends \PHPUnit_Framework_TestCase
         // Query should be called with the SQL and bind
         $this->crud->expects($this->once())
             ->method('query')
-            ->with($expectedSql, $executeArgs)
+            ->with($expectedSql, [])
             ->will($this->returnValue($pdoStatement));
 
-        $result = (!empty($where)) ? (!empty($bind)) ?
-            $this->crud->update($table, $data, $where, $bind) :
+        (!empty($where)) ?
             $this->crud->update($table, $data, $where) :
             $this->crud->update($table, $data);
     }
@@ -157,30 +144,13 @@ class CrudTraitTest extends \PHPUnit_Framework_TestCase
     public function updateDataProvider()
     {
         return [
-            ["UPDATE `table` SET `col1` = 'v1'", 'table', ['col1' => 'v1'], [], []],
-            ["UPDATE `table` SET `col1` = 'v1', `col2` = 'v2'", 'table', ['col1' => 'v1', 'col2' => 'v2'], [], []],
-            // Deprecated $where param as string
-            [
-                "UPDATE `table` SET `col1` = 'v1', `col2` = 'v2' WHERE col3 = 'v3'",
-                'table',
-                ['col1' => 'v1', 'col2' => 'v2'],
-                "col3 = 'v3'",
-                []
-            ],
-            // Deprecated $where param as string with bind
-            [
-                "UPDATE `table` SET `col1` = 'v1' WHERE col3 = 'v3' AND col4 = ?",
-                'table',
-                ['col1' => 'v1'],
-                "col3 = 'v3' AND col4 = ?",
-                ['v4']
-            ],
+            ["UPDATE `table` SET `col1` = 'v1'", 'table', ['col1' => 'v1'], []],
+            ["UPDATE `table` SET `col1` = 'v1', `col2` = 'v2'", 'table', ['col1' => 'v1', 'col2' => 'v2'], []],
             [
                 "UPDATE `table` SET `col1` = 'v1' WHERE col3 = 'v3' AND col4 = 'v4' AND col5 IS NULL",
                 'table',
                 ['col1' => 'v1'],
                 ['col3 = ?' => 'v3', 'col4 = ?' => 'v4', 'col5 IS NULL'],
-                []
             ],
             // Correct quote behaviour for number and object
             [
@@ -188,7 +158,6 @@ class CrudTraitTest extends \PHPUnit_Framework_TestCase
                 'table',
                 ['col1' => 'v1'],
                 ['col3 = ?' => 123, 'col4 = ?' => new SqlFragment('col2')],
-                []
             ]
         ];
     }
@@ -196,14 +165,11 @@ class CrudTraitTest extends \PHPUnit_Framework_TestCase
     /**
      * @param string $expectedSql
      * @param string $table
-     * @param array|string $where
-     * @param array $bind
+     * @param array $where
      * @dataProvider deleteDataProvider
      */
-    public function testDelete($expectedSql, $table, $where, array $bind)
+    public function testDelete($expectedSql, $table, array $where)
     {
-        $executeArgs = (is_null($bind)) ? [] : $bind;
-
         // Returned stmt will have rowCount called
         $pdoStatement = $this->createMock(\PDOStatement::class);
         $pdoStatement->expects($this->once())
@@ -212,11 +178,10 @@ class CrudTraitTest extends \PHPUnit_Framework_TestCase
         // Query should be called with the SQL and bind
         $this->crud->expects($this->once())
             ->method('query')
-            ->with($expectedSql, $executeArgs)
+            ->with($expectedSql, [])
             ->will($this->returnValue($pdoStatement));
 
-        (!empty($where)) ? (!empty($bind)) ?
-            $this->crud->delete($table, $where, $bind) :
+        (!empty($where)) ?
             $this->crud->delete($table, $where) :
             $this->crud->delete($table);
     }
@@ -224,23 +189,17 @@ class CrudTraitTest extends \PHPUnit_Framework_TestCase
     public function deleteDataProvider()
     {
         return [
-            ["DELETE FROM `table`", 'table', [], []],
-            // Deprecated $where param as string
-            ["DELETE FROM `table` WHERE col1 = 'v1'", 'table', "col1 = 'v1'", []],
-            // Deprecated $where param as string with bind
-            ["DELETE FROM `table` WHERE col1 = ?", 'table', "col1 = ?", ["'v1'"]],
+            ["DELETE FROM `table`", 'table', []],
             [
                 "DELETE FROM `table` WHERE col1 = 'v1' AND col2 = 'v2' AND col3 IS NULL",
                 'table',
                 ['col1 = ?' => 'v1', 'col2 = ?' => 'v2', 'col3 IS NULL'],
-                []
             ],
             // Correct quote behaviour for number and object
             [
                 "DELETE FROM `table` WHERE col1 = 123 AND col2 = col3",
                 'table',
                 ['col1 = ?' => 123, 'col2 = ?' => new SqlFragment('col3')],
-                []
             ]
         ];
     }

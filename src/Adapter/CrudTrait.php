@@ -8,20 +8,20 @@ trait CrudTrait
      * Select data from table.
      *
      * @param string $table
-     * @param array|string $where Deprecated usage of parameter as string
-     * @param array $bind Deprecated in favour of $where as array
+     * @param array $where
      * @return \PDOStatement
      */
-    public function select($table, $where = [], array $bind = [])
+    public function select($table, array $where = [])
     {
         $table = $this->quote()->identifier($table);
         $sql   = "SELECT * FROM $table";
-        if (is_array($where)) {
-            $where = $this->createWhereExpression($where);
-        }
-        $sql .= (($where) ? " WHERE {$where}" : '');
 
-        return $this->query($sql, $bind);
+        $where = $this->createWhereExpression($where);
+        if (!empty($where)) {
+            $sql .= " WHERE {$where}";
+        }
+
+        return $this->query($sql);
     }
 
     /**
@@ -48,11 +48,10 @@ trait CrudTrait
      *
      * @param string $table
      * @param array $data
-     * @param array|string $where Deprecated usage of parameter as string
-     * @param array $bind Deprecated in favour of $where as array
+     * @param array $where
      * @return int Number of affected rows
      */
-    public function update($table, array $data, $where = [], array $bind = [])
+    public function update($table, array $data, array $where = [])
     {
         $table  = $this->quote()->identifier($table);
         $fields = [];
@@ -61,12 +60,13 @@ trait CrudTrait
             $fields[] = $this->quote()->into("{$identifier} = ?", $value);
         }
         $sql = "UPDATE $table SET " . implode(', ', $fields);
-        if (is_array($where)) {
-            $where = $this->createWhereExpression($where);
-        }
-        $sql .= (($where) ? " WHERE {$where}" : '');
 
-        $stmt = $this->query($sql, $bind);
+        $where = $this->createWhereExpression($where);
+        if (!empty($where)) {
+            $sql .= " WHERE {$where}";
+        }
+
+        $stmt = $this->query($sql);
 
         return $stmt->rowCount();
     }
@@ -75,20 +75,20 @@ trait CrudTrait
      * Delete from table.
      *
      * @param string $table
-     * @param array|string $where Deprecated usage of parameter as string
-     * @param array $bind Deprecated in favour of $where as array
+     * @param array $where
      * @return int Number of affected rows
      */
-    public function delete($table, $where = [], array $bind = [])
+    public function delete($table, array $where = [])
     {
         $table = $this->quote()->identifier($table);
         $sql   = "DELETE FROM $table";
-        if (is_array($where)) {
-            $where = $this->createWhereExpression($where);
-        }
-        $sql .= (($where) ? " WHERE {$where}" : '');
 
-        $stmt = $this->query($sql, $bind);
+        $where = $this->createWhereExpression($where);
+        if (!empty($where)) {
+            $sql .= " WHERE {$where}";
+        }
+
+        $stmt = $this->query($sql);
 
         return $stmt->rowCount();
     }
