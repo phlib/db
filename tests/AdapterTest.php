@@ -31,14 +31,18 @@ class AdapterTest extends TestCase
     public function testQuoteHandlerIsSetupCorrectly()
     {
         $string = 'foo';
+        $expected = "'{$string}'";
         $this->pdo->expects(static::once())
             ->method('quote')
-            ->with($string);
+            ->with($string)
+            ->willReturn($expected);
 
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
 
-        $adapter->quote()->value($string);
+        $actual = $adapter->quote()->value($string);
+
+        static::assertSame($expected, $actual);
     }
 
     public function testGetQuoteHandler()

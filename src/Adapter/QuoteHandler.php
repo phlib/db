@@ -12,15 +12,18 @@ class QuoteHandler
     private $autoQuoteIdentifiers = true;
 
     /**
-     * @var callable
+     * @var \Closure
      */
     private $quoteFn;
 
     /**
-     * QuoteHandler constructor.
+     * @param \Closure $quoteFn {
+     *   @var mixed $value
+     *   @return string
+     * }
      * @param bool $autoQuoteIdentifiers
      */
-    public function __construct(callable $quoteFn, $autoQuoteIdentifiers = true)
+    public function __construct(\Closure $quoteFn, $autoQuoteIdentifiers = true)
     {
         $this->quoteFn = $quoteFn;
         $this->autoQuoteIdentifiers = $autoQuoteIdentifiers;
@@ -30,11 +33,10 @@ class QuoteHandler
      * Quote a database value.
      *
      * @param string $value
-     * @param integer $type
      * @return string
      * @throws InvalidArgumentException
      */
-    public function value($value, $type = null)
+    public function value($value)
     {
         switch (true) {
             case is_object($value):
@@ -62,7 +64,7 @@ class QuoteHandler
                 $value = implode(', ', $value);
                 break;
             default:
-                $value = call_user_func($this->quoteFn, $value, $type);
+                $value = ($this->quoteFn)($value);
         }
 
         return $value;
@@ -73,12 +75,11 @@ class QuoteHandler
      *
      * @param string $text
      * @param mixed $value
-     * @param string $type
      * @return string
      */
-    public function into($text, $value, $type = null)
+    public function into($text, $value)
     {
-        return str_replace('?', $this->value($value, $type), $text);
+        return str_replace('?', $this->value($value), $text);
     }
 
     /**

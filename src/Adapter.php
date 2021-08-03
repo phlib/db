@@ -51,8 +51,8 @@ class Adapter implements AdapterInterface
     public function quote()
     {
         if (!isset($this->quoter)) {
-            $this->quoter = new Adapter\QuoteHandler(function ($value, $type) {
-                return $this->getConnection()->quote($value, $type);
+            $this->quoter = new Adapter\QuoteHandler(function ($value): string {
+                return $this->getConnection()->quote($value);
             });
         }
 

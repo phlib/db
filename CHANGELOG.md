@@ -10,9 +10,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   `insert()` and `update()`. Implementations must remove any manual identifier 
   quotes that they were previously forced to include manually.
 - `RuntimeException::createFromException()` no longer wraps an instance of itself.
+### Changed
+- **BC break**: `QuoteHandler` construct requires a `Closure` rather than simply
+  allowing any callable. The signature is definied to accept a mixed parameter
+  and return a string.
 ### Removed
 - **BC break**: Removed support for PHP versions <= v7.3 as they are no longer
   [actively supported](https://php.net/supported-versions.php) by the PHP project.
+- **BC break**: Removed *type* parameter from `QuoteHandler::value()` (and
+  therefore also `QuoteHandler::into()`). This method is designed to
+  automatically handle the type, and remove the need to instruct it.
 - Previous deprecated *bind* parameter for `select()`, `update()` and
   `delete()`, and passing a string to the *where* parameter.
 
