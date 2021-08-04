@@ -43,17 +43,13 @@ class QuoteHandler
                 if (!method_exists($value, '__toString')) {
                     throw new InvalidArgumentException('Object can not be converted to string value.');
                 }
-                $value = (string)$value;
-                break;
+                return (string)$value;
             case is_bool($value):
-                $value = (int)$value;
-                break;
+                return (int)$value;
             case (is_numeric($value) && (string)($value + 0) === (string)$value):
-                $value = $value + 0;
-                break;
+                return $value + 0;
             case $value === null:
-                $value = 'NULL';
-                break;
+                return 'NULL';
             case is_array($value):
                 $value = array_map(function ($value) {
                     if (is_array($value)) {
@@ -61,13 +57,10 @@ class QuoteHandler
                     }
                     return $this->value($value);
                 }, $value);
-                $value = implode(', ', $value);
-                break;
+                return implode(', ', $value);
             default:
-                $value = ($this->quoteFn)($value);
+                return ($this->quoteFn)($value);
         }
-
-        return $value;
     }
 
     /**
