@@ -6,6 +6,7 @@ use Phlib\Db\Adapter;
 use Phlib\Db\Exception\InvalidQueryException;
 use Phlib\Db\Exception\RuntimeException;
 use Phlib\Db\Exception\UnknownDatabaseException;
+use Phlib\Db\Tests\Exception\PDOExceptionStub;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -106,9 +107,9 @@ class AdapterTest extends TestCase
         $this->expectException(UnknownDatabaseException::class);
 
         $database = 'foobar';
-        $exception = new \PDOException(
+        $exception = new PDOExceptionStub(
             "SQLSTATE[42000]: Syntax error or access violation: 1049 Unknown database '{$database}'.",
-            42000
+            '42000'
         );
         $statement = $this->createMock(\PDOStatement::class);
         $statement->method('execute')
@@ -401,7 +402,7 @@ class AdapterTest extends TestCase
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
         $adapter->setConnectionFactory(function () {
-            $exception = new \PDOException('failed for some random reason', 1234);
+            $exception = new PDOExceptionStub('failed for some random reason', 1234);
             $statement = $this->createMock(\PDOStatement::class);
             $statement->method('execute')
                 ->willThrowException($exception);

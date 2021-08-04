@@ -17,7 +17,7 @@ class RuntimeExceptionTest extends TestCase
     {
         $code = 2006;
         $message = 'SQLSTATE[HY000]: General error: 2006 MySQL server has gone away';
-        $pdoException = new \PDOException($message, $code);
+        $pdoException = new PDOExceptionStub($message, $code);
         static::assertTrue(RuntimeException::hasServerGoneAway($pdoException));
     }
 
@@ -25,7 +25,7 @@ class RuntimeExceptionTest extends TestCase
     {
         $code = 2002;
         $message = 'SQLSTATE[HY000] [2002] Connection reset by peer';
-        $pdoException = new \PDOException($message, $code);
+        $pdoException = new PDOExceptionStub($message, $code);
         static::assertFalse(RuntimeException::hasServerGoneAway($pdoException));
     }
 

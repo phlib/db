@@ -6,6 +6,7 @@ use Phlib\Db\Adapter\Config;
 use Phlib\Db\Adapter\ConnectionFactory;
 use Phlib\Db\Exception\RuntimeException;
 use Phlib\Db\Exception\UnknownDatabaseException;
+use Phlib\Db\Tests\Exception\PDOExceptionStub;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -85,7 +86,7 @@ class ConnectionFactoryTest extends TestCase
         $this->expectException(UnknownDatabaseException::class);
 
         $this->factory->method('create')
-            ->willThrowException(new \PDOException(
+            ->willThrowException(new PDOExceptionStub(
                 "SQLSTATE[HY000] [1049] Unknown database '<dbname>'",
                 1049
             ));
@@ -103,7 +104,7 @@ class ConnectionFactoryTest extends TestCase
         $this->expectException(RuntimeException::class);
 
         $this->factory->method('create')
-            ->willThrowException(new \PDOException(
+            ->willThrowException(new PDOExceptionStub(
                 "SQLSTATE[HY000] [1049] Unknown database '<dbname>'",
                 1049
             ));

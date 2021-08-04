@@ -83,6 +83,16 @@ class IntegrationTest extends TestCase
         $adapter->getConnection();
     }
 
+    public function testRuntimeExceptionStringCode()
+    {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Base table or view not found');
+        $this->expectExceptionCode('42S02');
+
+        $this->adapter->setDatabase(getenv('INTEGRATION_DATABASE'));
+        $this->adapter->query('SELECT foo FROM bar');
+    }
+
     public function testInvalidQueryException()
     {
         $this->expectException(InvalidQueryException::class);

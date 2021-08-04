@@ -34,7 +34,7 @@ class InvalidQueryException extends RuntimeException implements Exception
         $code = 0;
         if ($previous !== null) {
             $message = $previous->getMessage();
-            $code = $previous->getCode();
+            $code = (int)$previous->getCode();
         }
         $message .= ' SQL: ' . $query . ' Bind: ' . var_export($bind, true);
 
