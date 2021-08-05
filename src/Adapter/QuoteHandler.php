@@ -123,7 +123,7 @@ class QuoteHandler
                         $segments[] = $this->performQuoteIdentifier($segment, $auto);
                     }
                 }
-                if ($alias !== null && end($ident) == $alias) {
+                if ($alias !== null && end($ident) === $alias) {
                     $alias = null;
                 }
                 $quoted = implode('.', $segments);

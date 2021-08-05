@@ -19,14 +19,14 @@ class UnknownDatabaseExceptionTest extends TestCase
     {
         $name = 'foo';
         $exception = new UnknownDatabaseException($name, 'message');
-        static::assertEquals($name, $exception->getDatabaseName());
+        static::assertSame($name, $exception->getDatabaseName());
     }
 
     public function testGetDatabaseNameWhenCreated(): void
     {
         $name = 'foo';
         $exception = UnknownDatabaseException::createFromUnknownDatabase($name, new \PDOException());
-        static::assertEquals($name, $exception->getDatabaseName());
+        static::assertSame($name, $exception->getDatabaseName());
     }
 
     public function testCorrectlyEvaluatesPdoExceptionOnPdoConstruct(): void

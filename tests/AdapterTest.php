@@ -54,7 +54,7 @@ class AdapterTest extends TestCase
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
 
-        static::assertEquals($this->pdo, $adapter->getConnection());
+        static::assertSame($this->pdo, $adapter->getConnection());
     }
 
     /**
@@ -123,7 +123,7 @@ class AdapterTest extends TestCase
         ];
 
         $adapter = new Adapter();
-        static::assertEquals($defaults, $adapter->getConfig());
+        static::assertSame($defaults, $adapter->getConfig());
     }
 
     public function testGetConfigMixed(): void
@@ -145,7 +145,7 @@ class AdapterTest extends TestCase
         ];
         $adapter = new Adapter($config);
 
-        static::assertEquals($expected, $adapter->getConfig());
+        static::assertSame($expected, $adapter->getConfig());
     }
 
     /**
@@ -163,7 +163,7 @@ class AdapterTest extends TestCase
         ];
         $adapter = new Adapter($config);
 
-        static::assertEquals($config, $adapter->getConfig());
+        static::assertSame($config, $adapter->getConfig());
     }
 
     /**
@@ -202,7 +202,7 @@ class AdapterTest extends TestCase
     {
         $pdoStatement = $this->createMock(\PDOStatement::class);
         $pdoStatement->method('fetchColumn')
-            ->willReturn(1);
+            ->willReturn('1');
         $this->pdo->method('prepare')
             ->willReturn($pdoStatement);
 
@@ -266,7 +266,7 @@ class AdapterTest extends TestCase
 
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
-        static::assertEquals($pdoStatement, $adapter->prepare($sql));
+        static::assertSame($pdoStatement, $adapter->prepare($sql));
     }
 
     public function testExecute(): void
@@ -336,7 +336,7 @@ class AdapterTest extends TestCase
 
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
-        static::assertEquals($pdoStatement, $adapter->query($sql));
+        static::assertSame($pdoStatement, $adapter->query($sql));
     }
 
     public function testQueryWithBind(): void
@@ -354,7 +354,7 @@ class AdapterTest extends TestCase
 
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
-        static::assertEquals($pdoStatement, $adapter->query($sql, $bind));
+        static::assertSame($pdoStatement, $adapter->query($sql, $bind));
     }
 
     public function testQueryWithInvalidSql(): void

@@ -13,6 +13,6 @@ class SqlFragmentTest extends TestCase
     {
         $value = 'abc123';
         $sqlFragment = new SqlFragment($value);
-        self::assertEquals($value, (string)$sqlFragment);
+        self::assertSame($value, (string)$sqlFragment);
     }
 }

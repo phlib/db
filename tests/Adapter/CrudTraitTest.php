@@ -287,7 +287,7 @@ class CrudTraitTest extends TestCase
             ->with($expectedSql, $bind)
             ->willReturn($pdoStatement);
 
-        static::assertEquals(1, $this->crud->upsert($table, $data, $updateFields));
+        static::assertSame(1, $this->crud->upsert($table, $data, $updateFields));
     }
 
     public function upsertDataProvider(): array

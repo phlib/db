@@ -167,7 +167,7 @@ class Adapter implements AdapterInterface
     public function ping(): bool
     {
         try {
-            return ($this->query('SELECT 1')->fetchColumn() == 1);
+            return ($this->query('SELECT 1')->fetchColumn() === '1');
         } catch (\Exception $e) {
             return false;
         }

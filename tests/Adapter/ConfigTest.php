@@ -45,7 +45,7 @@ class ConfigTest extends TestCase
         $config = new Config([
             $element => $value,
         ]);
-        static::assertEquals($value, $config->{$method}());
+        static::assertSame($value, $config->{$method}());
     }
 
     public function getMethodsDataProvider(): array
@@ -67,7 +67,7 @@ class ConfigTest extends TestCase
     {
         $options = (new Config($data))->getOptions();
         static::assertArrayHasKey($element, $options);
-        static::assertEquals($expected, $options[$element]);
+        static::assertSame($expected, $options[$element]);
     }
 
     public function getOptionsDataProvider(): array
@@ -91,7 +91,7 @@ class ConfigTest extends TestCase
         $config = new Config([
             'retryCount' => $value,
         ]);
-        static::assertEquals($expected, $config->getMaximumAttempts());
+        static::assertSame($expected, $config->getMaximumAttempts());
     }
 
     public function getMaximumAttemptsDataProvider(): array

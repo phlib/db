@@ -27,7 +27,7 @@ class QuoteHandlerTest extends TestCase
      */
     public function testValue($value, $expected): void
     {
-        static::assertEquals($expected, $this->handler->value($value));
+        static::assertSame($expected, $this->handler->value($value));
     }
 
     public function valueDataProvider(): array
@@ -35,14 +35,14 @@ class QuoteHandlerTest extends TestCase
         $toStringVal = 'foo';
         $object = new SqlFragment($toStringVal);
         return [
-            [false, 0],
-            [true, 1],
-            [123, 123],
-            ['1', 1],
+            [false, '0'],
+            [true, '1'],
+            [123, '123'],
+            ['1', '1'],
             ['a1', '`a1`'],
             ['1a', '`1a`'],
-            [172.16, 172.16],
-            ['172.16', 172.16],
+            [172.16, '172.16'],
+            ['172.16', '172.16'],
             ['172.16.255.255', '`172.16.255.255`'],
             ['2017-03-18 00:00:00', '`2017-03-18 00:00:00`'],
             [null, 'NULL'],
@@ -60,7 +60,7 @@ class QuoteHandlerTest extends TestCase
      */
     public function testInto(string $expected, string $text, $value): void
     {
-        static::assertEquals($expected, $this->handler->into($text, $value));
+        static::assertSame($expected, $this->handler->into($text, $value));
     }
 
     public function intoDataProvider(): array
@@ -85,7 +85,7 @@ class QuoteHandlerTest extends TestCase
         $result = ($auto !== null) ?
             $this->handler->columnAs($ident, $alias, $auto) :
             $this->handler->columnAs($ident, $alias);
-        static::assertEquals($expected, $result);
+        static::assertSame($expected, $result);
     }
 
     public function columnAsData(): array
@@ -107,7 +107,7 @@ class QuoteHandlerTest extends TestCase
         $result = ($auto !== null) ?
             $this->handler->tableAs($ident, $alias, $auto) :
             $this->handler->tableAs($ident, $alias);
-        static::assertEquals($expected, $result);
+        static::assertSame($expected, $result);
     }
 
     public function tableAsData(): array
@@ -128,7 +128,7 @@ class QuoteHandlerTest extends TestCase
         $result = ($auto !== null) ?
             $this->handler->identifier($ident, $auto) :
             $this->handler->identifier($ident);
-        static::assertEquals($expected, $result);
+        static::assertSame($expected, $result);
     }
 
     public function identifierData(): array

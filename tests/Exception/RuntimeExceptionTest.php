@@ -45,6 +45,6 @@ class RuntimeExceptionTest extends TestCase
         $code = 'HY000';
         $pdoException = new PDOExceptionStub('Unknow or incorrect', $code);
         $newException = RuntimeException::createFromException($pdoException);
-        static::assertEquals($code, $newException->getCode());
+        static::assertSame($code, $newException->getCode());
     }
 }

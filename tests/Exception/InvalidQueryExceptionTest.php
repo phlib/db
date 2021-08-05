@@ -30,14 +30,14 @@ class InvalidQueryExceptionTest extends TestCase
     {
         $query = 'SELECT * FRM foo';
         $exception = new InvalidQueryException($query, []);
-        static::assertEquals($query, $exception->getQuery());
+        static::assertSame($query, $exception->getQuery());
     }
 
     public function testGetBindData(): void
     {
         $bind = ['foo', 'bar'];
         $exception = new InvalidQueryException('', $bind);
-        static::assertEquals($bind, $exception->getBindData());
+        static::assertSame($bind, $exception->getBindData());
     }
 
     public function testSuccessfullyDetectsInvalidSyntaxException(): void

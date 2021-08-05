@@ -33,10 +33,10 @@ class UnknownDatabaseException extends RuntimeException implements Exception
 
     public static function isUnknownDatabase(\PDOException $exception): bool
     {
-        return $exception->getCode() == self::ER_BAD_DB_ERROR_1 ||
+        return (int)$exception->getCode() === self::ER_BAD_DB_ERROR_1 ||
         (
-            $exception->getCode() == self::ER_BAD_DB_ERROR_2 &&
-            preg_match('/SQLSTATE\[42000\].*\s1049\s/', $exception->getMessage()) != false
+            (int)$exception->getCode() === self::ER_BAD_DB_ERROR_2 &&
+            preg_match('/SQLSTATE\[42000\].*\s1049\s/', $exception->getMessage()) === 1
         );
     }
 
