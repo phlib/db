@@ -20,6 +20,19 @@ jobs:
 
     name: PHP ${{ matrix.php }} tests
 
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_DATABASE: test_database
+          MYSQL_HOST: 127.0.0.1
+          MYSQL_USER: admin
+          MYSQL_PASSWORD: rootpass
+          MYSQL_ROOT_PASSWORD: rootpass
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -44,6 +57,13 @@ jobs:
 
       - name: PHPUnit
         run: vendor/bin/phpunit --coverage-clover=coverage.xml
+        env:
+          INTEGRATION_ENABLED: 1
+          INTEGRATION_HOST: 127.0.0.1
+          INTEGRATION_PORT: 3306
+          INTEGRATION_USERNAME: root
+          INTEGRATION_PASSWORD: rootpass
+          INTEGRATION_DATABASE: test_database
 
       - name: "Upload coverage to Codecov"
         uses: "codecov/codecov-action@v1"

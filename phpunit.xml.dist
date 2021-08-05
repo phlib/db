@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <phpunit bootstrap="vendor/autoload.php" colors="true">
+    <php>
+        <env name="INTEGRATION_ENABLED" value="0" />
+        <env name="INTEGRATION_HOST" value="127.0.0.1" />
+        <env name="INTEGRATION_PORT" value="3306" />
+        <env name="INTEGRATION_USERNAME" value="" />
+        <env name="INTEGRATION_PASSWORD" value="" />
+        <env name="INTEGRATION_DATABASE" value="mysql" />
+    </php>
     <testsuites>
         <testsuite name="DB Test Suite">
             <directory>tests</directory>
