@@ -10,6 +10,10 @@ class RuntimeException extends \PDOException implements Exception
      */
     public static function createFromException(\PDOException $exception)
     {
+        if ($exception instanceof static) {
+            return $exception;
+        }
+
         $newSelf = new static($exception->getMessage(), 0, $exception);
         $newSelf->code = $exception->getCode();
         return $newSelf;
