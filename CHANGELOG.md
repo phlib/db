@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - **BC break**: Automatically quote identifiers used in data parameters for
   `insert()` and `update()`. Implementations must remove any manual identifer 
   quotes that they were previously forced to include manually.
+- `RuntimeException::createFromException()` no longer wraps an instance of itself.
 ### Removed
 - Previous deprecated *bind* parameter for `select()`, `update()` and
   `delete()`, and passing a string to the *where* parameter.
