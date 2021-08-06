@@ -16,7 +16,7 @@ class ConfigTest extends TestCase
     public function testGetDsn(array $dsnConfig, string $expectedElement): void
     {
         $config = new Config($dsnConfig);
-        static::assertContains($dsnConfig[$expectedElement], $config->getDsn());
+        static::assertStringContainsString($dsnConfig[$expectedElement], $config->getDsn());
     }
 
     public function getDsnDataProvider(): array

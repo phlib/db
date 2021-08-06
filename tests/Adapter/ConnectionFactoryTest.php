@@ -62,7 +62,7 @@ class ConnectionFactoryTest extends TestCase
 
         $pdoStatement = $this->createMock(\PDOStatement::class);
         $pdoStatement->method('execute')
-            ->with(static::contains($value));
+            ->with(static::containsIdentical($value));
         $this->pdo->method('prepare')
             ->willReturn($pdoStatement);
 

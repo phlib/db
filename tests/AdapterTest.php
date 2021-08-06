@@ -175,7 +175,7 @@ class AdapterTest extends TestCase
         $statement = $this->createMock(\PDOStatement::class);
         $statement->expects(static::once())
             ->method('execute')
-            ->with(static::contains($value));
+            ->with(static::containsIdentical($value));
         $this->pdo->method('prepare')
             ->willReturn($statement);
 
