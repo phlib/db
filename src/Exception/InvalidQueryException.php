@@ -1,61 +1,42 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\Db\Exception;
 
 class InvalidQueryException extends RuntimeException implements Exception
 {
-    /**
-     * @var string
-     */
-    private $query;
+    private string $query;
 
-    /**
-     * @var array
-     */
-    private $bind;
+    private array $bind;
 
-    /**
-     * @param \PDOException $exception
-     * @return bool
-     */
-    public static function isInvalidSyntax(\PDOException $exception)
+    public static function isInvalidSyntax(\PDOException $exception): bool
     {
         return stripos($exception->getMessage(), 'You have an error in your SQL syntax') !== false;
     }
 
-    /**
-     * @param string $query
-     * @param array $bind
-     * @param \PDOException|null $previous
-     */
-    public function __construct($query, array $bind = [], \PDOException $previous = null)
+    public function __construct(string $query, array $bind = [], \PDOException $previous = null)
     {
         $this->query = $query;
-        $this->bind  = $bind;
+        $this->bind = $bind;
 
         $message = 'You have an error in your SQL syntax.';
-        $code    = 0;
-        if (!is_null($previous)) {
+        $code = 0;
+        if ($previous !== null) {
             $message = $previous->getMessage();
-            $code    = $previous->getCode();
+            $code = (int)$previous->getCode();
         }
         $message .= ' SQL: ' . $query . ' Bind: ' . var_export($bind, true);
 
         parent::__construct($message, $code, $previous);
     }
 
-    /**
-     * @return string
-     */
-    public function getQuery()
+    public function getQuery(): string
     {
         return $this->query;
     }
 
-    /**
-     * @return array
-     */
-    public function getBindData()
+    public function getBindData(): array
     {
         return $this->bind;
     }

@@ -1,28 +1,24 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\Db\Adapter;
 
 use Phlib\Db\Exception\InvalidArgumentException;
 
 class QuoteHandler
 {
+    private bool $autoQuoteIdentifiers;
+
+    private \Closure $quoteFn;
 
     /**
-     * @var boolean
+     * @param \Closure $quoteFn {
+     *   @var mixed $value
+     *   @return string
+     * }
      */
-    private $autoQuoteIdentifiers = true;
-
-    /**
-     * @var callable
-     */
-    private $quoteFn;
-
-    /**
-     * QuoteHandler constructor.
-     * @param callable $quoteFn
-     * @param bool $autoQuoteIdentifiers
-     */
-    public function __construct(callable $quoteFn, $autoQuoteIdentifiers = true)
+    public function __construct(\Closure $quoteFn, bool $autoQuoteIdentifiers = true)
     {
         $this->quoteFn = $quoteFn;
         $this->autoQuoteIdentifiers = $autoQuoteIdentifiers;
@@ -31,29 +27,22 @@ class QuoteHandler
     /**
      * Quote a database value.
      *
-     * @param string $value
-     * @param integer $type
-     * @return string
-     * @throws InvalidArgumentException
+     * @param mixed $value
      */
-    public function value($value, $type = null)
+    public function value($value): string
     {
         switch (true) {
             case is_object($value):
                 if (!method_exists($value, '__toString')) {
                     throw new InvalidArgumentException('Object can not be converted to string value.');
                 }
-                $value = (string)$value;
-                break;
+                return (string)$value;
             case is_bool($value):
-                $value = (int)$value;
-                break;
+                return (string)(int)$value;
             case (is_numeric($value) && (string)($value + 0) === (string)$value):
-                $value = $value + 0;
-                break;
-            case is_null($value):
-                $value = 'NULL';
-                break;
+                return (string)($value + 0);
+            case $value === null:
+                return 'NULL';
             case is_array($value):
                 $value = array_map(function ($value) {
                     if (is_array($value)) {
@@ -61,37 +50,28 @@ class QuoteHandler
                     }
                     return $this->value($value);
                 }, $value);
-                $value = implode(', ', $value);
-                break;
+                return implode(', ', $value);
             default:
-                $value = call_user_func($this->quoteFn, $value, $type);
+                return ($this->quoteFn)($value);
         }
-
-        return $value;
     }
 
     /**
      * Quote into the value for the database.
      *
-     * @param string $text
      * @param mixed $value
-     * @param string $type
-     * @return string
      */
-    public function into($text, $value, $type = null)
+    public function into(string $text, $value): string
     {
-        return str_replace('?', $this->value($value, $type), $text);
+        return str_replace('?', $this->value($value), $text);
     }
 
     /**
      * Quote a column identifier and alias.
      *
-     * @param string|array $ident
-     * @param string $alias
-     * @param boolean $auto
-     * @return string
+     * @param string|string[] $ident
      */
-    public function columnAs($ident, $alias, $auto = false)
+    public function columnAs($ident, string $alias, bool $auto = false): string
     {
         return $this->quoteIdentifierAs($ident, $alias, $auto);
     }
@@ -99,12 +79,9 @@ class QuoteHandler
     /**
      * Quote a table identifier and alias.
      *
-     * @param string|array $ident
-     * @param string $alias
-     * @param boolean $auto
-     * @return string
+     * @param string|string[] $ident
      */
-    public function tableAs($ident, $alias = null, $auto = false)
+    public function tableAs($ident, string $alias, bool $auto = false): string
     {
         return $this->quoteIdentifierAs($ident, $alias, $auto);
     }
@@ -112,11 +89,9 @@ class QuoteHandler
     /**
      * Quotes an identifier
      *
-     * @param string|array $ident
-     * @param boolean $auto
-     * @return string
+     * @param string|string[] $ident
      */
-    public function identifier($ident, $auto = false)
+    public function identifier($ident, bool $auto = false): string
     {
         return $this->quoteIdentifierAs($ident, null, $auto);
     }
@@ -125,13 +100,8 @@ class QuoteHandler
      * Quote an identifier and an optional alias.
      *
      * @param string|array|object $ident
-     * @param string $alias
-     * @param boolean $auto
-     * @param string $as
-     * @return string
-     * @throws InvalidArgumentException
      */
-    private function quoteIdentifierAs($ident, $alias = null, $auto = false, $as = ' AS ')
+    private function quoteIdentifierAs($ident, string $alias = null, bool $auto = false, string $as = ' AS '): string
     {
         if (is_object($ident) && method_exists($ident, 'assemble')) {
             $quoted = '(' . $ident->assemble() . ')';
@@ -153,7 +123,7 @@ class QuoteHandler
                         $segments[] = $this->performQuoteIdentifier($segment, $auto);
                     }
                 }
-                if ($alias !== null && end($ident) == $alias) {
+                if ($alias !== null && end($ident) === $alias) {
                     $alias = null;
                 }
                 $quoted = implode('.', $segments);
@@ -169,18 +139,11 @@ class QuoteHandler
         return $quoted;
     }
 
-    /**
-     * Quote an identifier.
-     *
-     * @param string $value
-     * @param boolean $auto
-     * @return string
-     */
-    private function performQuoteIdentifier($value, $auto = false)
+    private function performQuoteIdentifier(string $value, bool $auto = false): string
     {
         if ($auto === false || $this->autoQuoteIdentifiers === true) {
             $q = '`';
-            return ($q . str_replace("$q", "$q$q", $value) . $q);
+            return ($q . str_replace("{$q}", "{$q}{$q}", $value) . $q);
         }
 
         return $value;

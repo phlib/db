@@ -1,23 +1,25 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\Db\Tests\Adapter;
 
 use Phlib\Db\Adapter\Config;
+use Phlib\Db\Exception\InvalidArgumentException;
+use PHPUnit\Framework\TestCase;
 
-class ConfigTest extends \PHPUnit_Framework_TestCase
+class ConfigTest extends TestCase
 {
     /**
-     * @param array $dsnConfig
-     * @param string $expectedElement
      * @dataProvider getDsnDataProvider
      */
-    public function testGetDsn(array $dsnConfig, $expectedElement)
+    public function testGetDsn(array $dsnConfig, string $expectedElement): void
     {
         $config = new Config($dsnConfig);
-        $this->assertContains($dsnConfig[$expectedElement], $config->getDsn());
+        static::assertStringContainsString($dsnConfig[$expectedElement], $config->getDsn());
     }
 
-    public function getDsnDataProvider()
+    public function getDsnDataProvider(): array
     {
         return [
             [['host' => '127.0.0.1'], 'host'],
@@ -26,28 +28,27 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         ];
     }
 
-    /**
-     * @expectedException \Phlib\Db\Exception\InvalidArgumentException
-     */
-    public function testGetDsnWithoutHost()
+    public function testGetDsnWithoutHost(): void
     {
+        $this->expectException(InvalidArgumentException::class);
+
         $config = new Config([]);
         $config->getDsn();
     }
 
     /**
-     * @param string $method
-     * @param string $element
      * @param mixed $value
      * @dataProvider getMethodsDataProvider
      */
-    public function testGetMethods($method, $element, $value)
+    public function testGetMethods(string $method, string $element, $value): void
     {
-        $config = new Config([$element => $value]);
-        $this->assertEquals($value, $config->$method());
+        $config = new Config([
+            $element => $value,
+        ]);
+        static::assertSame($value, $config->{$method}());
     }
 
-    public function getMethodsDataProvider()
+    public function getMethodsDataProvider(): array
     {
         return [
             ['getUsername', 'username', 'foo'],
@@ -59,19 +60,17 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @param array $data
-     * @param int $element
-     * @param string $expected
+     * @param mixed $expected
      * @dataProvider getOptionsDataProvider
      */
-    public function testGetOptions(array $data, $element, $expected)
+    public function testGetOptions(array $data, int $element, $expected): void
     {
         $options = (new Config($data))->getOptions();
-        $this->assertArrayHasKey($element, $options);
-        $this->assertEquals($expected, $options[$element]);
+        static::assertArrayHasKey($element, $options);
+        static::assertSame($expected, $options[$element]);
     }
 
-    public function getOptionsDataProvider()
+    public function getOptionsDataProvider(): array
     {
         return [
             [['timeout' => 10], \PDO::ATTR_TIMEOUT, 10],
@@ -80,21 +79,22 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
             [['timeout' => ''], \PDO::ATTR_TIMEOUT, 2], // default
             [['timeout' => 121], \PDO::ATTR_TIMEOUT, 2], // max
             [[], \PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION],
-            [[], \PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC]
+            [[], \PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC],
         ];
     }
 
     /**
-     * @param int $expected
-     * @param int $value
      * @dataProvider getMaximumAttemptsDataProvider
      */
-    public function testGetMaximumAttempts($value, $expected)
+    public function testGetMaximumAttempts(int $value, int $expected): void
     {
-        $this->assertEquals($expected, (new Config(['retryCount' => $value]))->getMaximumAttempts());
+        $config = new Config([
+            'retryCount' => $value,
+        ]);
+        static::assertSame($expected, $config->getMaximumAttempts());
     }
 
-    public function getMaximumAttemptsDataProvider()
+    public function getMaximumAttemptsDataProvider(): array
     {
         return [
             [-1, 1],

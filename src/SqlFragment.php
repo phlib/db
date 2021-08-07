@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\Db;
 
 /**
@@ -8,23 +10,14 @@ namespace Phlib\Db;
  */
 class SqlFragment
 {
-    /**
-     * @var string
-     */
-    private $value;
+    private string $value;
 
-    /**
-     * @param string $value SQL expression
-     */
-    public function __construct($value)
+    public function __construct(string $value)
     {
-        $this->value = (string)$value;
+        $this->value = $value;
     }
 
-    /**
-     * @return string
-     */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->value;
     }

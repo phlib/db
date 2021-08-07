@@ -1,21 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\Db\Tests\Adapter;
 
 use Phlib\Db\Adapter\QuoteHandler;
 use Phlib\Db\SqlFragment;
+use PHPUnit\Framework\TestCase;
 
-class QuoteHandlerTest extends \PHPUnit_Framework_TestCase
+class QuoteHandlerTest extends TestCase
 {
-    /**
-     * @var QuoteHandler|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $handler;
+    private QuoteHandler $handler;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->handler = new QuoteHandler(function ($value) {
-            return "`$value`";
+            return "`{$value}`";
         });
         parent::setUp();
     }
@@ -25,24 +25,24 @@ class QuoteHandlerTest extends \PHPUnit_Framework_TestCase
      * @param mixed $expected
      * @dataProvider valueDataProvider
      */
-    public function testValue($value, $expected)
+    public function testValue($value, $expected): void
     {
-        $this->assertEquals($expected, $this->handler->value($value));
+        static::assertSame($expected, $this->handler->value($value));
     }
 
-    public function valueDataProvider()
+    public function valueDataProvider(): array
     {
         $toStringVal = 'foo';
         $object = new SqlFragment($toStringVal);
         return [
-            [false, 0],
-            [true, 1],
-            [123, 123],
-            ['1', 1],
+            [false, '0'],
+            [true, '1'],
+            [123, '123'],
+            ['1', '1'],
             ['a1', '`a1`'],
             ['1a', '`1a`'],
-            [172.16, 172.16],
-            ['172.16', 172.16],
+            [172.16, '172.16'],
+            ['172.16', '172.16'],
             ['172.16.255.255', '`172.16.255.255`'],
             ['2017-03-18 00:00:00', '`2017-03-18 00:00:00`'],
             [null, 'NULL'],
@@ -55,102 +55,90 @@ class QuoteHandlerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @param string $expected
-     * @param string $text
      * @param mixed $value
      * @dataProvider intoDataProvider
      */
-    public function testInto($expected, $text, $value)
+    public function testInto(string $expected, string $text, $value): void
     {
-        $this->assertEquals($expected, $this->handler->into($text, $value));
+        static::assertSame($expected, $this->handler->into($text, $value));
     }
 
-    public function intoDataProvider()
+    public function intoDataProvider(): array
     {
         return [
-            ["field = `value`", 'field = ?', 'value'],
+            ['field = `value`', 'field = ?', 'value'],
             ['field = 123', 'field = ?', 123],
             ['field IS NULL', 'field IS ?', null],
             ['field IN (1, 2, 3)', 'field IN (?)', [1, 2, 3]],
-            ["field IN (`one`, `two`)", 'field IN (?)', ['one', 'two']],
-            ["field IN (`one`, `Array`)", 'field IN (?)', ['one', ['two']]],
-            ['field = NOW()', 'field = ?', new SqlFragment('NOW()')]
+            ['field IN (`one`, `two`)', 'field IN (?)', ['one', 'two']],
+            ['field IN (`one`, `Array`)', 'field IN (?)', ['one', ['two']]],
+            ['field = NOW()', 'field = ?', new SqlFragment('NOW()')],
         ];
     }
 
     /**
-     * @param string $expected
-     * @param mixed $ident
-     * @param string $alias
-     * @param bool $auto
+     * @param string|string[] $ident
      * @dataProvider columnAsData
      */
-    public function testColumnAs($expected, $ident, $alias, $auto)
+    public function testColumnAs(string $expected, $ident, string $alias, ?bool $auto): void
     {
-        $result = (!is_null($auto)) ?
+        $result = ($auto !== null) ?
             $this->handler->columnAs($ident, $alias, $auto) :
             $this->handler->columnAs($ident, $alias);
-        $this->assertEquals($expected, $result);
+        static::assertSame($expected, $result);
     }
 
-    public function columnAsData()
+    public function columnAsData(): array
     {
         return [
-            ["`col1`", 'col1', null, null],
-            ["`col1` AS `alias`", 'col1', 'alias', null],
-            ["`col1` AS `alias`", 'col1', 'alias', true],
-            ["`table1`.`col1`", ['table1', 'col1'], null, true],
-            ["`table1`.`col1`.`alias`", ['table1', 'col1', 'alias'], 'alias', true]
+            ['`col1` AS `alias`', 'col1', 'alias', null],
+            ['`col1` AS `alias`', 'col1', 'alias', true],
+            ['`table1`.`col1` AS `alias`', ['table1', 'col1'], 'alias', true],
+            ['`table1`.`col1`.`alias`', ['table1', 'col1', 'alias'], 'alias', true],
         ];
     }
 
     /**
-     * @param string $expected
-     * @param string $ident
-     * @param string $alias
-     * @param bool $auto
+     * @param string|string[] $ident
      * @dataProvider tableAsData
      */
-    public function testTableAs($expected, $ident, $alias, $auto)
+    public function testTableAs(string $expected, $ident, string $alias, ?bool $auto): void
     {
-        $result = (!is_null($alias)) ? (!is_null($auto)) ?
+        $result = ($auto !== null) ?
             $this->handler->tableAs($ident, $alias, $auto) :
-            $this->handler->tableAs($ident, $alias) :
-            $this->handler->tableAs($ident);
-        $this->assertEquals($expected, $result);
+            $this->handler->tableAs($ident, $alias);
+        static::assertSame($expected, $result);
     }
 
-    public function tableAsData()
+    public function tableAsData(): array
     {
         return [
-            ["`table1`", 'table1', null, null],
-            ["`table1` AS `alias`", 'table1', 'alias', null],
-            ["`table1` AS `alias`", 'table1', 'alias', true],
+            ['`table1` AS `alias`', 'table1', 'alias', null],
+            ['`table1` AS `alias`', 'table1', 'alias', true],
+            ['`schema1`.`table1` AS `alias`', ['schema1', 'table1'], 'alias', true],
         ];
     }
 
     /**
-     * @param string $expected
-     * @param string $ident
-     * @param bool $auto
+     * @param string|string[] $ident
      * @dataProvider identifierData
      */
-    public function testIdentifier($expected, $ident, $auto)
+    public function testIdentifier(string $expected, $ident, ?bool $auto): void
     {
-        $result = (!is_null($auto)) ?
+        $result = ($auto !== null) ?
             $this->handler->identifier($ident, $auto) :
             $this->handler->identifier($ident);
-        $this->assertEquals($expected, $result);
+        static::assertSame($expected, $result);
     }
 
-    public function identifierData()
+    public function identifierData(): array
     {
         return [
-            ["`col1`", 'col1', null],
-            ["`col1`", 'col1', true],
-            ["NOW()", new SqlFragment('NOW()'), true],
-            ["`col1`.NOW()", ['col1', new SqlFragment('NOW()')], true],
-            ["`table1`.`*`", 'table1.*', true]
+            ['`col1`', 'col1', null],
+            ['`col1`', 'col1', true],
+            ['NOW()', new SqlFragment('NOW()'), true],
+            ['`col1`.NOW()', ['col1', new SqlFragment('NOW()')], true],
+            ['`table1`.`*`', 'table1.*', true],
         ];
     }
 }

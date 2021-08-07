@@ -1,20 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\Db\Adapter;
 
 trait CrudTrait
 {
-    /**
-     * Select data from table.
-     *
-     * @param string $table
-     * @param array $where
-     * @return \PDOStatement
-     */
-    public function select($table, array $where = [])
+    public function select(string $table, array $where = []): \PDOStatement
     {
         $table = $this->quote()->identifier($table);
-        $sql   = "SELECT * FROM $table";
+        $sql = "SELECT * FROM {$table}";
 
         $where = $this->createWhereExpression($where);
         if (!empty($where)) {
@@ -24,19 +19,12 @@ trait CrudTrait
         return $this->query($sql);
     }
 
-    /**
-     * Insert data to table.
-     *
-     * @param string $table
-     * @param array $data
-     * @return int Number of affected rows
-     */
-    public function insert($table, array $data)
+    public function insert(string $table, array $data): int
     {
-        $table  = $this->quote()->identifier($table);
+        $table = $this->quote()->identifier($table);
         $fields = implode(', ', array_map([$this->quote(), 'identifier'], array_keys($data)));
         $values = implode(', ', array_map([$this->quote(), 'value'], $data));
-        $sql = "INSERT INTO $table ($fields) VALUES ($values)";
+        $sql = "INSERT INTO {$table} ({$fields}) VALUES ({$values})";
 
         $stmt = $this->query($sql);
 
@@ -44,22 +32,17 @@ trait CrudTrait
     }
 
     /**
-     * Update data in table.
-     *
-     * @param string $table
-     * @param array $data
-     * @param array $where
      * @return int Number of affected rows
      */
-    public function update($table, array $data, array $where = [])
+    public function update(string $table, array $data, array $where = []): int
     {
-        $table  = $this->quote()->identifier($table);
+        $table = $this->quote()->identifier($table);
         $fields = [];
         foreach ($data as $field => $value) {
             $identifier = $this->quote()->identifier($field);
             $fields[] = $this->quote()->into("{$identifier} = ?", $value);
         }
-        $sql = "UPDATE $table SET " . implode(', ', $fields);
+        $sql = "UPDATE {$table} SET " . implode(', ', $fields);
 
         $where = $this->createWhereExpression($where);
         if (!empty($where)) {
@@ -72,16 +55,12 @@ trait CrudTrait
     }
 
     /**
-     * Delete from table.
-     *
-     * @param string $table
-     * @param array $where
      * @return int Number of affected rows
      */
-    public function delete($table, array $where = [])
+    public function delete(string $table, array $where = []): int
     {
         $table = $this->quote()->identifier($table);
-        $sql   = "DELETE FROM $table";
+        $sql = "DELETE FROM {$table}";
 
         $where = $this->createWhereExpression($where);
         if (!empty($where)) {
@@ -94,38 +73,27 @@ trait CrudTrait
     }
 
     /**
-     * Insert (on duplicate key update) data in table.
-     *
-     * @param string $table
-     * @param array $data
-     * @param array $updateFields
      * @return int Number of affected rows
      */
-    public function upsert($table, array $data, array $updateFields)
+    public function upsert(string $table, array $data, array $updateFields): int
     {
-        $table  = $this->quote()->identifier($table);
+        $table = $this->quote()->identifier($table);
         $fields = implode(', ', array_map([$this->quote(), 'identifier'], array_keys($data)));
         $placeHolders = implode(', ', array_fill(0, count($data), '?'));
         $updateValues = [];
         foreach ($updateFields as $field) {
             $field = $this->quote()->identifier($field);
-            $updateValues[] = "$field = VALUES($field)";
+            $updateValues[] = "{$field} = VALUES({$field})";
         }
         $updates = implode(', ', $updateValues);
-        $sql = "INSERT INTO $table ($fields) VALUES ($placeHolders) ON DUPLICATE KEY UPDATE $updates";
+        $sql = "INSERT INTO {$table} ({$fields}) VALUES ({$placeHolders}) ON DUPLICATE KEY UPDATE {$updates}";
 
         $stmt = $this->query($sql, array_values($data));
 
         return $stmt->rowCount();
     }
 
-    /**
-     * Create WHERE expression from given criteria
-     *
-     * @param array $where
-     * @return string
-     */
-    private function createWhereExpression(array $where = [])
+    private function createWhereExpression(array $where = []): string
     {
         $criteria = [];
         foreach ($where as $index => $value) {
@@ -138,16 +106,7 @@ trait CrudTrait
         return implode(' AND ', $criteria);
     }
 
-    /**
-     * @return QuoteHandler
-     */
-    abstract public function quote();
+    abstract public function quote(): QuoteHandler;
 
-    /**
-     * @param string $sql
-     * @param array $bind
-     * @throws \PDOException
-     * @return \PDOStatement
-     */
-    abstract public function query($sql, array $bind = []);
+    abstract public function query(string $sql, array $bind = []): \PDOStatement;
 }

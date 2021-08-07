@@ -1,14 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\Db\Exception;
 
 class RuntimeException extends \PDOException implements Exception
 {
-    /**
-     * @param \PDOException $exception
-     * @return static
-     */
-    public static function createFromException(\PDOException $exception)
+    public static function createFromException(\PDOException $exception): self
     {
         if ($exception instanceof static) {
             return $exception;
@@ -19,11 +17,7 @@ class RuntimeException extends \PDOException implements Exception
         return $newSelf;
     }
 
-    /**
-     * @param \PDOException $exception
-     * @return bool
-     */
-    public static function hasServerGoneAway(\PDOException $exception)
+    public static function hasServerGoneAway(\PDOException $exception): bool
     {
         return stripos($exception->getMessage(), 'MySQL server has gone away') !== false;
     }

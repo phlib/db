@@ -1,33 +1,24 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\Db\Adapter;
 
 use Phlib\Db\Exception\InvalidArgumentException;
 
 class Config
 {
-    /**
-     * @var array
-     */
-    private $config;
+    private array $config;
 
-    /**
-     * Config constructor.
-     * @param array $config
-     */
     public function __construct(array $config)
     {
         $this->config = $config + [
-            'charset'  => 'utf8mb4',
-            'timezone' => '+0:00'
+            'charset' => 'utf8mb4',
+            'timezone' => '+0:00',
         ];
     }
 
-    /**
-     * @return string
-     * @throws InvalidArgumentException
-     */
-    public function getDsn()
+    public function getDsn(): string
     {
         if (!isset($this->config['host'])) {
             throw new InvalidArgumentException('Missing host config param');
@@ -43,106 +34,82 @@ class Config
         return $dsn;
     }
 
-    /**
-     * @return string
-     */
-    public function getUsername()
+    public function getUsername(): string
     {
-        return isset($this->config['username']) ? $this->config['username'] : '';
+        return $this->config['username'] ?? '';
     }
 
-    /**
-     * @return string
-     */
-    public function getPassword()
+    public function getPassword(): string
     {
-        return isset($this->config['password']) ? $this->config['password'] : '';
+        return $this->config['password'] ?? '';
     }
 
-    /**
-     * @return array
-     */
-    public function getOptions()
+    public function getOptions(): array
     {
-        $timeoutValue   = isset($this->config['timeout']) ? $this->config['timeout'] : '';
-        $timeoutOptions = ['options' => ['min_range' => 0, 'max_range' => 120, 'default' => 2]];
-        $timeout        = filter_var($timeoutValue, FILTER_VALIDATE_INT, $timeoutOptions);
+        $timeoutValue = $this->config['timeout'] ?? '';
+        $timeoutOptions = [
+            'options' => [
+                'min_range' => 0,
+                'max_range' => 120,
+                'default' => 2,
+            ],
+        ];
+        $timeout = filter_var($timeoutValue, FILTER_VALIDATE_INT, $timeoutOptions);
         return [
-            \PDO::ATTR_TIMEOUT            => $timeout,
-            \PDO::ATTR_ERRMODE            => \PDO::ERRMODE_EXCEPTION,
-            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC
+            \PDO::ATTR_TIMEOUT => $timeout,
+            \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
         ];
     }
 
-    /**
-     * @return string
-     */
-    public function getDatabase()
+    public function getDatabase(): string
     {
-        return isset($this->config['dbname'])  ? $this->config['dbname']  : '';
+        return $this->config['dbname'] ?? '';
     }
 
-    /**
-     * @param string $name
-     * @return $this
-     */
-    public function setDatabase($name)
+    public function setDatabase(string $name): self
     {
         $this->config['dbname'] = $name;
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getCharset()
+    public function getCharset(): string
     {
-        return isset($this->config['charset'])  ? $this->config['charset']  : 'utf8mb4';
+        return $this->config['charset'] ?? 'utf8mb4';
     }
 
-    /**
-     * @param string $value
-     * @return $this
-     */
-    public function setCharset($value)
+    public function setCharset(string $value): self
     {
         $this->config['charset'] = $value;
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getTimezone()
+    public function getTimezone(): string
     {
-        return isset($this->config['timezone']) ? $this->config['timezone'] : '+0:00';
+        return $this->config['timezone'] ?? '+0:00';
     }
 
-    /**
-     * @param string $timezone
-     * @return $this
-     */
-    public function setTimezone($timezone)
+    public function setTimezone(string $timezone): self
     {
         $this->config['timezone'] = $timezone;
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getMaximumAttempts()
+    public function getMaximumAttempts(): int
     {
-        $retryValue   = isset($this->config['retryCount']) ? $this->config['retryCount'] : 0;
-        $retryOptions = ['options' => ['min_range' => 0, 'max_range' => 10, 'default' => 0]];
-        $retryCount   = filter_var($retryValue, FILTER_VALIDATE_INT, $retryOptions);
+        $retryValue = $this->config['retryCount'] ?? 0;
+        $retryOptions = [
+            'options' => [
+                'min_range' => 0,
+                'max_range' => 10,
+                'default' => 0,
+            ],
+        ];
+        $retryCount = filter_var($retryValue, FILTER_VALIDATE_INT, $retryOptions);
         return $retryCount + 1;
     }
 
-    /**
-     * @return array
-     */
-    public function toArray()
+    public function toArray(): array
     {
         return $this->config;
     }

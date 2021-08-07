@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\Db\Exception;
 
 class UnknownDatabaseException extends RuntimeException implements Exception
@@ -10,59 +12,41 @@ class UnknownDatabaseException extends RuntimeException implements Exception
      * ::construct - dbname=<dbname>
      * Code: 1049
      * Err:  SQLSTATE[HY000] [1049] Unknown database '<dbname>'
+     */
+    public const ER_BAD_DB_ERROR_1 = 1049;
+
+    /**
+     * http://dev.mysql.com/doc/refman/5.5/en/error-messages-server.html
      *
      * ::query USE <dbname>
      * Code: 42000
      * Err:  SQLSTATE[42000]: Syntax error or access violation: 1049 Unknown database '<dbname>'
      */
-    const ER_BAD_DB_ERROR_1 = 1049;
-    const ER_BAD_DB_ERROR_2 = 42000;
+    public const ER_BAD_DB_ERROR_2 = 42000;
 
-    /**
-     * @var string
-     */
-    private $name;
+    private string $name;
 
-    /**
-     * @param string $database
-     * @param \PDOException $exception
-     * @return static
-     */
-    public static function createFromUnknownDatabase($database, \PDOException $exception)
+    public static function createFromUnknownDatabase(string $database, \PDOException $exception): self
     {
         return new static($database, "Unknown database '{$database}'.", self::ER_BAD_DB_ERROR_1, $exception);
     }
 
-    /**
-     * @param \PDOException $exception
-     * @return bool
-     */
-    public static function isUnknownDatabase(\PDOException $exception)
+    public static function isUnknownDatabase(\PDOException $exception): bool
     {
-        return $exception->getCode() == self::ER_BAD_DB_ERROR_1 ||
+        return (int)$exception->getCode() === self::ER_BAD_DB_ERROR_1 ||
         (
-            $exception->getCode() == self::ER_BAD_DB_ERROR_2 &&
-            preg_match('/SQLSTATE\[42000\].*\s1049\s/', $exception->getMessage()) != false
+            (int)$exception->getCode() === self::ER_BAD_DB_ERROR_2 &&
+            preg_match('/SQLSTATE\[42000\].*\s1049\s/', $exception->getMessage()) === 1
         );
     }
 
-    /**
-     * UnknownDatabaseException constructor.
-     * @param string $database
-     * @param string $message
-     * @param int $code
-     * @param \PDOException|null $previous
-     */
-    public function __construct($database, $message, $code = 0, \PDOException $previous = null)
+    public function __construct(string $database, string $message, int $code = 0, \PDOException $previous = null)
     {
         $this->name = $database;
         parent::__construct($message, $code, $previous);
     }
 
-    /**
-     * @return string
-     */
-    public function getDatabaseName()
+    public function getDatabaseName(): string
     {
         return $this->name;
     }

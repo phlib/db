@@ -1,169 +1,56 @@
 <?php
 
-namespace Phlib\Db;
+declare(strict_types=1);
 
-use Phlib\Db\Exception\UnknownDatabaseException;
+namespace Phlib\Db;
 
 interface AdapterInterface
 {
-    /**
-     * Sets the item which creates a new DB connection.
-     * @param callable $factory
-     * @return $this
-     */
-    public function setConnectionFactory(callable $factory);
+    public function setConnectionFactory(callable $factory): self;
 
-    /**
-     * Get the database connection.
-     *
-     * @return \PDO
-     */
-    public function getConnection();
+    public function getConnection(): \PDO;
 
-    /**
-     * Set the database connection.
-     *
-     * @param \PDO $connection
-     * @return $this
-     */
-    public function setConnection(\PDO $connection);
+    public function setConnection(\PDO $connection): self;
 
-    /**
-     * Reconnects the database connection.
-     *
-     * @return $this
-     */
-    public function reconnect();
+    public function reconnect(): self;
 
-    /**
-     * Close connection
-     *
-     * @return void
-     */
-    public function closeConnection();
+    public function closeConnection(): void;
 
-    /**
-     * Clone connection
-     *
-     * @return \PDO
-     */
-    public function cloneConnection();
+    public function cloneConnection(): \PDO;
 
-    /**
-     * Magic method to clone the object.
-     */
     public function __clone();
 
-    /**
-     * Get the config for the database connection. This could be empty if the
-     * object was created with an empty array.
-     *
-     * @return array
-     */
-    public function getConfig();
+    public function getConfig(): array;
 
-    /**
-     * Set database
-     *
-     * @param string $dbname
-     * @return $this
-     * @throws UnknownDatabaseException
-     */
-    public function setDatabase($dbname);
+    public function setDatabase(string $dbname): self;
 
-    /**
-     * Set the character set on the connection.
-     *
-     * @param string $charset
-     * @return $this
-     */
-    public function setCharset($charset);
+    public function setCharset(string $charset): self;
 
-    /**
-     * Set the timezone on the connection.
-     *
-     * @param string $timezone
-     * @return $this
-     */
-    public function setTimezone($timezone);
+    public function setTimezone(string $timezone): self;
 
-    /**
-     * Enable connection buffering on queries.
-     *
-     * @return $this
-     */
-    public function enableBuffering();
+    public function enableBuffering(): self;
 
-    /**
-     * Disable connection buffering on queries.
-     *
-     * @return $this
-     */
-    public function disableBuffering();
+    public function disableBuffering(): self;
 
-    /**
-     * Returns whether the connection is set to buffered or not. By default
-     * it's true, all results are buffered.
-     *
-     * @return boolean
-     */
-    public function isBuffered();
+    public function isBuffered(): bool;
 
-    /**
-     * Ping the database connection to make sure the connection is still alive.
-     *
-     * @return boolean
-     */
-    public function ping();
+    public function ping(): bool;
 
     /**
      * Get the last inserted id. If the tablename is provided the id returned is
      * the last insert id will be for that table.
-     *
-     * @param string $tablename
-     * @return integer
      */
-    public function lastInsertId($tablename = null);
+    public function lastInsertId(string $tablename = null): string;
 
-    /**
-     * Prepare an SQL statement for execution.
-     *
-     * @param string $statement
-     * @return \PDOStatement
-     */
-    public function prepare($statement);
+    public function prepare(string $statement): \PDOStatement;
 
-    /**
-     * Execute an SQL statement
-     *
-     * @param string $statement
-     * @param array $bind
-     * @return int
-     */
-    public function execute($statement, array $bind = []);
+    public function execute(string $statement, array $bind = []): int;
 
-    /**
-     * Query the database.
-     *
-     * @param string $sql
-     * @param array $bind
-     * @throws \PDOException
-     * @return \PDOStatement
-     */
-    public function query($sql, array $bind = []);
+    public function query(string $sql, array $bind = []): \PDOStatement;
 
-    /**
-     * @return bool
-     */
-    public function beginTransaction();
+    public function beginTransaction(): bool;
 
-    /**
-     * @return bool
-     */
-    public function commit();
+    public function commit(): bool;
 
-    /**
-     * @return bool
-     */
-    public function rollBack();
+    public function rollBack(): bool;
 }

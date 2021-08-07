@@ -1,79 +1,76 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\Db\Tests;
 
 use Phlib\Db\Adapter;
+use Phlib\Db\Exception\InvalidQueryException;
+use Phlib\Db\Exception\RuntimeException;
+use Phlib\Db\Exception\UnknownDatabaseException;
+use Phlib\Db\Tests\Exception\PDOExceptionStub;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-class AdapterTest extends \PHPUnit_Framework_TestCase
+class AdapterTest extends TestCase
 {
-    /**
-     * @var \PDO|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $pdo;
+    private MockObject $pdo;
 
-    /**
-     * Quote Character
-     * @var string
-     */
-    private $qc = '`';
-
-    public function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->pdo = $this->createMock(\PDO::class);
     }
 
-    public function tearDown()
-    {
-        $this->pdo = null;
-        parent::tearDown();
-    }
-
-    public function testQuoteHandlerIsSetupCorrectly()
+    public function testQuoteHandlerIsSetupCorrectly(): void
     {
         $string = 'foo';
-        $this->pdo->expects($this->once())
+        $expected = "'{$string}'";
+        $this->pdo->expects(static::once())
             ->method('quote')
-            ->with($string);
+            ->with($string)
+            ->willReturn($expected);
 
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
 
-        $adapter->quote()->value($string);
+        $actual = $adapter->quote()->value($string);
+
+        static::assertSame($expected, $actual);
     }
 
-    public function testGetQuoteHandler()
+    public function testGetQuoteHandler(): void
     {
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
-        $this->assertInstanceOf(Adapter\QuoteHandler::class, $adapter->quote());
+        static::assertInstanceOf(Adapter\QuoteHandler::class, $adapter->quote());
     }
 
     /**
      * @covers \Phlib\Db\Adapter::setConnection
      */
-    public function testSetConnection()
+    public function testSetConnection(): void
     {
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
 
-        $this->assertEquals($this->pdo, $adapter->getConnection());
+        static::assertSame($this->pdo, $adapter->getConnection());
     }
 
     /**
      * @covers \Phlib\Db\Adapter::setDatabase
      */
-    public function testSetDatabaseMakesDbCall()
+    public function testSetDatabaseMakesDbCall(): void
     {
         $dbname = 'MyDbName';
 
-        /** @var Adapter|\PHPUnit_Framework_MockObject_MockObject $adapter */
+        /** @var Adapter|MockObject $adapter */
         $adapter = $this->getMockBuilder(Adapter::class)
             ->setMethods(['query'])
             ->getMock();
-        $adapter->expects($this->once())
+        $adapter->expects(static::once())
             ->method('query')
-            ->with($this->equalTo("USE `$dbname`"));
+            ->with("USE `{$dbname}`");
 
         $adapter->setConnection($this->pdo);
         $adapter->setDatabase($dbname);
@@ -82,10 +79,10 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers \Phlib\Db\Adapter::setDatabase
      */
-    public function testSetDatabaseSetsConfig()
+    public function testSetDatabaseSetsConfig(): void
     {
         $dbname = 'MyDbName';
-        /** @var Adapter|\PHPUnit_Framework_MockObject_MockObject $adapter */
+        /** @var Adapter|MockObject $adapter */
         $adapter = $this->getMockBuilder(Adapter::class)
             ->setMethods(['query'])
             ->getMock();
@@ -94,349 +91,342 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
 
         $config = $adapter->getConfig();
 
-        $this->assertArrayHasKey('dbname', $config);
-        $this->assertSame($dbname, $config['dbname']);
+        static::assertArrayHasKey('dbname', $config);
+        static::assertSame($dbname, $config['dbname']);
     }
 
-    /**
-     * @expectedException \Phlib\Db\Exception\UnknownDatabaseException
-     */
-    public function testSetDatabaseWhenItsUnknown()
+    public function testSetDatabaseWhenItsUnknown(): void
     {
-        $database  = 'foobar';
-        $exception = new \PDOException(
-            "SQLSTATE[42000]: Syntax error or access violation: 1049 Unknown database '$database'.",
-            42000
+        $this->expectException(UnknownDatabaseException::class);
+
+        $database = 'foobar';
+        $exception = new PDOExceptionStub(
+            "SQLSTATE[42000]: Syntax error or access violation: 1049 Unknown database '{$database}'.",
+            '42000'
         );
         $statement = $this->createMock(\PDOStatement::class);
-        $statement->expects($this->any())
-            ->method('execute')
-            ->will($this->throwException($exception));
-        $this->pdo->expects($this->any())
-            ->method('prepare')
-            ->will($this->returnValue($statement));
+        $statement->method('execute')
+            ->willThrowException($exception);
+        $this->pdo->method('prepare')
+            ->willReturn($statement);
 
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
         $adapter->setDatabase($database);
     }
 
-    public function testGetConfigDefaults()
+    public function testGetConfigDefaults(): void
     {
         $defaults = [
-            'charset'  => 'utf8mb4',
-            'timezone' => '+0:00'
+            'charset' => 'utf8mb4',
+            'timezone' => '+0:00',
         ];
 
         $adapter = new Adapter();
-        $this->assertEquals($defaults, $adapter->getConfig());
+        static::assertSame($defaults, $adapter->getConfig());
     }
 
-    public function testGetConfigMixed()
+    public function testGetConfigMixed(): void
     {
         $expected = [
-            'host'     => 'localhost',
+            'host' => 'localhost',
             'username' => 'username',
             'password' => 'password',
-            'port'     => '3306',
-            'charset'  => 'utf8mb4',
-            'timezone' => '+0:00'
+            'port' => '3306',
+            'charset' => 'utf8mb4',
+            'timezone' => '+0:00',
         ];
 
         $config = [
-            'host'     => 'localhost',
+            'host' => 'localhost',
             'username' => 'username',
             'password' => 'password',
-            'port'     => '3306'
+            'port' => '3306',
         ];
         $adapter = new Adapter($config);
 
-        $this->assertEquals($expected, $adapter->getConfig());
+        static::assertSame($expected, $adapter->getConfig());
     }
 
     /**
      * @covers \Phlib\Db\Adapter::getConfig
      */
-    public function testGetConfigOverrides()
+    public function testGetConfigOverrides(): void
     {
         $config = [
-            'host'     => 'localhost',
+            'host' => 'localhost',
             'username' => 'username',
             'password' => 'password',
-            'port'     => '3306',
-            'charset'  => 'iso-8859-1',
-            'timezone' => '+1:00'
+            'port' => '3306',
+            'charset' => 'iso-8859-1',
+            'timezone' => '+1:00',
         ];
         $adapter = new Adapter($config);
 
-        $this->assertEquals($config, $adapter->getConfig());
+        static::assertSame($config, $adapter->getConfig());
     }
 
     /**
-     * @param string $option
      * @param mixed $value
      * @dataProvider settingAdapterOptionsDataProvider
      */
-    public function testSettingAdapterOptionsWithConnection($option, $value)
+    public function testSettingAdapterOptionsWithConnection(string $option, $value): void
     {
         $statement = $this->createMock(\PDOStatement::class);
-        $statement->expects($this->once())
+        $statement->expects(static::once())
             ->method('execute')
-            ->with($this->contains($value));
-        $this->pdo->expects($this->any())
-            ->method('prepare')
-            ->will($this->returnValue($statement));
+            ->with(static::containsIdentical($value));
+        $this->pdo->method('prepare')
+            ->willReturn($statement);
 
-        $method  = 'set' . ucfirst($option);
+        $method = 'set' . ucfirst($option);
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
-        $adapter->$method($value);
+        $adapter->{$method}($value);
     }
 
-    public function settingAdapterOptionsDataProvider()
+    public function settingAdapterOptionsDataProvider(): array
     {
         return [
             ['charset', 'iso-8859-1'],
             ['charset', 'utf8'],
             ['timezone', '+05:00'],
-            ['timezone', '+03:00']
+            ['timezone', '+03:00'],
         ];
     }
 
     /**
      * @covers \Phlib\Db\Adapter::ping
      */
-    public function testSuccessfulPing()
+    public function testSuccessfulPing(): void
     {
         $pdoStatement = $this->createMock(\PDOStatement::class);
-        $pdoStatement
-            ->expects($this->any())
-            ->method('fetchColumn')
-            ->will($this->returnValue(1));
-        $this->pdo->expects($this->any())
-            ->method('prepare')
-            ->will($this->returnValue($pdoStatement));
+        $pdoStatement->method('fetchColumn')
+            ->willReturn('1');
+        $this->pdo->method('prepare')
+            ->willReturn($pdoStatement);
 
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
-        $this->assertTrue($adapter->ping());
+        static::assertTrue($adapter->ping());
     }
 
     /**
      * @covers \Phlib\Db\Adapter::ping
      */
-    public function testFailedPing()
+    public function testFailedPing(): void
     {
-        $this->pdo->expects($this->any())
-            ->method('prepare')
-            ->will($this->throwException(new \Exception));
+        $this->pdo->method('prepare')
+            ->willThrowException(new \Exception());
 
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
-        $this->assertFalse($adapter->ping());
+        static::assertFalse($adapter->ping());
     }
 
-    public function testLastInsertIdNoTableName()
+    public function testLastInsertIdNoTableName(): void
     {
-        $this->pdo->expects($this->once())
+        $insertId = (string)rand();
+        $this->pdo->expects(static::once())
             ->method('lastInsertId')
-            ->with($this->equalTo(null));
+            ->with(null)
+            ->willReturn($insertId);
 
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
-        $adapter->lastInsertId();
+        $actual = $adapter->lastInsertId();
+
+        static::assertSame($insertId, $actual);
     }
 
-    public function testLastInsertIdWithTableName()
+    public function testLastInsertIdWithTableName(): void
     {
+        $insertId = (string)rand();
         $tableName = 'table';
-        $this->pdo->expects($this->once())
+        $this->pdo->expects(static::once())
             ->method('lastInsertId')
-            ->with($this->equalTo($tableName));
+            ->with($tableName)
+            ->willReturn($insertId);
 
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
-        $adapter->lastInsertId($tableName);
+        $actual = $adapter->lastInsertId($tableName);
+
+        static::assertSame($insertId, $actual);
     }
 
-    public function testPrepare()
+    public function testPrepare(): void
     {
         $pdoStatement = $this->createMock(\PDOStatement::class);
         $sql = 'SELECT * FROM table';
-        $this->pdo->expects($this->once())
+        $this->pdo->expects(static::once())
             ->method('prepare')
-            ->with($this->equalTo($sql))
-            ->will($this->returnValue($pdoStatement));
+            ->with($sql)
+            ->willReturn($pdoStatement);
 
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
-        $this->assertEquals($pdoStatement, $adapter->prepare($sql));
+        static::assertSame($pdoStatement, $adapter->prepare($sql));
     }
 
-    public function testExecute()
+    public function testExecute(): void
     {
         $sql = 'dummy sql';
+        $rowCount = rand();
 
         // Returned stmt will have rowCount called
         $pdoStatement = $this->createMock(\PDOStatement::class);
-        $pdoStatement->expects($this->once())
-            ->method('rowCount');
+        $pdoStatement->expects(static::once())
+            ->method('rowCount')
+            ->willReturn($rowCount);
 
         // Exec should call query with the SQL
-        /** @var Adapter|\PHPUnit_Framework_MockObject_MockObject $adapter */
+        /** @var Adapter|MockObject $adapter */
         $adapter = $this->getMockBuilder(Adapter::class)
             ->setMethods(['query'])
             ->getMock();
-        $adapter->expects($this->once())
+        $adapter->expects(static::once())
             ->method('query')
             ->with($sql)
-            ->will($this->returnValue($pdoStatement));
+            ->willReturn($pdoStatement);
         $adapter->setConnection($this->pdo);
-        $adapter->execute($sql);
+        $actual = $adapter->execute($sql);
+
+        static::assertSame($rowCount, $actual);
     }
 
-    public function testExecuteBind()
+    public function testExecuteBind(): void
     {
         $sql = 'dummy sql';
         $bind = [1, 2, 3];
+        $rowCount = rand();
 
         // Returned stmt will have rowCount called
         $pdoStatement = $this->createMock(\PDOStatement::class);
-        $pdoStatement->expects($this->once())
-            ->method('rowCount');
+        $pdoStatement->expects(static::once())
+            ->method('rowCount')
+            ->willReturn($rowCount);
 
         // Exec should call query with the SQL
-        /** @var Adapter|\PHPUnit_Framework_MockObject_MockObject $adapter */
+        /** @var Adapter|MockObject $adapter */
         $adapter = $this->getMockBuilder(Adapter::class)
             ->setMethods(['query'])
             ->getMock();
-        $adapter->expects($this->once())
+        $adapter->expects(static::once())
             ->method('query')
             ->with($sql, $bind)
-            ->will($this->returnValue($pdoStatement));
+            ->willReturn($pdoStatement);
         $adapter->setConnection($this->pdo);
-        $adapter->execute($sql, $bind);
+        $actual = $adapter->execute($sql, $bind);
+
+        static::assertSame($rowCount, $actual);
     }
 
-    public function testQueryNoBind()
+    public function testQueryNoBind(): void
     {
         $sql = 'SELECT * FROM table';
         $pdoStatement = $this->createMock(\PDOStatement::class);
-        $pdoStatement->expects($this->once())
+        $pdoStatement->expects(static::once())
             ->method('execute')
-            ->with($this->equalTo([]));
-        $this->pdo->expects($this->once())
+            ->with([]);
+        $this->pdo->expects(static::once())
             ->method('prepare')
-            ->with($this->equalTo($sql))
-            ->will($this->returnValue($pdoStatement));
+            ->with($sql)
+            ->willReturn($pdoStatement);
 
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
-        $this->assertEquals($pdoStatement, $adapter->query($sql));
+        static::assertSame($pdoStatement, $adapter->query($sql));
     }
 
-    public function testQueryWithBind()
+    public function testQueryWithBind(): void
     {
         $sql = 'SELECT * FROM table WHERE col1 = ?';
         $bind = ['col1' => 'v1'];
         $pdoStatement = $this->createMock(\PDOStatement::class);
-        $pdoStatement->expects($this->once())
+        $pdoStatement->expects(static::once())
             ->method('execute')
-            ->with($this->equalTo($bind));
-        $this->pdo->expects($this->once())
+            ->with($bind);
+        $this->pdo->expects(static::once())
             ->method('prepare')
-            ->with($this->equalTo($sql))
-            ->will($this->returnValue($pdoStatement));
+            ->with($sql)
+            ->willReturn($pdoStatement);
 
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
-        $this->assertEquals($pdoStatement, $adapter->query($sql, $bind));
+        static::assertSame($pdoStatement, $adapter->query($sql, $bind));
     }
 
-    /**
-     * @expectedException \Phlib\Db\Exception\InvalidQueryException
-     */
-    public function testQueryWithInvalidSql()
+    public function testQueryWithInvalidSql(): void
     {
+        $this->expectException(InvalidQueryException::class);
+
         $exception = new \PDOException('You have an error in your SQL syntax');
         $statement = $this->createMock(\PDOStatement::class);
-        $statement->expects($this->any())
-            ->method('execute')
-            ->will($this->throwException($exception));
-        $this->pdo->expects($this->any())
-            ->method('prepare')
-            ->will($this->returnValue($statement));
+        $statement->method('execute')
+            ->willThrowException($exception);
+        $this->pdo->method('prepare')
+            ->willReturn($statement);
 
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
         $adapter->query('SELEECT * FORM foo');
     }
 
-    public function testQueryReconnectsWhenMysqlHasGoneAway()
+    public function testQueryReconnectsWhenMysqlHasGoneAway(): void
     {
         $exception = new \PDOException('MySQL server has gone away');
         $statement = $this->createMock(\PDOStatement::class);
-        $statement->expects($this->any())
-            ->method('execute')
-            ->will($this->throwException($exception));
-        $this->pdo->expects($this->any())
-            ->method('prepare')
-            ->will($this->returnValue($statement));
+        $statement->method('execute')
+            ->willThrowException($exception);
+        $this->pdo->method('prepare')
+            ->willReturn($statement);
 
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
         $adapter->setConnectionFactory(function () {
             $statement = $this->createMock(\PDOStatement::class);
-            $statement->expects($this->once())
+            $statement->expects(static::once())
                 ->method('execute');
             $pdo = $this->createMock(\PDO::class);
-            $pdo->expects($this->any())
-                ->method('prepare')
-                ->will($this->returnValue($statement));
+            $pdo->method('prepare')
+                ->willReturn($statement);
             return $pdo;
         });
         $adapter->query('SELECT * FROM foo');
     }
 
-    /**
-     * @expectedException \Phlib\Db\Exception\RuntimeException
-     */
-    public function testQueryFailsAfterSuccessfulReconnect()
+    public function testQueryFailsAfterSuccessfulReconnect(): void
     {
+        $this->expectException(RuntimeException::class);
+
         $exception = new \PDOException('MySQL server has gone away');
         $statement = $this->createMock(\PDOStatement::class);
-        $statement->expects($this->any())
-            ->method('execute')
-            ->will($this->throwException($exception));
-        $this->pdo->expects($this->any())
-            ->method('prepare')
-            ->will($this->returnValue($statement));
+        $statement->method('execute')
+            ->willThrowException($exception);
+        $this->pdo->method('prepare')
+            ->willReturn($statement);
 
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
         $adapter->setConnectionFactory(function () {
-            $exception = new \PDOException('failed for some random reason', 1234);
+            $exception = new PDOExceptionStub('failed for some random reason', 1234);
             $statement = $this->createMock(\PDOStatement::class);
-            $statement->expects($this->any())
-                ->method('execute')
-                ->will($this->throwException($exception));
+            $statement->method('execute')
+                ->willThrowException($exception);
             $pdo = $this->createMock(\PDO::class);
-            $pdo->expects($this->any())
-                ->method('prepare')
-                ->will($this->returnValue($statement));
+            $pdo->method('prepare')
+                ->willReturn($statement);
             return $pdo;
         });
         $adapter->query('SELECT * FROM foo');
     }
 
-    public function testSetBufferedConnectionToUnbuffered()
+    public function testSetBufferedConnectionToUnbuffered(): void
     {
-        $this->pdo->expects($this->once())
+        $this->pdo->expects(static::once())
             ->method('setAttribute')
-            ->with(
-                $this->equalTo(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY),
-                $this->equalTo(false)
-            )
+            ->with(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false)
             ->willReturn(true);
 
         $adapter = new Adapter();
@@ -444,14 +434,11 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
         $adapter->disableBuffering();
     }
 
-    public function testSetUnbufferedConnectionToBuffered()
+    public function testSetUnbufferedConnectionToBuffered(): void
     {
-        $this->pdo->expects($this->once())
+        $this->pdo->expects(static::once())
             ->method('setAttribute')
-            ->with(
-                $this->equalTo(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY),
-                $this->equalTo(true)
-            )
+            ->with(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true)
             ->willReturn(true);
 
         $adapter = new Adapter();
@@ -459,19 +446,19 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
         $adapter->enableBuffering();
     }
 
-    public function testIsBufferedConnection()
+    public function testIsBufferedConnection(): void
     {
-        $this->pdo->expects($this->once())
+        $this->pdo->expects(static::once())
             ->method('getAttribute')
-            ->with($this->equalTo(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY))
-            ->will($this->returnValue(true));
+            ->with(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY)
+            ->willReturn(true);
 
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
-        $this->assertTrue($adapter->isBuffered());
+        static::assertTrue($adapter->isBuffered());
     }
 
-    public function testCloning()
+    public function testCloning(): void
     {
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
@@ -480,77 +467,85 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
         });
 
         $newAdapter = clone $adapter;
-        $this->assertNotSame($adapter, $newAdapter);
+        static::assertNotSame($adapter, $newAdapter);
     }
 
-    public function testBeginTransaction()
+    public function testBeginTransaction(): void
     {
-        $this->pdo->expects($this->once())
-            ->method('beginTransaction');
+        $this->pdo->expects(static::once())
+            ->method('beginTransaction')
+            ->willReturn(true);
 
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
-        $adapter->beginTransaction();
+        $actual = $adapter->beginTransaction();
+
+        static::assertTrue($actual);
     }
 
-    public function testBeginTransactionWhenServerHasGoneAway()
+    public function testBeginTransactionWhenServerHasGoneAway(): void
     {
         $exception = new \PDOException('MySQL server has gone away');
-        $this->pdo->expects($this->any())
-            ->method('beginTransaction')
-            ->will($this->throwException($exception));
+        $this->pdo->method('beginTransaction')
+            ->willThrowException($exception);
 
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
         $adapter->setConnectionFactory(function () {
             $pdo = $this->createMock(\PDO::class);
-            $pdo->expects($this->once())
-                ->method('beginTransaction');
+            $pdo->expects(static::once())
+                ->method('beginTransaction')
+                ->willReturn(true);
             return $pdo;
         });
-        $adapter->beginTransaction();
+        $actual = $adapter->beginTransaction();
+
+        static::assertTrue($actual);
     }
 
-    /**
-     * @expectedException \Phlib\Db\Exception\RuntimeException
-     */
-    public function testBeginTransactionWhenServerHasGoneAwayAndThenFails()
+    public function testBeginTransactionWhenServerHasGoneAwayAndThenFails(): void
     {
+        $this->expectException(RuntimeException::class);
+
         $exception = new \PDOException('MySQL server has gone away');
-        $this->pdo->expects($this->any())
-            ->method('beginTransaction')
-            ->will($this->throwException($exception));
+        $this->pdo->method('beginTransaction')
+            ->willThrowException($exception);
 
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
         $adapter->setConnectionFactory(function () {
             $exception = new \PDOException('something else bad happened');
             $pdo = $this->createMock(\PDO::class);
-            $pdo->expects($this->any())
-                ->method('beginTransaction')
-                ->will($this->throwException($exception));
+            $pdo->method('beginTransaction')
+                ->willThrowException($exception);
             return $pdo;
         });
         $adapter->beginTransaction();
     }
 
-    public function testCommit()
+    public function testCommit(): void
     {
-        $this->pdo->expects($this->once())
-            ->method('commit');
+        $this->pdo->expects(static::once())
+            ->method('commit')
+            ->willReturn(true);
 
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
-        $adapter->commit();
+        $actual = $adapter->commit();
+
+        static::assertTrue($actual);
     }
 
-    public function testRollback()
+    public function testRollback(): void
     {
-        $this->pdo->expects($this->once())
-            ->method('rollback');
+        $this->pdo->expects(static::once())
+            ->method('rollback')
+            ->willReturn(true);
 
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
-        $adapter->rollBack();
+        $actual = $adapter->rollBack();
+
+        static::assertTrue($actual);
     }
 }

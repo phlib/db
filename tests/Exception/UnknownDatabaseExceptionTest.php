@@ -1,52 +1,55 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\Db\Tests\Exception;
 
 use Phlib\Db\Exception\UnknownDatabaseException;
+use PHPUnit\Framework\TestCase;
 
-class UnknownDatabaseExceptionTest extends \PHPUnit_Framework_TestCase
+class UnknownDatabaseExceptionTest extends TestCase
 {
-    public function testCreateReturnsException()
+    public function testCreateReturnsException(): void
     {
         $exception = UnknownDatabaseException::createFromUnknownDatabase('foo', new \PDOException());
-        $this->assertInstanceOf(UnknownDatabaseException::class, $exception);
+        static::assertInstanceOf(UnknownDatabaseException::class, $exception);
     }
 
-    public function testGetDatabaseName()
+    public function testGetDatabaseName(): void
     {
         $name = 'foo';
         $exception = new UnknownDatabaseException($name, 'message');
-        $this->assertEquals($name, $exception->getDatabaseName());
+        static::assertSame($name, $exception->getDatabaseName());
     }
 
-    public function testGetDatabaseNameWhenCreated()
+    public function testGetDatabaseNameWhenCreated(): void
     {
         $name = 'foo';
         $exception = UnknownDatabaseException::createFromUnknownDatabase($name, new \PDOException());
-        $this->assertEquals($name, $exception->getDatabaseName());
+        static::assertSame($name, $exception->getDatabaseName());
     }
 
-    public function testCorrectlyEvaluatesPdoExceptionOnPdoConstruct()
+    public function testCorrectlyEvaluatesPdoExceptionOnPdoConstruct(): void
     {
-        $pdoException = new \PDOException("SQLSTATE[HY000] [1049] Unknown database '<dbname>'", 1049);
-        $this->assertTrue(UnknownDatabaseException::isUnknownDatabase($pdoException));
+        $pdoException = new PDOExceptionStub("SQLSTATE[HY000] [1049] Unknown database '<dbname>'", 1049);
+        static::assertTrue(UnknownDatabaseException::isUnknownDatabase($pdoException));
     }
 
-    public function testCorrectlyEvaluatesPdoExceptionOnUseDatabase()
+    public function testCorrectlyEvaluatesPdoExceptionOnUseDatabase(): void
     {
         $code = '42000';
         $message = "SQLSTATE[42000]: Syntax error or access violation: 1049 Unknown database '<dbname>'";
-        $pdoException = new \PDOException($message, $code);
-        $this->assertTrue(UnknownDatabaseException::isUnknownDatabase($pdoException));
+        $pdoException = new PDOExceptionStub($message, $code);
+        static::assertTrue(UnknownDatabaseException::isUnknownDatabase($pdoException));
     }
 
-    public function testCorrectlyEvaluatesPdoExceptionForNonDatabaseError()
+    public function testCorrectlyEvaluatesPdoExceptionForNonDatabaseError(): void
     {
         $code = '42000';
-        $message = "SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; " .
-            "check the manual that corresponds to your MySQL server version for the right syntax to use near " .
+        $message = 'SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; ' .
+            'check the manual that corresponds to your MySQL server version for the right syntax to use near ' .
             "'FRM foo' at line 1";
-        $pdoException = new \PDOException($message, $code);
-        $this->assertFalse(UnknownDatabaseException::isUnknownDatabase($pdoException));
+        $pdoException = new PDOExceptionStub($message, $code);
+        static::assertFalse(UnknownDatabaseException::isUnknownDatabase($pdoException));
     }
 }

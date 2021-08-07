@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\Db\Tests;
 
 use Phlib\Db\Adapter;
@@ -13,22 +15,13 @@ use PHPUnit\Framework\TestCase;
  */
 class IntegrationTest extends TestCase
 {
-    /**
-     * @var Adapter
-     */
-    private $adapter;
+    private Adapter $adapter;
 
-    /**
-     * @var string
-     */
-    private $schemaTable;
+    private string $schemaTable;
 
-    /**
-     * @var string
-     */
-    private $schemaTableQuoted;
+    private string $schemaTableQuoted;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         if ((bool)getenv('INTEGRATION_ENABLED') !== true) {
             static::markTestSkipped();
@@ -45,19 +38,19 @@ class IntegrationTest extends TestCase
         ]);
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         if (isset($this->schemaTableQuoted)) {
             $this->adapter->query("DROP TABLE {$this->schemaTableQuoted}");
         }
     }
 
-    public function testPing()
+    public function testPing(): void
     {
         static::assertTrue($this->adapter->ping());
     }
 
-    public function testQuery()
+    public function testQuery(): void
     {
         $expected = rand();
 
@@ -67,7 +60,7 @@ class IntegrationTest extends TestCase
         static::assertSame((string)$expected, $result);
     }
 
-    public function testRuntimeException()
+    public function testRuntimeException(): void
     {
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Access denied');
@@ -83,7 +76,17 @@ class IntegrationTest extends TestCase
         $adapter->getConnection();
     }
 
-    public function testInvalidQueryException()
+    public function testRuntimeExceptionStringCode(): void
+    {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Base table or view not found');
+        $this->expectExceptionCode('42S02');
+
+        $this->adapter->setDatabase(getenv('INTEGRATION_DATABASE'));
+        $this->adapter->query('SELECT foo FROM bar');
+    }
+
+    public function testInvalidQueryException(): void
     {
         $this->expectException(InvalidQueryException::class);
         $this->expectExceptionMessage('error in your SQL syntax');
@@ -92,7 +95,7 @@ class IntegrationTest extends TestCase
         $this->adapter->query('SELECT foo FROM bar WHERE');
     }
 
-    public function testSetDatabaseNotConnectedSuccess()
+    public function testSetDatabaseNotConnectedSuccess(): void
     {
         // Connection not active, will just update config
         $this->adapter->setDatabase(getenv('INTEGRATION_DATABASE'));
@@ -101,7 +104,7 @@ class IntegrationTest extends TestCase
         static::assertTrue($this->adapter->ping());
     }
 
-    public function testSetDatabaseAlreadyConnectedSuccess()
+    public function testSetDatabaseAlreadyConnectedSuccess(): void
     {
         // Make sure connected
         static::assertTrue($this->adapter->ping());
@@ -116,7 +119,7 @@ class IntegrationTest extends TestCase
     /**
      * This test needs the user to have global privileges, otherwise the error will be 'access denied'
      */
-    public function testSetDatabaseNotConnectedFail()
+    public function testSetDatabaseNotConnectedFail(): void
     {
         // Connection not active, will just update config, no exception
         $this->adapter->setDatabase('database_does_not_exist');
@@ -130,7 +133,7 @@ class IntegrationTest extends TestCase
     /**
      * This test needs the user to have global privileges, otherwise the error will be 'access denied'
      */
-    public function testSetDatabaseAlreadyConnectedFail()
+    public function testSetDatabaseAlreadyConnectedFail(): void
     {
         // Make sure connected
         static::assertTrue($this->adapter->ping());
@@ -140,7 +143,7 @@ class IntegrationTest extends TestCase
         $this->adapter->setDatabase('database_does_not_exist');
     }
 
-    public function testBasicDataManip()
+    public function testBasicDataManip(): void
     {
         $this->createTestTable();
         $id = rand();
@@ -173,7 +176,7 @@ SQL;
         static::assertSame(1, $deleteCount);
     }
 
-    public function testCrudMethods()
+    public function testCrudMethods(): void
     {
         $this->createTestTable();
         $id = rand();
@@ -213,7 +216,7 @@ SQL;
         static::assertSame(1, $deleteCount);
     }
 
-    public function testLastInsertId()
+    public function testLastInsertId(): void
     {
         $this->createTestTable();
         $text1 = sha1(uniqid());
@@ -242,7 +245,7 @@ SQL;
         static::assertSame('2', $this->adapter->lastInsertId());
     }
 
-    private function createTestTable()
+    private function createTestTable(): void
     {
         $tableName = 'phlib_db_test_' . substr(sha1(uniqid()), 0, 10);
         $this->schemaTable = getenv('INTEGRATION_DATABASE') . '.' . $tableName;
