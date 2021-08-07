@@ -436,11 +436,27 @@ class AdapterTest extends \PHPUnit_Framework_TestCase
             ->with(
                 $this->equalTo(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY),
                 $this->equalTo(false)
-            );
+            )
+            ->willReturn(true);
 
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
         $adapter->disableBuffering();
+    }
+
+    public function testSetUnbufferedConnectionToBuffered()
+    {
+        $this->pdo->expects($this->once())
+            ->method('setAttribute')
+            ->with(
+                $this->equalTo(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY),
+                $this->equalTo(true)
+            )
+            ->willReturn(true);
+
+        $adapter = new Adapter();
+        $adapter->setConnection($this->pdo);
+        $adapter->enableBuffering();
     }
 
     public function testIsBufferedConnection()
