@@ -269,7 +269,7 @@ class Adapter implements AdapterInterface
      * the last insert id will be for that table.
      *
      * @param string $tablename
-     * @return integer
+     * @return string
      */
     public function lastInsertId($tablename = null)
     {

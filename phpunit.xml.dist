@@ -7,7 +7,7 @@
         <env name="INTEGRATION_PORT" value="3306" />
         <env name="INTEGRATION_USERNAME" value="" />
         <env name="INTEGRATION_PASSWORD" value="" />
-        <env name="INTEGRATION_DATABASE" value="mysql" />
+        <env name="INTEGRATION_DATABASE" value="test" />
     </php>
     <testsuites>
         <testsuite name="DB Test Suite">
