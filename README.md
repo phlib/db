@@ -69,6 +69,7 @@ $stmt = $db->query("SELECT * FROM $table WHERE id = ?", [$rowId]);
 |`timezone`|*String*|No|`'+0:00'`|Sets the timezone to use on the connection. Values: `'system'`, '`+\-dd:dd`' or 'timezone'. [MySQL Manual](http://dev.mysql.com/doc/refman/5.7/en/time-zone-support.html)|
 |`timeout`|*Integer*|No|`2`|Sets the connection timeout. Range from 0 to 120.|
 |`retryCount`|*Integer*|No|`0`|Sets how many times to try to reconnect to the DB server after unsuccessful connection attempts. Range from 0 to 10.|
+|`attributes`|*Array*|No|`[]`|Driver-specific options used when connecting, e.g. `\PDO::ATTR_*`|
 
 ## API
 

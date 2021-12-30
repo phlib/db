@@ -55,7 +55,8 @@ class Config
             ],
         ];
         $timeout = filter_var($timeoutValue, FILTER_VALIDATE_INT, $timeoutOptions);
-        return [
+        $driverAttributes = $this->config['attributes'] ?? [];
+        return $driverAttributes + [
             \PDO::ATTR_TIMEOUT => $timeout,
             \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
             \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
