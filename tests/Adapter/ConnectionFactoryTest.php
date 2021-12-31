@@ -61,14 +61,18 @@ class ConnectionFactoryTest extends TestCase
             ->willReturn($this->pdo);
 
         $pdoStatement = $this->createMock(\PDOStatement::class);
-        $pdoStatement->method('execute')
+        $pdoStatement->expects(static::once())
+            ->method('execute')
             ->with(static::containsIdentical($value));
-        $this->pdo->method('prepare')
+        $this->pdo->expects(static::once())
+            ->method('prepare')
             ->willReturn($pdoStatement);
 
-        $this->config->method('getMaximumAttempts')
+        $this->config->expects(static::once())
+            ->method('getMaximumAttempts')
             ->willReturn(1);
-        $this->config->method($method)
+        $this->config->expects(static::once())
+            ->method($method)
             ->willReturn($value);
         static::assertSame($this->pdo, $this->factory->__invoke($this->config));
     }
@@ -126,7 +130,8 @@ class ConnectionFactoryTest extends TestCase
         $this->factory->method('create')
             ->willReturn($this->pdo);
         $pdoStatement = $this->createMock(\PDOStatement::class);
-        $pdoStatement->method('execute')
+        $pdoStatement->expects(static::exactly(2))
+            ->method('execute')
             ->will(static::onConsecutiveCalls(
                 static::throwException(new \PDOException()),
                 static::returnValue(true)
