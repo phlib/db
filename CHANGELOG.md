@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- Support attributes added to the config. Allows an implementation to add driver
+  options that will be included if a connection has to be reconnected.
+  Add supported driver options as an array on the `attributes` config key.
 
 ## [2.0.0] - 2021-08-07
 ### Added

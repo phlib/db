@@ -73,13 +73,94 @@ class ConfigTest extends TestCase
     public function getOptionsDataProvider(): array
     {
         return [
-            [['timeout' => 10], \PDO::ATTR_TIMEOUT, 10],
-            [['timeout' => 1], \PDO::ATTR_TIMEOUT, 1],
-            [['timeout' => 0], \PDO::ATTR_TIMEOUT, 0], // min
-            [['timeout' => ''], \PDO::ATTR_TIMEOUT, 2], // default
-            [['timeout' => 121], \PDO::ATTR_TIMEOUT, 2], // max
-            [[], \PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION],
-            [[], \PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC],
+            'timeout-default' => [
+                [],
+                \PDO::ATTR_TIMEOUT,
+                2,
+            ],
+            'timeout-high' => [
+                [
+                    'timeout' => 10,
+                ],
+                \PDO::ATTR_TIMEOUT,
+                10,
+            ],
+            'timeout-low' => [
+                [
+                    'timeout' => 1,
+                ],
+                \PDO::ATTR_TIMEOUT,
+                1,
+            ],
+            'timeout-zero' => [
+                [
+                    'timeout' => 0,
+                ],
+                \PDO::ATTR_TIMEOUT,
+                0,
+            ],
+            'timeout-empty' => [
+                [
+                    'timeout' => '',
+                ],
+                \PDO::ATTR_TIMEOUT,
+                2,
+            ],
+            'timeout-too-large' => [
+                [
+                    'timeout' => 121,
+                ],
+                \PDO::ATTR_TIMEOUT,
+                2,
+            ],
+            'errmode-default' => [
+                [],
+                \PDO::ATTR_ERRMODE,
+                \PDO::ERRMODE_EXCEPTION,
+            ],
+            'errmode-override' => [
+                [
+                    'attributes' => [
+                        \PDO::ATTR_ERRMODE => \PDO::ERRMODE_SILENT,
+                    ],
+                ],
+                \PDO::ATTR_ERRMODE,
+                \PDO::ERRMODE_SILENT,
+            ],
+            'fetchmode-default' => [
+                [],
+                \PDO::ATTR_DEFAULT_FETCH_MODE,
+                \PDO::FETCH_ASSOC,
+            ],
+            'fetchmode-override' => [
+                [
+                    'attributes' => [
+                        \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_COLUMN,
+                    ],
+                ],
+                \PDO::ATTR_DEFAULT_FETCH_MODE,
+                \PDO::FETCH_COLUMN,
+            ],
+            'attributes-one' => [
+                [
+                    'attributes' => [
+                        \PDO::MYSQL_ATTR_LOCAL_INFILE => 1,
+                        \PDO::MYSQL_ATTR_DIRECT_QUERY => 0,
+                    ],
+                ],
+                \PDO::MYSQL_ATTR_LOCAL_INFILE,
+                1,
+            ],
+            'attributes-two' => [
+                [
+                    'attributes' => [
+                        \PDO::MYSQL_ATTR_LOCAL_INFILE => 1,
+                        \PDO::MYSQL_ATTR_DIRECT_QUERY => 0,
+                    ],
+                ],
+                \PDO::MYSQL_ATTR_DIRECT_QUERY,
+                0,
+            ],
         ];
     }
 
