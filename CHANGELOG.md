@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - Stop using a prepared statement when setting charset and timezone.
   `SET NAMES` isn't supported when using native prepared statements.
+- Update `ping()` to support native types.
 
 ## [2.0.0] - 2021-08-07
 ### Added
