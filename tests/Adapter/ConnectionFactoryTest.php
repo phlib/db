@@ -60,21 +60,15 @@ class ConnectionFactoryTest extends TestCase
         $this->factory->method('create')
             ->willReturn($this->pdo);
 
-        $testSet = function (array $bind) use ($charset, $timezone) {
-            static::assertCount(2, $bind);
-            static::assertSame($charset, $bind[0]);
-            static::assertSame($timezone, $bind[1]);
+        $testSet = function (string $sql) use ($charset, $timezone) {
+            static::assertStringStartsWith('SET ', $sql);
+            static::assertStringContainsString('NAMES ' . $charset, $sql);
+            static::assertStringContainsString('time_zone = "' . $timezone . '"', $sql);
             return true;
         };
-
-        $pdoStatement = $this->createMock(\PDOStatement::class);
-        $pdoStatement->expects(static::once())
-            ->method('execute')
-            ->with(static::callback($testSet));
         $this->pdo->expects(static::once())
-            ->method('prepare')
-            ->with('SET NAMES ?, time_zone = ?')
-            ->willReturn($pdoStatement);
+            ->method('exec')
+            ->with(static::callback($testSet));
 
         $this->config->expects(static::once())
             ->method('getMaximumAttempts')
@@ -133,17 +127,18 @@ class ConnectionFactoryTest extends TestCase
     {
         $this->factory->method('create')
             ->willReturn($this->pdo);
-        $pdoStatement = $this->createMock(\PDOStatement::class);
-        $pdoStatement->expects(static::exactly(2))
-            ->method('execute')
+
+        // The first use of the connection is when setting charset with `SET NAMES`
+        $this->pdo->expects(static::exactly(2))
+            ->method('exec')
             ->will(static::onConsecutiveCalls(
                 static::throwException(new \PDOException()),
                 static::returnValue(true)
             ));
-        $this->pdo->method('prepare')
-            ->willReturn($pdoStatement);
+
         $this->config->method('getMaximumAttempts')
             ->willReturn(2);
+
         static::assertSame($this->pdo, $this->factory->__invoke($this->config));
     }
 }
