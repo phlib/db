@@ -52,37 +52,41 @@ class ConnectionFactoryTest extends TestCase
         static::assertSame($this->pdo, $this->factory->__invoke($this->config));
     }
 
-    /**
-     * @dataProvider charsetIsSetOnConnectionDataProvider
-     */
-    public function testCharsetIsSetOnConnection(string $method, string $value): void
+    public function testConnectionSetsCharsetTimezone(): void
     {
+        $charset = 'latin1';
+        $timezone = '+0200';
+
         $this->factory->method('create')
             ->willReturn($this->pdo);
+
+        $testSet = function (array $bind) use ($charset, $timezone) {
+            static::assertCount(2, $bind);
+            static::assertSame($charset, $bind[0]);
+            static::assertSame($timezone, $bind[1]);
+            return true;
+        };
 
         $pdoStatement = $this->createMock(\PDOStatement::class);
         $pdoStatement->expects(static::once())
             ->method('execute')
-            ->with(static::containsIdentical($value));
+            ->with(static::callback($testSet));
         $this->pdo->expects(static::once())
             ->method('prepare')
+            ->with('SET NAMES ?, time_zone = ?')
             ->willReturn($pdoStatement);
 
         $this->config->expects(static::once())
             ->method('getMaximumAttempts')
             ->willReturn(1);
         $this->config->expects(static::once())
-            ->method($method)
-            ->willReturn($value);
-        static::assertSame($this->pdo, $this->factory->__invoke($this->config));
-    }
+            ->method('getCharset')
+            ->willReturn($charset);
+        $this->config->expects(static::once())
+            ->method('getTimezone')
+            ->willReturn($timezone);
 
-    public function charsetIsSetOnConnectionDataProvider(): array
-    {
-        return [
-            ['getCharset', 'latin1'],
-            ['getTimezone', '+0200'],
-        ];
+        static::assertSame($this->pdo, $this->factory->__invoke($this->config));
     }
 
     public function testSettingUnknownDatabase(): void
