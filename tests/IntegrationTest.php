@@ -56,12 +56,12 @@ class IntegrationTest extends TestCase
 
     public function testQuery(): void
     {
-        $expected = rand();
+        $expected = sha1(uniqid());
 
-        $stmt = $this->adapter->query('SELECT ' . $expected);
+        $stmt = $this->adapter->query('SELECT "' . $expected . '"');
         $result = $stmt->fetchColumn();
 
-        static::assertSame((string)$expected, $result);
+        static::assertSame($expected, $result);
     }
 
     public function testRuntimeException(): void
