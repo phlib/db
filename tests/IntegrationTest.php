@@ -15,6 +15,8 @@ use PHPUnit\Framework\TestCase;
  */
 class IntegrationTest extends TestCase
 {
+    private array $dbConfig;
+
     private Adapter $adapter;
 
     private string $schemaTable;
@@ -30,12 +32,14 @@ class IntegrationTest extends TestCase
 
         parent::setUp();
 
-        $this->adapter = new Adapter([
+        $this->dbConfig = [
             'host' => getenv('INTEGRATION_HOST'),
             'port' => getenv('INTEGRATION_PORT'),
             'username' => getenv('INTEGRATION_USERNAME'),
             'password' => getenv('INTEGRATION_PASSWORD'),
-        ]);
+        ];
+
+        $this->adapter = new Adapter($this->dbConfig);
     }
 
     protected function tearDown(): void
@@ -52,12 +56,12 @@ class IntegrationTest extends TestCase
 
     public function testQuery(): void
     {
-        $expected = rand();
+        $expected = sha1(uniqid());
 
-        $stmt = $this->adapter->query('SELECT ' . $expected);
+        $stmt = $this->adapter->query('SELECT "' . $expected . '"');
         $result = $stmt->fetchColumn();
 
-        static::assertSame((string)$expected, $result);
+        static::assertSame($expected, $result);
     }
 
     public function testRuntimeException(): void
@@ -93,6 +97,61 @@ class IntegrationTest extends TestCase
         $this->expectExceptionCode(42000);
 
         $this->adapter->query('SELECT foo FROM bar WHERE');
+    }
+
+    /**
+     * @dataProvider dataSetCharset
+     */
+    public function testSetCharset(string $charset): void
+    {
+        $config = $this->dbConfig + [
+            'charset' => $charset,
+        ];
+
+        $adapter = new Adapter($config);
+
+        $variables = $adapter->query('SHOW SESSION VARIABLES LIKE "character_set%"')->fetchAll(\PDO::FETCH_KEY_PAIR);
+
+        self::assertSame($charset, $variables['character_set_client']);
+        self::assertSame($charset, $variables['character_set_connection']);
+        self::assertSame($charset, $variables['character_set_results']);
+    }
+
+    public function dataSetCharset(): array
+    {
+        return [
+            'utf8mb4' => ['utf8mb4'],
+            'latin1' => ['latin1'],
+            'ascii' => ['ascii'],
+        ];
+    }
+
+    /**
+     * @dataProvider dataSetTimezone
+     */
+    public function testSetTimezone(string $timezone): void
+    {
+        $config = $this->dbConfig + [
+            'timezone' => $timezone,
+        ];
+
+        $adapter = new Adapter($config);
+
+        $variables = $adapter->query('SHOW SESSION VARIABLES LIKE "time_zone"')->fetchAll(\PDO::FETCH_KEY_PAIR);
+
+        self::assertSame($timezone, $variables['time_zone']);
+    }
+
+    public function dataSetTimezone(): array
+    {
+        return [
+            'default' => ['+00:00'],
+            'offset-2' => ['+02:00'],
+            'named-system' => ['SYSTEM'],
+            'named-utc' => ['UTC'],
+            'named-london' => ['Europe/London'],
+            'named-helsinki' => ['Europe/Helsinki'],
+        ];
     }
 
     public function testSetDatabaseNotConnectedSuccess(): void

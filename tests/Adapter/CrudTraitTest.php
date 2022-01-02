@@ -99,7 +99,8 @@ class CrudTraitTest extends TestCase
             ->method('rowCount')
             ->willReturn($rowCount);
 
-        $this->crud->method('query')
+        $this->crud->expects(static::once())
+            ->method('query')
             ->with($expectedSql, [])
             ->willReturn($pdoStatement);
 

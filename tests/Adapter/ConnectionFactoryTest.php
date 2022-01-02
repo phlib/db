@@ -52,33 +52,35 @@ class ConnectionFactoryTest extends TestCase
         static::assertSame($this->pdo, $this->factory->__invoke($this->config));
     }
 
-    /**
-     * @dataProvider charsetIsSetOnConnectionDataProvider
-     */
-    public function testCharsetIsSetOnConnection(string $method, string $value): void
+    public function testConnectionSetsCharsetTimezone(): void
     {
+        $charset = 'latin1';
+        $timezone = '+0200';
+
         $this->factory->method('create')
             ->willReturn($this->pdo);
 
-        $pdoStatement = $this->createMock(\PDOStatement::class);
-        $pdoStatement->method('execute')
-            ->with(static::containsIdentical($value));
-        $this->pdo->method('prepare')
-            ->willReturn($pdoStatement);
+        $testSet = function (string $sql) use ($charset, $timezone) {
+            static::assertStringStartsWith('SET ', $sql);
+            static::assertStringContainsString('NAMES ' . $charset, $sql);
+            static::assertStringContainsString('time_zone = "' . $timezone . '"', $sql);
+            return true;
+        };
+        $this->pdo->expects(static::once())
+            ->method('exec')
+            ->with(static::callback($testSet));
 
-        $this->config->method('getMaximumAttempts')
+        $this->config->expects(static::once())
+            ->method('getMaximumAttempts')
             ->willReturn(1);
-        $this->config->method($method)
-            ->willReturn($value);
-        static::assertSame($this->pdo, $this->factory->__invoke($this->config));
-    }
+        $this->config->expects(static::once())
+            ->method('getCharset')
+            ->willReturn($charset);
+        $this->config->expects(static::once())
+            ->method('getTimezone')
+            ->willReturn($timezone);
 
-    public function charsetIsSetOnConnectionDataProvider(): array
-    {
-        return [
-            ['getCharset', 'latin1'],
-            ['getTimezone', '+0200'],
-        ];
+        static::assertSame($this->pdo, $this->factory->__invoke($this->config));
     }
 
     public function testSettingUnknownDatabase(): void
@@ -125,16 +127,18 @@ class ConnectionFactoryTest extends TestCase
     {
         $this->factory->method('create')
             ->willReturn($this->pdo);
-        $pdoStatement = $this->createMock(\PDOStatement::class);
-        $pdoStatement->method('execute')
+
+        // The first use of the connection is when setting charset with `SET NAMES`
+        $this->pdo->expects(static::exactly(2))
+            ->method('exec')
             ->will(static::onConsecutiveCalls(
                 static::throwException(new \PDOException()),
                 static::returnValue(true)
             ));
-        $this->pdo->method('prepare')
-            ->willReturn($pdoStatement);
+
         $this->config->method('getMaximumAttempts')
             ->willReturn(2);
+
         static::assertSame($this->pdo, $this->factory->__invoke($this->config));
     }
 }

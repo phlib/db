@@ -16,8 +16,12 @@ class ConnectionFactory
         while (++$attempt <= $maxAttempts) {
             try {
                 $connection = $this->create($config);
-                $connection->prepare('SET NAMES ?, time_zone = ?')
-                    ->execute([$config->getCharset(), $config->getTimezone()]);
+                $setSql = sprintf(
+                    'SET NAMES %s, time_zone = "%s"',
+                    $config->getCharset(),
+                    $config->getTimezone(),
+                );
+                $connection->exec($setSql);
 
                 return $connection;
             } catch (\PDOException $exception) {
