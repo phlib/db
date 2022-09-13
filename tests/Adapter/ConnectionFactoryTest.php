@@ -133,7 +133,7 @@ class ConnectionFactoryTest extends TestCase
             ->method('exec')
             ->will(static::onConsecutiveCalls(
                 static::throwException(new \PDOException()),
-                static::returnValue(true)
+                static::returnValue(0)
             ));
 
         $this->config->method('getMaximumAttempts')
