@@ -13,10 +13,9 @@ class QuoteHandler
     private \Closure $quoteFn;
 
     /**
-     * @param \Closure $quoteFn {
-     *   @var mixed $value
-     *   @return string
-     * }
+     * @param \Closure{
+     *   value: mixed,
+     * }:string $quoteFn
      */
     public function __construct(\Closure $quoteFn, bool $autoQuoteIdentifiers = true)
     {
