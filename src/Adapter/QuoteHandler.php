@@ -39,7 +39,7 @@ class QuoteHandler
                 return (string)$value;
             case is_bool($value):
                 return (string)(int)$value;
-            case (is_numeric($value) && (string)($value + 0) === (string)$value):
+            case is_numeric($value) && (string)($value + 0) === (string)$value:
                 return (string)($value + 0);
             case $value === null:
                 return 'NULL';
@@ -143,7 +143,7 @@ class QuoteHandler
     {
         if ($auto === false || $this->autoQuoteIdentifiers === true) {
             $q = '`';
-            return ($q . str_replace("{$q}", "{$q}{$q}", $value) . $q);
+            return $q . str_replace("{$q}", "{$q}{$q}", $value) . $q;
         }
 
         return $value;
