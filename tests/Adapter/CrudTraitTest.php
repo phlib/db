@@ -145,6 +145,63 @@ class CrudTraitTest extends TestCase
     }
 
     /**
+     * @dataProvider replaceDataProvider
+     */
+    public function testReplace(string $expectedSql, string $table, array $data): void
+    {
+        // Returned stmt will have rowCount called
+        $rowCount = count($data);
+        $pdoStatement = $this->createMock(\PDOStatement::class);
+        $pdoStatement->expects(static::once())
+            ->method('rowCount')
+            ->willReturn($rowCount);
+
+        $this->crud->expects(static::once())
+            ->method('query')
+            ->with($expectedSql, [])
+            ->willReturn($pdoStatement);
+
+        $actual = $this->crud->replace($table, $data);
+
+        static::assertSame($rowCount, $actual);
+    }
+
+    public function replaceDataProvider(): array
+    {
+        return [
+            [
+                "REPLACE INTO `table` (`col1`) VALUES ('v1')",
+                'table',
+                [
+                    'col1' => 'v1',
+                ],
+            ],
+            [
+                "REPLACE INTO `table` (`col1`, `col2`) VALUES ('v1', 'v2')",
+                'table',
+                [
+                    'col1' => 'v1',
+                    'col2' => 'v2',
+                ],
+            ],
+            // Number should not be quoted
+            [
+                'REPLACE INTO `table` (`col1`) VALUES (123)',
+                'table', [
+                    'col1' => 123,
+                ],
+            ],
+            // Object should be handled
+            [
+                'REPLACE INTO `table` (`col1`) VALUES (col2)',
+                'table', [
+                    'col1' => new SqlFragment('col2'),
+                ],
+            ],
+        ];
+    }
+
+    /**
      * @dataProvider updateDataProvider
      */
     public function testUpdate(string $expectedSql, string $table, array $data, array $where): void
