@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- New `replace()` method. Similar to `insert()` but instead executing a
+  `REPLACE` SQL statement.
 
 ## [2.1.0] - 2022-01-02
 ### Added

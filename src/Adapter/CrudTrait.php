@@ -21,10 +21,20 @@ trait CrudTrait
 
     public function insert(string $table, array $data): int
     {
+        return $this->insertReplace('INSERT', $table, $data);
+    }
+
+    public function replace(string $table, array $data): int
+    {
+        return $this->insertReplace('REPLACE', $table, $data);
+    }
+
+    private function insertReplace(string $statementType, string $table, array $data): int
+    {
         $table = $this->quote()->identifier($table);
         $fields = implode(', ', array_map([$this->quote(), 'identifier'], array_keys($data)));
         $values = implode(', ', array_map([$this->quote(), 'value'], $data));
-        $sql = "INSERT INTO {$table} ({$fields}) VALUES ({$values})";
+        $sql = "{$statementType} INTO {$table} ({$fields}) VALUES ({$values})";
 
         $stmt = $this->query($sql);
 
