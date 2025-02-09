@@ -167,10 +167,9 @@ class AdapterTest extends TestCase
     }
 
     /**
-     * @param mixed $value
      * @dataProvider settingAdapterOptionsDataProvider
      */
-    public function testSettingAdapterOptionsWithConnection(string $option, $value): void
+    public function testSettingAdapterOptionsWithConnection(string $option, string $value): void
     {
         $statement = $this->createMock(\PDOStatement::class);
         $statement->expects(static::once())
@@ -384,7 +383,7 @@ class AdapterTest extends TestCase
 
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
-        $adapter->setConnectionFactory(function () {
+        $adapter->setConnectionFactory(function (): \PDO {
             $statement = $this->createMock(\PDOStatement::class);
             $statement->expects(static::once())
                 ->method('execute');
@@ -409,7 +408,7 @@ class AdapterTest extends TestCase
 
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
-        $adapter->setConnectionFactory(function () {
+        $adapter->setConnectionFactory(function (): \PDO {
             $exception = new PDOExceptionStub('failed for some random reason', 1234);
             $statement = $this->createMock(\PDOStatement::class);
             $statement->method('execute')
@@ -462,7 +461,7 @@ class AdapterTest extends TestCase
     {
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
-        $adapter->setConnectionFactory(function () {
+        $adapter->setConnectionFactory(function (): \PDO {
             return $this->createMock(\PDO::class);
         });
 
@@ -491,7 +490,7 @@ class AdapterTest extends TestCase
 
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
-        $adapter->setConnectionFactory(function () {
+        $adapter->setConnectionFactory(function (): \PDO {
             $pdo = $this->createMock(\PDO::class);
             $pdo->expects(static::once())
                 ->method('beginTransaction')
@@ -513,7 +512,7 @@ class AdapterTest extends TestCase
 
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
-        $adapter->setConnectionFactory(function () {
+        $adapter->setConnectionFactory(function (): \PDO {
             $exception = new \PDOException('something else bad happened');
             $pdo = $this->createMock(\PDO::class);
             $pdo->method('beginTransaction')

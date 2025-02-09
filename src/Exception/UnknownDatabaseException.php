@@ -40,7 +40,7 @@ class UnknownDatabaseException extends RuntimeException implements Exception
         );
     }
 
-    public function __construct(string $database, string $message, int $code = 0, \PDOException $previous = null)
+    public function __construct(string $database, string $message, int $code = 0, ?\PDOException $previous = null)
     {
         $this->name = $database;
         parent::__construct($message, $code, $previous);

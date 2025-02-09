@@ -15,7 +15,7 @@ class InvalidQueryException extends RuntimeException implements Exception
         return stripos($exception->getMessage(), 'You have an error in your SQL syntax') !== false;
     }
 
-    public function __construct(string $query, array $bind = [], \PDOException $previous = null)
+    public function __construct(string $query, array $bind = [], ?\PDOException $previous = null)
     {
         $this->query = $query;
         $this->bind = $bind;

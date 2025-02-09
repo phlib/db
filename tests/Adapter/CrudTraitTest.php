@@ -25,7 +25,7 @@ class CrudTraitTest extends TestCase
             ->setMethods(['query', 'quote'])
             ->getMockForTrait();
 
-        $quoteHandler = new QuoteHandler(function ($value) {
+        $quoteHandler = new QuoteHandler(function ($value): string {
             return "'{$value}'";
         });
         $this->crud->method('quote')

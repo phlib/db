@@ -60,7 +60,7 @@ class ConnectionFactoryTest extends TestCase
         $this->factory->method('create')
             ->willReturn($this->pdo);
 
-        $testSet = function (string $sql) use ($charset, $timezone) {
+        $testSet = function (string $sql) use ($charset, $timezone): bool {
             static::assertStringStartsWith('SET ', $sql);
             static::assertStringContainsString('NAMES ' . $charset, $sql);
             static::assertStringContainsString('time_zone = "' . $timezone . '"', $sql);

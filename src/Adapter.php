@@ -177,7 +177,7 @@ class Adapter implements AdapterInterface
      * Get the last inserted id. If the tablename is provided the id returned is
      * the last insert id will be for that table.
      */
-    public function lastInsertId(string $tablename = null): string
+    public function lastInsertId(?string $tablename = null): string
     {
         // the lastInsertId is cached from the last insert, so no point in detected disconnection
         return $this->getConnection()->lastInsertId($tablename);

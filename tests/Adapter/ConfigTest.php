@@ -37,10 +37,9 @@ class ConfigTest extends TestCase
     }
 
     /**
-     * @param mixed $value
      * @dataProvider getMethodsDataProvider
      */
-    public function testGetMethods(string $method, string $element, $value): void
+    public function testGetMethods(string $method, string $element, string $value): void
     {
         $config = new Config([
             $element => $value,
@@ -60,10 +59,9 @@ class ConfigTest extends TestCase
     }
 
     /**
-     * @param mixed $expected
      * @dataProvider getOptionsDataProvider
      */
-    public function testGetOptions(array $data, int $element, $expected): void
+    public function testGetOptions(array $data, int $element, int $expected): void
     {
         $options = (new Config($data))->getOptions();
         static::assertArrayHasKey($element, $options);
