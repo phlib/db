@@ -8,19 +8,15 @@ use Phlib\Db\Exception\InvalidArgumentException;
 
 class QuoteHandler
 {
-    private bool $autoQuoteIdentifiers;
-
-    private \Closure $quoteFn;
-
     /**
      * @param \Closure{
      *   value: mixed,
      * }:string $quoteFn
      */
-    public function __construct(\Closure $quoteFn, bool $autoQuoteIdentifiers = true)
-    {
-        $this->quoteFn = $quoteFn;
-        $this->autoQuoteIdentifiers = $autoQuoteIdentifiers;
+    public function __construct(
+        private readonly \Closure $quoteFn,
+        private readonly bool $autoQuoteIdentifiers = true,
+    ) {
     }
 
     /**

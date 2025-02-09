@@ -24,8 +24,6 @@ class UnknownDatabaseException extends RuntimeException implements Exception
      */
     public const ER_BAD_DB_ERROR_2 = 42000;
 
-    private string $name;
-
     public static function createFromUnknownDatabase(string $database, \PDOException $exception): self
     {
         return new static($database, "Unknown database '{$database}'.", self::ER_BAD_DB_ERROR_1, $exception);
@@ -40,9 +38,12 @@ class UnknownDatabaseException extends RuntimeException implements Exception
         );
     }
 
-    public function __construct(string $database, string $message, int $code = 0, ?\PDOException $previous = null)
-    {
-        $this->name = $database;
+    public function __construct(
+        private readonly string $name,
+        string $message,
+        int $code = 0,
+        ?\PDOException $previous = null,
+    ) {
         parent::__construct($message, $code, $previous);
     }
 
