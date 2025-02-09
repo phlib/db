@@ -8,11 +8,11 @@ use Phlib\Db\Adapter;
 use Phlib\Db\Exception\InvalidQueryException;
 use Phlib\Db\Exception\RuntimeException;
 use Phlib\Db\Exception\UnknownDatabaseException;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @group integration
- */
+#[Group('integration')]
 class IntegrationTest extends TestCase
 {
     private array $dbConfig;
@@ -99,9 +99,7 @@ class IntegrationTest extends TestCase
         $this->adapter->query('SELECT foo FROM bar WHERE');
     }
 
-    /**
-     * @dataProvider dataSetCharset
-     */
+    #[DataProvider('dataSetCharset')]
     public function testSetCharset(string $charset): void
     {
         $config = $this->dbConfig + [
@@ -117,7 +115,7 @@ class IntegrationTest extends TestCase
         self::assertSame($charset, $variables['character_set_results']);
     }
 
-    public function dataSetCharset(): array
+    public static function dataSetCharset(): array
     {
         return [
             'utf8mb4' => ['utf8mb4'],
@@ -126,9 +124,7 @@ class IntegrationTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider dataSetTimezone
-     */
+    #[DataProvider('dataSetTimezone')]
     public function testSetTimezone(string $timezone): void
     {
         $config = $this->dbConfig + [
@@ -142,7 +138,7 @@ class IntegrationTest extends TestCase
         self::assertSame($timezone, $variables['time_zone']);
     }
 
-    public function dataSetTimezone(): array
+    public static function dataSetTimezone(): array
     {
         return [
             'default' => ['+00:00'],

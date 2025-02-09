@@ -9,6 +9,7 @@ use Phlib\Db\Exception\InvalidQueryException;
 use Phlib\Db\Exception\RuntimeException;
 use Phlib\Db\Exception\UnknownDatabaseException;
 use Phlib\Db\Tests\Exception\PDOExceptionStub;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -46,9 +47,6 @@ class AdapterTest extends TestCase
         static::assertInstanceOf(Adapter\QuoteHandler::class, $adapter->quote());
     }
 
-    /**
-     * @covers \Phlib\Db\Adapter::setConnection
-     */
     public function testSetConnection(): void
     {
         $adapter = new Adapter();
@@ -57,16 +55,13 @@ class AdapterTest extends TestCase
         static::assertSame($this->pdo, $adapter->getConnection());
     }
 
-    /**
-     * @covers \Phlib\Db\Adapter::setDatabase
-     */
     public function testSetDatabaseMakesDbCall(): void
     {
         $dbname = 'MyDbName';
 
         /** @var Adapter|MockObject $adapter */
         $adapter = $this->getMockBuilder(Adapter::class)
-            ->setMethods(['query'])
+            ->onlyMethods(['query'])
             ->getMock();
         $adapter->expects(static::once())
             ->method('query')
@@ -76,15 +71,12 @@ class AdapterTest extends TestCase
         $adapter->setDatabase($dbname);
     }
 
-    /**
-     * @covers \Phlib\Db\Adapter::setDatabase
-     */
     public function testSetDatabaseSetsConfig(): void
     {
         $dbname = 'MyDbName';
         /** @var Adapter|MockObject $adapter */
         $adapter = $this->getMockBuilder(Adapter::class)
-            ->setMethods(['query'])
+            ->onlyMethods(['query'])
             ->getMock();
         $adapter->setConnection($this->pdo);
         $adapter->setDatabase($dbname);
@@ -148,9 +140,6 @@ class AdapterTest extends TestCase
         static::assertSame($expected, $adapter->getConfig());
     }
 
-    /**
-     * @covers \Phlib\Db\Adapter::getConfig
-     */
     public function testGetConfigOverrides(): void
     {
         $config = [
@@ -166,9 +155,7 @@ class AdapterTest extends TestCase
         static::assertSame($config, $adapter->getConfig());
     }
 
-    /**
-     * @dataProvider settingAdapterOptionsDataProvider
-     */
+    #[DataProvider('settingAdapterOptionsDataProvider')]
     public function testSettingAdapterOptionsWithConnection(string $option, string $value): void
     {
         $statement = $this->createMock(\PDOStatement::class);
@@ -184,7 +171,7 @@ class AdapterTest extends TestCase
         $adapter->{$method}($value);
     }
 
-    public function settingAdapterOptionsDataProvider(): array
+    public static function settingAdapterOptionsDataProvider(): array
     {
         return [
             ['charset', 'iso-8859-1'],
@@ -194,9 +181,6 @@ class AdapterTest extends TestCase
         ];
     }
 
-    /**
-     * @covers \Phlib\Db\Adapter::ping
-     */
     public function testSuccessfulPing(): void
     {
         $pdoStatement = $this->createMock(\PDOStatement::class);
@@ -210,9 +194,6 @@ class AdapterTest extends TestCase
         static::assertTrue($adapter->ping());
     }
 
-    /**
-     * @covers \Phlib\Db\Adapter::ping
-     */
     public function testFailedPing(): void
     {
         $this->pdo->method('prepare')
@@ -282,7 +263,7 @@ class AdapterTest extends TestCase
         // Exec should call query with the SQL
         /** @var Adapter|MockObject $adapter */
         $adapter = $this->getMockBuilder(Adapter::class)
-            ->setMethods(['query'])
+            ->onlyMethods(['query'])
             ->getMock();
         $adapter->expects(static::once())
             ->method('query')
@@ -309,7 +290,7 @@ class AdapterTest extends TestCase
         // Exec should call query with the SQL
         /** @var Adapter|MockObject $adapter */
         $adapter = $this->getMockBuilder(Adapter::class)
-            ->setMethods(['query'])
+            ->onlyMethods(['query'])
             ->getMock();
         $adapter->expects(static::once())
             ->method('query')

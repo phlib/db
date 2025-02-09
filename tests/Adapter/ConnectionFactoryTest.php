@@ -9,6 +9,7 @@ use Phlib\Db\Adapter\ConnectionFactory;
 use Phlib\Db\Exception\RuntimeException;
 use Phlib\Db\Exception\UnknownDatabaseException;
 use Phlib\Db\Tests\Exception\PDOExceptionStub;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -97,9 +98,7 @@ class ConnectionFactoryTest extends TestCase
         $this->factory->__invoke($this->config);
     }
 
-    /**
-     * @dataProvider exceedingNumberOfAttemptsDataProvider
-     */
+    #[DataProvider('exceedingNumberOfAttemptsDataProvider')]
     public function testExceedingNumberOfAttempts(int $attempts): void
     {
         $this->expectException(RuntimeException::class);
@@ -114,7 +113,7 @@ class ConnectionFactoryTest extends TestCase
         $this->factory->__invoke($this->config);
     }
 
-    public function exceedingNumberOfAttemptsDataProvider(): array
+    public static function exceedingNumberOfAttemptsDataProvider(): array
     {
         return [
             [1],

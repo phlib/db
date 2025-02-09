@@ -6,6 +6,7 @@ namespace Phlib\Db\Tests\Adapter;
 
 use Phlib\Db\Adapter\QuoteHandler;
 use Phlib\Db\SqlFragment;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class QuoteHandlerTest extends TestCase
@@ -20,15 +21,13 @@ class QuoteHandlerTest extends TestCase
         parent::setUp();
     }
 
-    /**
-     * @dataProvider valueDataProvider
-     */
+    #[DataProvider('valueDataProvider')]
     public function testValue(mixed $value, string $expected): void
     {
         static::assertSame($expected, $this->handler->value($value));
     }
 
-    public function valueDataProvider(): array
+    public static function valueDataProvider(): array
     {
         $toStringVal = 'foo';
         $object = new SqlFragment($toStringVal);
@@ -52,15 +51,13 @@ class QuoteHandlerTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider intoDataProvider
-     */
+    #[DataProvider('intoDataProvider')]
     public function testInto(string $expected, string $text, mixed $value): void
     {
         static::assertSame($expected, $this->handler->into($text, $value));
     }
 
-    public function intoDataProvider(): array
+    public static function intoDataProvider(): array
     {
         return [
             ['field = `value`', 'field = ?', 'value'],
@@ -73,9 +70,7 @@ class QuoteHandlerTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider columnAsData
-     */
+    #[DataProvider('columnAsData')]
     public function testColumnAs(string $expected, string|array $ident, string $alias, ?bool $auto): void
     {
         $result = ($auto !== null) ?
@@ -84,7 +79,7 @@ class QuoteHandlerTest extends TestCase
         static::assertSame($expected, $result);
     }
 
-    public function columnAsData(): array
+    public static function columnAsData(): array
     {
         return [
             ['`col1` AS `alias`', 'col1', 'alias', null],
@@ -94,9 +89,7 @@ class QuoteHandlerTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider tableAsData
-     */
+    #[DataProvider('tableAsData')]
     public function testTableAs(string $expected, string|array $ident, string $alias, ?bool $auto): void
     {
         $result = ($auto !== null) ?
@@ -105,7 +98,7 @@ class QuoteHandlerTest extends TestCase
         static::assertSame($expected, $result);
     }
 
-    public function tableAsData(): array
+    public static function tableAsData(): array
     {
         return [
             ['`table1` AS `alias`', 'table1', 'alias', null],
@@ -114,9 +107,7 @@ class QuoteHandlerTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider identifierData
-     */
+    #[DataProvider('identifierData')]
     public function testIdentifier(string $expected, string|array|SqlFragment $ident, ?bool $auto): void
     {
         $result = ($auto !== null) ?
@@ -125,7 +116,7 @@ class QuoteHandlerTest extends TestCase
         static::assertSame($expected, $result);
     }
 
-    public function identifierData(): array
+    public static function identifierData(): array
     {
         return [
             ['`col1`', 'col1', null],

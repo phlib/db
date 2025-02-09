@@ -6,7 +6,7 @@
         <env name="INTEGRATION_USERNAME" value="root" />
       </envs>
     </CommandLine>
-    <TestRunner configuration_file="$PROJECT_DIR$/phpunit.xml.dist" scope="XML" options="--verbose --group=integration" />
+    <TestRunner configuration_file="$PROJECT_DIR$/phpunit.xml.dist" scope="XML" options="--group=integration" />
     <method v="2" />
   </configuration>
 </component>
