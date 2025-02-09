@@ -168,7 +168,7 @@ class Adapter implements AdapterInterface
     {
         try {
             return $this->query('SELECT "1"')->fetchColumn() === '1';
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return false;
         }
     }
