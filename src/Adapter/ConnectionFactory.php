@@ -47,7 +47,7 @@ class ConnectionFactory
             $config->getDsn(),
             $config->getUsername(),
             $config->getPassword(),
-            $config->getOptions()
+            $config->getOptions(),
         );
     }
 }

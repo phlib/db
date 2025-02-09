@@ -90,7 +90,7 @@ class ConnectionFactoryTest extends TestCase
         $this->factory->method('create')
             ->willThrowException(new PDOExceptionStub(
                 "SQLSTATE[HY000] [1049] Unknown database '<dbname>'",
-                1049
+                1049,
             ));
         $this->config->method('getMaximumAttempts')
             ->willReturn(5);
@@ -107,7 +107,7 @@ class ConnectionFactoryTest extends TestCase
         $this->factory->method('create')
             ->willThrowException(new PDOExceptionStub(
                 "SQLSTATE[HY000] [1049] Unknown database '<dbname>'",
-                1049
+                1049,
             ));
         $this->config->method('getMaximumAttempts')
             ->willReturn($attempts);
@@ -133,7 +133,7 @@ class ConnectionFactoryTest extends TestCase
             ->method('exec')
             ->will(static::onConsecutiveCalls(
                 static::throwException(new \PDOException()),
-                static::returnValue(0)
+                static::returnValue(0),
             ));
 
         $this->config->method('getMaximumAttempts')

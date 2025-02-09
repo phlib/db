@@ -102,7 +102,7 @@ class AdapterTest extends TestCase
         $database = 'foobar';
         $exception = new PDOExceptionStub(
             "SQLSTATE[42000]: Syntax error or access violation: 1049 Unknown database '{$database}'.",
-            '42000'
+            '42000',
         );
         $statement = $this->createMock(\PDOStatement::class);
         $statement->method('execute')
