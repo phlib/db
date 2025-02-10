@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 ### Added
 - Add PHP v8 type declarations.
+### Changed
+- An object passed to a quote method now specifically checks for an
+  implementation of `\Stringable`.
+  This is equivalent to the previous behaviour of checking for `__toString()`.
+  Arbitrary objects will be blocked by type declarations.
 ### Removed
 - **BC break**: Removed support for PHP versions <= v8.0 as they are no longer
   [actively supported](https://php.net/supported-versions.php) by the PHP project.

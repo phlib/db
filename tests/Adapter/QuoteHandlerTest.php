@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Phlib\Db\Tests\Adapter;
 
 use Phlib\Db\Adapter\QuoteHandler;
+use Phlib\Db\Exception\InvalidArgumentException;
 use Phlib\Db\SqlFragment;
+use Phlib\Db\SqlStatement;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -107,6 +109,30 @@ class QuoteHandlerTest extends TestCase
         ];
     }
 
+    public function testTableAsWithSqlStatement(): void
+    {
+        $statement = sha1(uniqid('statement'));
+        $alias = sha1(uniqid('alias'));
+
+        $sqlStatement = new class($statement) implements SqlStatement {
+            public function __construct(
+                private readonly string $statement,
+            ) {
+            }
+
+            public function __toString(): string
+            {
+                return $this->statement;
+            }
+        };
+
+        $actual = $this->handler->tableAs($sqlStatement, $alias);
+
+        // SQL Statement should be wrapped in parentheses
+        $expected = "({$statement}) AS `{$alias}`";
+        static::assertSame($expected, $actual);
+    }
+
     #[DataProvider('identifierData')]
     public function testIdentifier(string $expected, string|array|SqlFragment $ident, ?bool $auto): void
     {
@@ -125,5 +151,24 @@ class QuoteHandlerTest extends TestCase
             ['`col1`.NOW()', ['col1', new SqlFragment('NOW()')], true],
             ['`table1`.`*`', 'table1.*', true],
         ];
+    }
+
+    public static function dataIdentifierWithInvalidArrayValue(): array
+    {
+        return [
+            'int' => [rand()],
+            'float' => [rand() / 100],
+            'bool' => [true],
+            'objectNotStringable' => [new \stdClass()],
+        ];
+    }
+
+    #[DataProvider('dataIdentifierWithInvalidArrayValue')]
+    public function testIdentifierWithInvalidArrayValue(mixed $value): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Ident array values must be stringable');
+
+        $this->handler->identifier([$value]);
     }
 }
