@@ -7,6 +7,7 @@ namespace Phlib\Db\Tests\Adapter;
 use Phlib\Db\Adapter\CrudTrait;
 use Phlib\Db\Adapter\QuoteHandler;
 use Phlib\Db\SqlFragment;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -22,19 +23,17 @@ class CrudTraitTest extends TestCase
         parent::setUp();
 
         $this->crud = $this->getMockBuilder(CrudTrait::class)
-            ->setMethods(['query', 'quote'])
+            ->onlyMethods(['query', 'quote'])
             ->getMockForTrait();
 
-        $quoteHandler = new QuoteHandler(function ($value) {
+        $quoteHandler = new QuoteHandler(function ($value): string {
             return "'{$value}'";
         });
         $this->crud->method('quote')
             ->willReturn($quoteHandler);
     }
 
-    /**
-     * @dataProvider selectDataProvider
-     */
+    #[DataProvider('selectDataProvider')]
     public function testSelect(string $expectedSql, string $table, array $where): void
     {
         $pdoStatement = $this->createMock(\PDOStatement::class);
@@ -49,7 +48,7 @@ class CrudTraitTest extends TestCase
             $this->crud->select($table);
     }
 
-    public function selectDataProvider(): array
+    public static function selectDataProvider(): array
     {
         return [
             [
@@ -87,9 +86,7 @@ class CrudTraitTest extends TestCase
         static::assertSame($pdoStatement, $this->crud->select('my_table'));
     }
 
-    /**
-     * @dataProvider insertDataProvider
-     */
+    #[DataProvider('insertDataProvider')]
     public function testInsert(string $expectedSql, string $table, array $data): void
     {
         // Returned stmt will have rowCount called
@@ -109,7 +106,7 @@ class CrudTraitTest extends TestCase
         static::assertSame($rowCount, $actual);
     }
 
-    public function insertDataProvider(): array
+    public static function insertDataProvider(): array
     {
         return [
             [
@@ -144,9 +141,7 @@ class CrudTraitTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider replaceDataProvider
-     */
+    #[DataProvider('replaceDataProvider')]
     public function testReplace(string $expectedSql, string $table, array $data): void
     {
         // Returned stmt will have rowCount called
@@ -166,7 +161,7 @@ class CrudTraitTest extends TestCase
         static::assertSame($rowCount, $actual);
     }
 
-    public function replaceDataProvider(): array
+    public static function replaceDataProvider(): array
     {
         return [
             [
@@ -201,9 +196,7 @@ class CrudTraitTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider updateDataProvider
-     */
+    #[DataProvider('updateDataProvider')]
     public function testUpdate(string $expectedSql, string $table, array $data, array $where): void
     {
         // Returned stmt will have rowCount called
@@ -226,7 +219,7 @@ class CrudTraitTest extends TestCase
         static::assertSame($rowCount, $actual);
     }
 
-    public function updateDataProvider(): array
+    public static function updateDataProvider(): array
     {
         return [
             [
@@ -273,9 +266,7 @@ class CrudTraitTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider deleteDataProvider
-     */
+    #[DataProvider('deleteDataProvider')]
     public function testDelete(string $expectedSql, string $table, array $where): void
     {
         // Returned stmt will have rowCount called
@@ -298,7 +289,7 @@ class CrudTraitTest extends TestCase
         static::assertSame($rowCount, $actual);
     }
 
-    public function deleteDataProvider(): array
+    public static function deleteDataProvider(): array
     {
         return [
             [
@@ -327,9 +318,7 @@ class CrudTraitTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider upsertDataProvider
-     */
+    #[DataProvider('upsertDataProvider')]
     public function testUpsert(string $expectedSql, string $table, array $data, array $updateFields): void
     {
         // Returned stmt will have rowCount called
@@ -348,7 +337,7 @@ class CrudTraitTest extends TestCase
         static::assertSame(1, $this->crud->upsert($table, $data, $updateFields));
     }
 
-    public function upsertDataProvider(): array
+    public static function upsertDataProvider(): array
     {
         return [
             [

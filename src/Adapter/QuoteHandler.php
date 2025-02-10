@@ -8,27 +8,21 @@ use Phlib\Db\Exception\InvalidArgumentException;
 
 class QuoteHandler
 {
-    private bool $autoQuoteIdentifiers;
-
-    private \Closure $quoteFn;
-
     /**
      * @param \Closure{
      *   value: mixed,
      * }:string $quoteFn
      */
-    public function __construct(\Closure $quoteFn, bool $autoQuoteIdentifiers = true)
-    {
-        $this->quoteFn = $quoteFn;
-        $this->autoQuoteIdentifiers = $autoQuoteIdentifiers;
+    public function __construct(
+        private readonly \Closure $quoteFn,
+        private readonly bool $autoQuoteIdentifiers = true,
+    ) {
     }
 
     /**
-     * Quote a database value.
-     *
-     * @param mixed $value
+     * Quote a value for the database
      */
-    public function value($value): string
+    public function value(mixed $value): string
     {
         switch (true) {
             case is_object($value):
@@ -43,7 +37,7 @@ class QuoteHandler
             case $value === null:
                 return 'NULL';
             case is_array($value):
-                $value = array_map(function ($value) {
+                $value = array_map(function ($value): string {
                     if (is_array($value)) {
                         $value = 'Array';
                     }
@@ -56,52 +50,51 @@ class QuoteHandler
     }
 
     /**
-     * Quote into the value for the database.
-     *
-     * @param mixed $value
+     * Quote a value to replace the `?` placeholder
      */
-    public function into(string $text, $value): string
+    public function into(string $text, mixed $value): string
     {
         return str_replace('?', $this->value($value), $text);
     }
 
     /**
-     * Quote a column identifier and alias.
-     *
-     * @param string|string[] $ident
+     * Quote a column identifier and alias
      */
-    public function columnAs($ident, string $alias, bool $auto = false): string
-    {
+    public function columnAs(
+        string|array|object $ident,
+        string $alias,
+        bool $auto = false,
+    ): string {
         return $this->quoteIdentifierAs($ident, $alias, $auto);
     }
 
     /**
-     * Quote a table identifier and alias.
-     *
-     * @param string|string[] $ident
+     * Quote a table identifier and alias
      */
-    public function tableAs($ident, string $alias, bool $auto = false): string
-    {
+    public function tableAs(
+        string|array|object $ident,
+        string $alias,
+        bool $auto = false,
+    ): string {
         return $this->quoteIdentifierAs($ident, $alias, $auto);
     }
 
     /**
-     * Quotes an identifier
-     *
-     * @param string|string[] $ident
+     * Quote an identifier
      */
-    public function identifier($ident, bool $auto = false): string
-    {
+    public function identifier(
+        string|array|object $ident,
+        bool $auto = false,
+    ): string {
         return $this->quoteIdentifierAs($ident, null, $auto);
     }
 
-    /**
-     * Quote an identifier and an optional alias.
-     *
-     * @param string|array|object $ident
-     */
-    private function quoteIdentifierAs($ident, string $alias = null, bool $auto = false, string $as = ' AS '): string
-    {
+    private function quoteIdentifierAs(
+        string|array|object $ident,
+        ?string $alias = null,
+        bool $auto = false,
+        string $as = ' AS ',
+    ): string {
         if (is_object($ident) && method_exists($ident, 'assemble')) {
             $quoted = '(' . $ident->assemble() . ')';
         } elseif (is_object($ident)) {

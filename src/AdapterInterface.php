@@ -40,7 +40,7 @@ interface AdapterInterface
      * Get the last inserted id. If the tablename is provided the id returned is
      * the last insert id will be for that table.
      */
-    public function lastInsertId(string $tablename = null): string;
+    public function lastInsertId(?string $tablename = null): string;
 
     public function prepare(string $statement): \PDOStatement;
 

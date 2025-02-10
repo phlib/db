@@ -6,20 +6,19 @@ namespace Phlib\Db\Tests\Adapter;
 
 use Phlib\Db\Adapter\Config;
 use Phlib\Db\Exception\InvalidArgumentException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class ConfigTest extends TestCase
 {
-    /**
-     * @dataProvider getDsnDataProvider
-     */
+    #[DataProvider('getDsnDataProvider')]
     public function testGetDsn(array $dsnConfig, string $expectedElement): void
     {
         $config = new Config($dsnConfig);
         static::assertStringContainsString($dsnConfig[$expectedElement], $config->getDsn());
     }
 
-    public function getDsnDataProvider(): array
+    public static function getDsnDataProvider(): array
     {
         return [
             [['host' => '127.0.0.1'], 'host'],
@@ -36,11 +35,8 @@ class ConfigTest extends TestCase
         $config->getDsn();
     }
 
-    /**
-     * @param mixed $value
-     * @dataProvider getMethodsDataProvider
-     */
-    public function testGetMethods(string $method, string $element, $value): void
+    #[DataProvider('getMethodsDataProvider')]
+    public function testGetMethods(string $method, string $element, string $value): void
     {
         $config = new Config([
             $element => $value,
@@ -48,7 +44,7 @@ class ConfigTest extends TestCase
         static::assertSame($value, $config->{$method}());
     }
 
-    public function getMethodsDataProvider(): array
+    public static function getMethodsDataProvider(): array
     {
         return [
             ['getUsername', 'username', 'foo'],
@@ -59,18 +55,15 @@ class ConfigTest extends TestCase
         ];
     }
 
-    /**
-     * @param mixed $expected
-     * @dataProvider getOptionsDataProvider
-     */
-    public function testGetOptions(array $data, int $element, $expected): void
+    #[DataProvider('getOptionsDataProvider')]
+    public function testGetOptions(array $data, int $element, int $expected): void
     {
         $options = (new Config($data))->getOptions();
         static::assertArrayHasKey($element, $options);
         static::assertSame($expected, $options[$element]);
     }
 
-    public function getOptionsDataProvider(): array
+    public static function getOptionsDataProvider(): array
     {
         return [
             'timeout-default' => [
@@ -164,9 +157,7 @@ class ConfigTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider getMaximumAttemptsDataProvider
-     */
+    #[DataProvider('getMaximumAttemptsDataProvider')]
     public function testGetMaximumAttempts(int $value, int $expected): void
     {
         $config = new Config([
@@ -175,7 +166,7 @@ class ConfigTest extends TestCase
         static::assertSame($expected, $config->getMaximumAttempts());
     }
 
-    public function getMaximumAttemptsDataProvider(): array
+    public static function getMaximumAttemptsDataProvider(): array
     {
         return [
             [-1, 1],

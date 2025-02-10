@@ -9,6 +9,7 @@ use Phlib\Db\Adapter\ConnectionFactory;
 use Phlib\Db\Exception\RuntimeException;
 use Phlib\Db\Exception\UnknownDatabaseException;
 use Phlib\Db\Tests\Exception\PDOExceptionStub;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -60,7 +61,7 @@ class ConnectionFactoryTest extends TestCase
         $this->factory->method('create')
             ->willReturn($this->pdo);
 
-        $testSet = function (string $sql) use ($charset, $timezone) {
+        $testSet = function (string $sql) use ($charset, $timezone): bool {
             static::assertStringStartsWith('SET ', $sql);
             static::assertStringContainsString('NAMES ' . $charset, $sql);
             static::assertStringContainsString('time_zone = "' . $timezone . '"', $sql);
@@ -90,16 +91,14 @@ class ConnectionFactoryTest extends TestCase
         $this->factory->method('create')
             ->willThrowException(new PDOExceptionStub(
                 "SQLSTATE[HY000] [1049] Unknown database '<dbname>'",
-                1049
+                1049,
             ));
         $this->config->method('getMaximumAttempts')
             ->willReturn(5);
         $this->factory->__invoke($this->config);
     }
 
-    /**
-     * @dataProvider exceedingNumberOfAttemptsDataProvider
-     */
+    #[DataProvider('exceedingNumberOfAttemptsDataProvider')]
     public function testExceedingNumberOfAttempts(int $attempts): void
     {
         $this->expectException(RuntimeException::class);
@@ -107,14 +106,14 @@ class ConnectionFactoryTest extends TestCase
         $this->factory->method('create')
             ->willThrowException(new PDOExceptionStub(
                 "SQLSTATE[HY000] [1049] Unknown database '<dbname>'",
-                1049
+                1049,
             ));
         $this->config->method('getMaximumAttempts')
             ->willReturn($attempts);
         $this->factory->__invoke($this->config);
     }
 
-    public function exceedingNumberOfAttemptsDataProvider(): array
+    public static function exceedingNumberOfAttemptsDataProvider(): array
     {
         return [
             [1],
@@ -133,7 +132,7 @@ class ConnectionFactoryTest extends TestCase
             ->method('exec')
             ->will(static::onConsecutiveCalls(
                 static::throwException(new \PDOException()),
-                static::returnValue(0)
+                static::returnValue(0),
             ));
 
         $this->config->method('getMaximumAttempts')
