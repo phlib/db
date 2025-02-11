@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Add PHP v8 type declarations.
 ### Changed
+- Set default PDO config `PDO::ATTR_EMULATE_PREPARES = 0`
+  to disable emulated prepares, i.e. use MySQL native prepares.
 - An object passed to a quote method now specifically checks for an
   implementation of `\Stringable`.
   This is equivalent to the previous behaviour of checking for `__toString()`.

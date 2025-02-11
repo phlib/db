@@ -238,7 +238,10 @@ class AdapterTest extends TestCase
     public function testPrepare(): void
     {
         $pdoStatement = $this->createMock(\PDOStatement::class);
-        $sql = 'SELECT * FROM table';
+        $pdoStatement->expects(static::never())
+            ->method('execute');
+
+        $sql = 'SELECT * FROM foo WHERE bar = ?';
         $this->pdo->expects(static::once())
             ->method('prepare')
             ->with($sql)
@@ -247,6 +250,71 @@ class AdapterTest extends TestCase
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
         static::assertSame($pdoStatement, $adapter->prepare($sql));
+    }
+
+    public function testPrepareWithInvalidSql(): void
+    {
+        $sql = 'SELEECT * FORM foo WHERE bar = ?';
+
+        $this->expectException(InvalidQueryException::class);
+        $this->expectExceptionMessage('You have an error in your SQL syntax; SQL: ' . $sql);
+        // There are no 'Bind' details to include
+        $this->expectExceptionMessageMatches('/^((?!Bind).)*$/i');
+
+        $exception = new \PDOException('You have an error in your SQL syntax');
+        $this->pdo->method('prepare')
+            ->willThrowException($exception);
+
+        $adapter = new Adapter();
+        $adapter->setConnection($this->pdo);
+        $adapter->prepare($sql);
+    }
+
+    public function testPrepareReconnectsWhenMysqlHasGoneAway(): void
+    {
+        $exception = new \PDOException('MySQL server has gone away');
+
+        // First attempt throws 'gone away' exception to trigger reconnect
+        $this->pdo->expects(static::once())
+            ->method('prepare')
+            ->willThrowException($exception);
+
+        $adapter = new Adapter();
+        $adapter->setConnection($this->pdo);
+        $adapter->setConnectionFactory(function (): \PDO {
+            // New PDO for reconnect; second attempt successful
+            $statement2 = $this->createMock(\PDOStatement::class);
+            $statement2->expects(static::never())
+                ->method('execute');
+            $pdo2 = $this->createMock(\PDO::class);
+            $pdo2->method('prepare')
+                ->willReturn($statement2);
+            return $pdo2;
+        });
+        $adapter->prepare('SELECT * FROM foo WHERE bar = ?');
+    }
+
+    public function testPrepareFailsAfterSuccessfulReconnect(): void
+    {
+        $this->expectException(RuntimeException::class);
+
+        $exception = new \PDOException('MySQL server has gone away');
+
+        // First attempt throws 'gone away' exception to trigger reconnect
+        $this->pdo->method('prepare')
+            ->willThrowException($exception);
+
+        $adapter = new Adapter();
+        $adapter->setConnection($this->pdo);
+        $adapter->setConnectionFactory(function (): \PDO {
+            // New PDO for reconnect; second attempt also fails
+            $exception = new PDOExceptionStub('failed for some random reason', 1234);
+            $pdo2 = $this->createMock(\PDO::class);
+            $pdo2->method('prepare')
+                ->willThrowException($exception);
+            return $pdo2;
+        });
+        $adapter->prepare('SELECT * FROM foo WHERE bar = ?');
     }
 
     public function testExecute(): void
@@ -339,7 +407,14 @@ class AdapterTest extends TestCase
 
     public function testQueryWithInvalidSql(): void
     {
+        $sql = 'SELEECT * FORM foo';
+
         $this->expectException(InvalidQueryException::class);
+        $this->expectExceptionMessage(
+            'You have an error in your SQL syntax; SQL: ' .
+            $sql .
+            "; Bind: array (\n)",
+        );
 
         $exception = new \PDOException('You have an error in your SQL syntax');
         $statement = $this->createMock(\PDOStatement::class);
@@ -350,7 +425,7 @@ class AdapterTest extends TestCase
 
         $adapter = new Adapter();
         $adapter->setConnection($this->pdo);
-        $adapter->query('SELEECT * FORM foo');
+        $adapter->query($sql);
     }
 
     public function testQueryReconnectsWhenMysqlHasGoneAway(): void

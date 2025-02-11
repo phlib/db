@@ -13,7 +13,7 @@ class InvalidQueryException extends RuntimeException implements Exception
 
     public function __construct(
         private readonly string $query,
-        private readonly array $bind = [],
+        private readonly ?array $bind = null,
         ?\PDOException $previous = null,
     ) {
         $message = 'You have an error in your SQL syntax.';
@@ -22,7 +22,11 @@ class InvalidQueryException extends RuntimeException implements Exception
             $message = $previous->getMessage();
             $code = (int)$previous->getCode();
         }
-        $message .= ' SQL: ' . $this->query . ' Bind: ' . var_export($this->bind, true);
+        $message .= '; SQL: ' . $this->query;
+
+        if ($this->bind !== null) {
+            $message .= '; Bind: ' . var_export($this->bind, true);
+        }
 
         parent::__construct($message, $code, $previous);
     }
@@ -32,7 +36,7 @@ class InvalidQueryException extends RuntimeException implements Exception
         return $this->query;
     }
 
-    public function getBindData(): array
+    public function getBindData(): ?array
     {
         return $this->bind;
     }

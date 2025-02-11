@@ -42,9 +42,9 @@ interface AdapterInterface
      */
     public function lastInsertId(?string $tablename = null): string;
 
-    public function prepare(string $statement): \PDOStatement;
+    public function prepare(string $sql): \PDOStatement;
 
-    public function execute(string $statement, array $bind = []): int;
+    public function execute(string $sql, array $bind = []): int;
 
     public function query(string $sql, array $bind = []): \PDOStatement;
 

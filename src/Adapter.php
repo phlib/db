@@ -183,15 +183,14 @@ class Adapter implements AdapterInterface
         return $this->getConnection()->lastInsertId($tablename);
     }
 
-    public function prepare(string $statement): \PDOStatement
+    public function prepare(string $sql): \PDOStatement
     {
-        // the prepare method is emulated by PDO, so no point in detected disconnection
-        return $this->getConnection()->prepare($statement);
+        return $this->doQuery($sql, null);
     }
 
-    public function execute(string $statement, array $bind = []): int
+    public function execute(string $sql, array $bind = []): int
     {
-        $stmt = $this->query($statement, $bind);
+        $stmt = $this->query($sql, $bind);
         return $stmt->rowCount();
     }
 
@@ -200,11 +199,13 @@ class Adapter implements AdapterInterface
         return $this->doQuery($sql, $bind);
     }
 
-    private function doQuery(string $sql, array $bind, bool $hasCaughtException = false): \PDOStatement
+    private function doQuery(string $sql, ?array $bind, bool $hasCaughtException = false): \PDOStatement
     {
         try {
             $stmt = $this->getConnection()->prepare($sql);
-            $stmt->execute($bind);
+            if ($bind !== null) {
+                $stmt->execute($bind);
+            }
             return $stmt;
         } catch (\PDOException $exception) {
             if (InvalidQueryException::isInvalidSyntax($exception)) {

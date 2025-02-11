@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phlib\Db\Tests\Exception;
 
 use Phlib\Db\Exception\InvalidQueryException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class InvalidQueryExceptionTest extends TestCase
@@ -26,6 +27,37 @@ class InvalidQueryExceptionTest extends TestCase
         static::assertStringStartsWith($message, $exception->getMessage());
     }
 
+    public static function dataMessageIncludesQueryAndBind(): array
+    {
+        return [
+            'withBind' => [[
+                'one' => sha1(uniqid('one')),
+                'two' => sha1(uniqid('two')),
+            ]],
+            'emptyBind' => [[]],
+            'withoutBind' => [null],
+        ];
+    }
+
+    #[DataProvider('dataMessageIncludesQueryAndBind')]
+    public function testMessageIncludesQueryAndBind(?array $bind): void
+    {
+        $sql = 'SELECT * FRM foo';
+        $code = rand(1000, 9999);
+        $message = sha1(uniqid('message'));
+        $pdoException = new PDOExceptionStub($message, $code);
+
+        $exception = new InvalidQueryException($sql, $bind, $pdoException);
+
+        $expected = $message .
+            '; SQL: ' . $sql;
+        if ($bind !== null) {
+            $expected .= '; Bind: ' . var_export($bind, true);
+        }
+
+        static::assertSame($expected, $exception->getMessage());
+    }
+
     public function testGetQuery(): void
     {
         $query = 'SELECT * FRM foo';
@@ -38,6 +70,12 @@ class InvalidQueryExceptionTest extends TestCase
         $bind = ['foo', 'bar'];
         $exception = new InvalidQueryException('', $bind);
         static::assertSame($bind, $exception->getBindData());
+    }
+
+    public function testGetBindDataNotSet(): void
+    {
+        $exception = new InvalidQueryException('', null);
+        static::assertNull($exception->getBindData());
     }
 
     public function testSuccessfullyDetectsInvalidSyntaxException(): void
