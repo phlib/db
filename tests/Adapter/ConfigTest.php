@@ -134,6 +134,20 @@ class ConfigTest extends TestCase
                 \PDO::ATTR_DEFAULT_FETCH_MODE,
                 \PDO::FETCH_COLUMN,
             ],
+            'emulate-default' => [
+                [],
+                \PDO::ATTR_EMULATE_PREPARES,
+                0,
+            ],
+            'emulate-override' => [
+                [
+                    'attributes' => [
+                        \PDO::ATTR_EMULATE_PREPARES => 1,
+                    ],
+                ],
+                \PDO::ATTR_EMULATE_PREPARES,
+                1,
+            ],
             'attributes-one' => [
                 [
                     'attributes' => [

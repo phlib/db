@@ -183,15 +183,14 @@ class Adapter implements AdapterInterface
         return $this->getConnection()->lastInsertId($tablename);
     }
 
-    public function prepare(string $statement): \PDOStatement
+    public function prepare(string $sql): \PDOStatement
     {
-        // the prepare method is emulated by PDO, so no point in detected disconnection
-        return $this->getConnection()->prepare($statement);
+        return $this->doQuery($sql, null);
     }
 
-    public function execute(string $statement, array $bind = []): int
+    public function execute(string $sql, array $bind = []): int
     {
-        $stmt = $this->query($statement, $bind);
+        $stmt = $this->query($sql, $bind);
         return $stmt->rowCount();
     }
 
@@ -200,20 +199,37 @@ class Adapter implements AdapterInterface
         return $this->doQuery($sql, $bind);
     }
 
-    private function doQuery(string $sql, array $bind, bool $hasCaughtException = false): \PDOStatement
+    private function doQuery(string $sql, ?array $bind): \PDOStatement
     {
         try {
-            $stmt = $this->getConnection()->prepare($sql);
-            $stmt->execute($bind);
-            return $stmt;
+            return $this->tryOrReconnect(function () use ($sql, $bind) {
+                $stmt = $this->getConnection()->prepare($sql);
+                if ($bind !== null) {
+                    $stmt->execute($bind);
+                }
+                return $stmt;
+            });
         } catch (\PDOException $exception) {
             if (InvalidQueryException::isInvalidSyntax($exception)) {
                 throw new InvalidQueryException($sql, $bind, $exception);
-            } elseif (RuntimeException::hasServerGoneAway($exception) && !$hasCaughtException) {
-                $this->reconnect();
-                return $this->doQuery($sql, $bind, true);
             }
             throw RuntimeException::createFromException($exception);
+        }
+    }
+
+    /**
+     * @return mixed Value from $closure
+     */
+    private function tryOrReconnect(\Closure $closure): mixed
+    {
+        try {
+            return $closure();
+        } catch (\PDOException $exception) {
+            if (RuntimeException::hasServerGoneAway($exception)) {
+                $this->reconnect();
+                return $closure();
+            }
+            throw $exception;
         }
     }
 
@@ -233,19 +249,12 @@ class Adapter implements AdapterInterface
 
     public function beginTransaction(): bool
     {
-        return $this->doBeginTransaction();
-    }
-
-    private function doBeginTransaction(bool $hasCaughtException = false): bool
-    {
         try {
-            return $this->getConnection()->beginTransaction();
-        } catch (\PDOException $exception) {
-            if (RuntimeException::hasServerGoneAway($exception) && !$hasCaughtException) {
-                $this->reconnect();
-                return $this->doBeginTransaction(true);
-            }
-            throw RuntimeException::createFromException($exception);
+            return $this->tryOrReconnect(
+                fn() => $this->getConnection()->beginTransaction(),
+            );
+        } catch (\PDOException $e) {
+            throw RuntimeException::createFromException($e);
         }
     }
 
